@@ -1,0 +1,218 @@
+/* =========================
+   FORMS
+========================= */
+
+.form-field {
+    margin-bottom: 18px;
+}
+
+.form-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--green-dark);
+    margin-bottom: 7px;
+}
+
+.form-input {
+    width: 100%;
+    padding: 13px 15px;
+    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border-soft);
+    background: var(--surface-muted);
+    color: var(--text-dark);
+    font-size: 14px;
+    transition:
+        border-color 0.22s ease,
+        box-shadow 0.22s ease,
+        background 0.22s ease;
+}
+
+.form-input::placeholder {
+    color: var(--text-muted);
+    opacity: 0.8;
+}
+
+.form-input:hover {
+    border-color: rgba(84, 107, 65, 0.30);
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--green-light);
+    background: var(--surface-elevated);
+    box-shadow: 0 0 0 4px var(--accent-soft);
+}
+
+.form-actions {
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.form-actions .btn {
+    width: 100%;
+    padding: 14px 22px;
+}
+
+/* Password field */
+
+.password-field {
+    position: relative;
+}
+
+.password-toggle {
+    position: absolute;
+    inset-block: 0;
+    right: 6px;
+    margin: auto 0;
+    height: 38px;
+    width: 38px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    font-size: 15px;
+    transition: color 0.2s ease;
+}
+
+.password-toggle:hover {
+    color: var(--green-dark);
+}
+
+.password-field .form-input {
+    padding-right: 50px;
+}
+
+/* Remember me */
+
+.remember-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 13px;
+    color: var(--text-muted);
+    cursor: pointer;
+    user-select: none;
+}
+
+.remember-check {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--green-light);
+    cursor: pointer;
+}
+
+/* Forgot password */
+
+.form-row-between {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 4px 0 20px;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.forgot-link {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px 0;
+}
+
+.forgot-link:hover {
+    color: var(--accent-hover);
+    text-decoration: underline;
+}
+
+/* 6 digit code */
+
+.code-input-row {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.code-input {
+    width: 48px;
+    height: 56px;
+    text-align: center;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--green-dark);
+    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border-soft);
+    background: var(--surface-muted);
+    caret-color: var(--green-light);
+    transition:
+        border-color 0.22s ease,
+        box-shadow 0.22s ease,
+        transform 0.15s ease,
+        background 0.22s ease;
+}
+
+.code-input:focus {
+    outline: none;
+    border-color: var(--green-light);
+    background: var(--surface-elevated);
+    box-shadow: 0 0 0 4px var(--accent-soft);
+    transform: translateY(-2px);
+}
+
+.code-input.filled {
+    border-color: var(--green-light);
+    background: var(--accent-soft);
+}
+
+.code-hint {
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+}
+
+/* Resend code */
+
+.resend-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 18px;
+}
+
+.resend-btn {
+    background: none;
+    border: none;
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 2px 4px;
+}
+
+.resend-btn:hover {
+    color: var(--accent-hover);
+    text-decoration: underline;
+}
+
+@media (max-width: 420px) {
+    .code-input {
+        width: 42px;
+        height: 50px;
+        font-size: 20px;
+    }
+
+    .code-input-row {
+        gap: 8px;
+    }
+}

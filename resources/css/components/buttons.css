@@ -1,0 +1,116 @@
+/* =========================
+   BUTTONS
+========================= */
+
+.btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 13px 22px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 700;
+    border: 1px solid transparent;
+    cursor: pointer;
+    overflow: hidden;
+    isolation: isolate;
+    transition:
+        transform 0.18s ease,
+        box-shadow 0.22s ease,
+        background 0.22s ease,
+        color 0.22s ease,
+        border-color 0.22s ease;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(
+        120deg,
+        transparent 25%,
+        rgba(255, 255, 255, 0.35) 50%,
+        transparent 75%
+    );
+    transform: translateX(-120%);
+    transition: transform 0.55s ease;
+}
+
+.btn:hover::before {
+    transform: translateX(120%);
+}
+
+.btn:active {
+    transform: translateY(0) scale(0.96);
+}
+
+.btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+/* primary */
+
+.btn-primary {
+    background: var(--accent);
+    color: var(--cream);
+    box-shadow: 0 6px 18px rgba(84, 107, 65, 0.35);
+}
+
+.btn-primary:hover {
+    background: var(--accent-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 26px rgba(84, 107, 65, 0.45);
+}
+
+[data-theme='dark'] .btn-primary,
+:root:not([data-theme]) .btn-primary.glow-dark {
+    color: #171d13;
+}
+
+/* secondary */
+
+.btn-secondary {
+    background: var(--green-light);
+    color: var(--cream);
+    box-shadow: 0 6px 16px rgba(153, 173, 122, 0.35);
+}
+
+.btn-secondary:hover {
+    background: #899c6c;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(153, 173, 122, 0.45);
+}
+
+/* outline */
+
+.btn-outline {
+    border-color: var(--green-dark);
+    color: var(--green-dark);
+    background: transparent;
+}
+
+.btn-outline:hover {
+    background: var(--green-dark);
+    color: var(--cream);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+/* ghost / text link */
+
+.btn-text {
+    background: transparent;
+    color: var(--accent);
+    border: none;
+    padding: 8px 14px;
+    font-weight: 700;
+}
+
+.btn-text:hover {
+    color: var(--accent-hover);
+    transform: translateY(-1px);
+}

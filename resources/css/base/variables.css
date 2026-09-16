@@ -1,0 +1,102 @@
+:root {
+    --green-dark: #546B41;
+    --green-mid: #6d8752;
+    --green-light: #99AD7A;
+    --beige: #DCCCAC;
+    --cream: #FFF8EC;
+    --white: #ffffff;
+    --text-dark: #293322;
+    --text-muted: #6d7564;
+
+    --surface: var(--white);
+    --surface-elevated: var(--white);
+    --surface-muted: #f4efe3;
+    --border-soft: rgba(84, 107, 65, 0.14);
+    --shadow-sm: 0 6px 18px rgba(84, 107, 65, 0.10);
+    --shadow-md: 0 12px 35px rgba(84, 107, 65, 0.12);
+    --shadow-lg: 0 18px 50px rgba(84, 107, 65, 0.18);
+    --page-bg: var(--cream);
+    --page-bg-2: rgba(153, 173, 122, 0.22);
+
+    --accent: var(--green-dark);
+    --accent-hover: #435633;
+    --accent-soft: rgba(153, 173, 122, 0.22);
+
+    --radius-sm: 10px;
+    --radius-md: 14px;
+    --radius-lg: 20px;
+    --radius-xl: 28px;
+
+    --font: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+
+    --gradient-a: rgba(153, 173, 122, 0.40);
+    --gradient-b: rgba(220, 204, 172, 0.35);
+
+    color-scheme: light;
+}
+
+[data-theme='dark'] {
+    --green-dark: #b4c99a;
+    --green-light: #99AD7A;
+    --beige: #6b6148;
+    --cream: #171d13;
+    --white: #20271a;
+    --text-dark: #eef2e6;
+    --text-muted: #a9b39a;
+
+    --surface: #20271a;
+    --surface-elevated: #262e1f;
+    --surface-muted: #2a3322;
+    --border-soft: rgba(180, 201, 154, 0.16);
+    --shadow-sm: 0 6px 18px rgba(0, 0, 0, 0.35);
+    --shadow-md: 0 12px 35px rgba(0, 0, 0, 0.40);
+    --shadow-lg: 0 18px 50px rgba(0, 0, 0, 0.50);
+    --page-bg: #131810;
+    --page-bg-2: rgba(153, 173, 122, 0.10);
+
+    --accent: #b4c99a;
+    --accent-hover: #c7d8b1;
+    --accent-soft: rgba(153, 173, 122, 0.18);
+
+    --gradient-a: rgba(153, 173, 122, 0.22);
+    --gradient-b: rgba(180, 201, 154, 0.10);
+
+    color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme]) {
+        --green-dark: #b4c99a;
+        --green-light: #99AD7A;
+        --beige: #6b6148;
+        --cream: #171d13;
+        --white: #20271a;
+        --text-dark: #eef2e6;
+        --text-muted: #a9b39a;
+
+        --surface: #20271a;
+        --surface-elevated: #262e1f;
+        --surface-muted: #2a3322;
+        --border-soft: rgba(180, 201, 154, 0.16);
+        --shadow-sm: 0 6px 18px rgba(0, 0, 0, 0.35);
+        --shadow-md: 0 12px 35px rgba(0, 0, 0, 0.40);
+        --shadow-lg: 0 18px 50px rgba(0, 0, 0, 0.50);
+        --page-bg: #131810;
+        --page-bg-2: rgba(153, 173, 122, 0.10);
+
+        --accent: #b4c99a;
+        --accent-hover: #c7d8b1;
+        --accent-soft: rgba(153, 173, 122, 0.18);
+
+        --gradient-a: rgba(153, 173, 122, 0.22);
+        --gradient-b: rgba(180, 201, 154, 0.10);
+
+        color-scheme: dark;
+    }
+}
+
+.theme-toggle svg {
+    width: 20px;
+    height: 20px;
+    display: block;
+}
