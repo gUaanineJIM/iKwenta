@@ -1,0 +1,2082 @@
+/* =========================================================
+   iKwenta Customer Dashboard
+   Uses variables from base/variables.css
+========================================================= */
+
+/* =========================================================
+   Base
+========================================================= */
+
+.customer-page {
+    min-height: 100vh;
+    margin: 0;
+
+    background:
+        radial-gradient(circle at top right, var(--page-bg-2), transparent 35%),
+        var(--page-bg);
+
+    color: var(--text-dark);
+    font-family: var(--font);
+}
+
+.customer-page *,
+.customer-page *::before,
+.customer-page *::after {
+    box-sizing: border-box;
+}
+
+.customer-page button,
+.customer-page input {
+    font: inherit;
+}
+
+/* =========================================================
+   Header
+========================================================= */
+
+.customer-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+
+    background: color-mix(in srgb, var(--surface) 92%, transparent);
+
+    border-bottom: 1px solid var(--border-soft);
+
+    backdrop-filter: blur(16px);
+}
+
+.customer-header__inner {
+    width: min(1240px, calc(100% - 40px));
+    min-height: 76px;
+
+    margin: 0 auto;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 24px;
+}
+
+/* =========================================================
+   Brand
+========================================================= */
+
+.brand {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 10px;
+
+    color: var(--text-dark);
+    text-decoration: none;
+}
+
+.brand__mark {
+    width: 38px;
+    height: 38px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 12px;
+
+    background: var(--accent);
+    color: var(--page-bg);
+
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.brand__name {
+    font-size: 21px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+
+/* =========================================================
+   Header Right
+========================================================= */
+
+.customer-header__right {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.customer-welcome {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+
+    gap: 2px;
+}
+
+.customer-welcome__label {
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+.customer-welcome strong {
+    color: var(--text-dark);
+    font-size: 14px;
+}
+
+/* =========================================================
+   Buttons
+========================================================= */
+
+.btn {
+    min-height: 40px;
+
+    padding: 9px 16px;
+
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+
+    cursor: pointer;
+
+    font-weight: 700;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.btn--outline {
+    background: transparent;
+    color: var(--text-dark);
+    border-color: var(--border-soft);
+}
+
+.btn--outline:hover {
+    background: var(--surface-muted);
+    border-color: var(--green-light);
+}
+
+/* =========================================================
+   Shell
+========================================================= */
+
+.customer-shell {
+    width: min(1240px, calc(100% - 40px));
+
+    margin: 0 auto;
+
+    padding: 38px 0 80px;
+
+    display: grid;
+    grid-template-columns: 268px minmax(0, 1fr);
+    align-items: start;
+
+    gap: 28px;
+
+    transition: grid-template-columns 0.3s ease;
+}
+
+/* =========================================================
+   Section (main content)
+========================================================= */
+
+.customer-main {
+    width: 100%;
+
+    min-width: 0;
+
+    margin: 0;
+
+    padding: 0;
+}
+
+.customer-section {
+    position: relative;
+
+    min-width: 0;
+
+    min-height: 320px;
+
+    transition: opacity 0.18s ease;
+}
+
+.customer-section.is-loading {
+    opacity: 0.55;
+
+    pointer-events: none;
+}
+
+.customer-section.is-loading::after {
+    content: "";
+
+    position: absolute;
+    inset: 28px;
+
+    width: 36px;
+    height: 36px;
+
+    margin: auto;
+
+    border: 3px solid var(--border-soft);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+
+    animation: customer-spin 0.8s linear infinite;
+}
+
+@keyframes customer-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* =========================================================
+   Sidebar
+========================================================= */
+
+.customer-sidebar {
+    position: sticky;
+    top: 100px;
+
+    min-width: 0;
+
+    padding: 14px;
+
+    background: var(--surface-elevated);
+
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-lg);
+
+    box-shadow: var(--shadow-sm);
+
+    overflow: hidden;
+}
+
+.sidebar-toggle {
+    display: none;
+}
+
+.sidebar-nav__close {
+    display: none;
+}
+
+.sidebar-nav__label {
+    display: block;
+
+    padding: 8px 14px 12px;
+
+    color: var(--text-muted);
+
+    font-size: 11px;
+    font-weight: 800;
+
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.sidebar-nav__list {
+    list-style: none;
+}
+
+.customer-nav__link {
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 12px 14px;
+
+    border-radius: var(--radius-sm);
+
+    color: var(--text-dark);
+
+    font-size: 14px;
+    font-weight: 700;
+
+    text-decoration: none;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease;
+}
+
+.customer-nav__link svg {
+    flex: 0 0 auto;
+
+    color: var(--green-mid);
+}
+
+.customer-nav__link:hover {
+    background: var(--surface-muted);
+}
+
+.customer-nav__link.is-active {
+    background: var(--accent-soft);
+    color: var(--accent);
+}
+
+.customer-nav__link.is-active svg {
+    color: var(--accent);
+}
+
+.customer-nav__link > span {
+    white-space: nowrap;
+
+    transition: opacity 0.18s ease;
+}
+
+.sidebar-collapse {
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    width: 100%;
+
+    margin-top: 16px;
+
+    padding: 11px 14px;
+
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-sm);
+
+    background: transparent;
+    color: var(--text-muted);
+
+    font-size: 13px;
+    font-weight: 700;
+    text-align: left;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease;
+}
+
+.sidebar-collapse svg {
+    flex: 0 0 auto;
+
+    transition: transform 0.3s ease;
+}
+
+.sidebar-collapse:hover {
+    background: var(--surface-muted);
+
+    color: var(--text-dark);
+
+    border-color: var(--green-light);
+}
+
+@media (min-width: 981px) {
+    .customer-sidebar {
+        transition: padding 0.3s ease;
+    }
+
+    .customer-shell.collapsed {
+        grid-template-columns: 84px minmax(0, 1fr);
+    }
+
+    .customer-shell.collapsed .customer-sidebar {
+        padding: 12px 10px;
+    }
+
+    .customer-shell.collapsed .sidebar-nav__label {
+        display: none;
+    }
+
+    .customer-shell.collapsed .customer-nav__link {
+        justify-content: center;
+
+        gap: 0;
+
+        padding: 12px;
+    }
+
+    .customer-shell.collapsed .customer-nav__link > span {
+        position: absolute;
+
+        opacity: 0;
+
+        pointer-events: none;
+    }
+
+    .customer-shell.collapsed .sidebar-collapse {
+        justify-content: center;
+
+        padding: 12px;
+    }
+
+    .customer-shell.collapsed .sidebar-collapse > span {
+        position: absolute;
+
+        opacity: 0;
+
+        pointer-events: none;
+    }
+
+    .customer-shell.collapsed .sidebar-collapse svg {
+        transform: rotate(180deg);
+    }
+}
+
+.customer-backdrop {
+    display: none;
+}
+
+/* =========================================================
+   Page Heading
+========================================================= */
+
+.page-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+
+    gap: 30px;
+
+    margin-bottom: 32px;
+}
+
+.eyebrow {
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: var(--green-mid);
+
+    font-size: 11px;
+    font-weight: 800;
+
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.page-heading h1 {
+    margin: 0;
+
+    color: var(--text-dark);
+
+    font-size: clamp(30px, 5vw, 42px);
+    line-height: 1.1;
+
+    letter-spacing: -1.5px;
+}
+
+.page-heading p {
+    margin: 10px 0 0;
+
+    color: var(--text-muted);
+
+    font-size: 15px;
+}
+
+/* =========================================================
+   Customer Code
+========================================================= */
+
+.customer-code-card {
+    min-width: 190px;
+
+    padding: 16px 18px;
+
+    background: var(--surface-elevated);
+
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-md);
+
+    box-shadow: var(--shadow-sm);
+}
+
+.customer-code-card span {
+    display: block;
+
+    margin-bottom: 5px;
+
+    color: var(--text-muted);
+
+    font-size: 11px;
+    font-weight: 700;
+
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.customer-code-card strong {
+    color: var(--accent);
+
+    font-size: 24px;
+    letter-spacing: 3px;
+}
+
+/* =========================================================
+   Summary Cards
+========================================================= */
+
+.summary-grid {
+    display: grid;
+
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+
+    gap: 18px;
+
+    margin-bottom: 54px;
+}
+
+.summary-card {
+    min-height: 130px;
+
+    padding: 22px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 16px;
+
+    background: var(--surface);
+
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-lg);
+
+    box-shadow: var(--shadow-sm);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.summary-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.summary-card__icon {
+    width: 46px;
+    height: 46px;
+
+    flex: 0 0 46px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 14px;
+
+    background: var(--accent-soft);
+    color: var(--accent);
+
+    font-size: 19px;
+    font-weight: 800;
+}
+
+.summary-card__content {
+    min-width: 0;
+}
+
+.summary-card__label {
+    display: block;
+
+    margin-bottom: 5px;
+
+    color: var(--text-muted);
+
+    font-size: 13px;
+}
+
+.summary-card__amount {
+    display: block;
+
+    color: var(--text-dark);
+
+    font-size: clamp(21px, 3vw, 28px);
+    line-height: 1.1;
+
+    overflow-wrap: anywhere;
+}
+
+.summary-card--balance {
+    border-color: rgba(153, 173, 122, 0.4);
+
+    background: linear-gradient(135deg, var(--accent-soft), var(--surface));
+}
+
+/* =========================================================
+   Section Heading
+========================================================= */
+
+.section-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    margin-bottom: 18px;
+}
+
+.section-heading h2 {
+    margin: 0;
+
+    font-size: 25px;
+    letter-spacing: -0.5px;
+}
+
+.debt-count {
+    padding: 7px 11px;
+
+    border-radius: 999px;
+
+    background: var(--accent-soft);
+    color: var(--accent);
+
+    font-size: 12px;
+    font-weight: 800;
+}
+
+/* =========================================================
+   Reusable sections
+========================================================= */
+
+.customer-block {
+    margin-bottom: 30px;
+}
+
+.section-heading__sub {
+    margin: 5px 0 0;
+
+    color: var(--text-muted);
+
+    font-size: 13px;
+}
+
+/* =========================================================
+   Recent Items
+========================================================= */
+
+.recent-items {
+    list-style: none;
+
+    overflow: hidden;
+
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-md);
+
+    background: var(--surface-elevated);
+}
+
+.recent-item {
+    display: flex;
+    align-items: center;
+
+    gap: 14px;
+
+    padding: 14px 16px;
+
+    border-bottom: 1px solid var(--border-soft);
+}
+
+.recent-item:last-child {
+    border-bottom: 0;
+}
+
+.recent-item__icon {
+    width: 38px;
+    height: 38px;
+
+    flex: 0 0 38px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 11px;
+
+    background: var(--accent-soft);
+    color: var(--accent);
+
+    font-size: 13px;
+    font-weight: 800;
+
+    text-transform: uppercase;
+}
+
+.recent-item__main {
+    min-width: 0;
+
+    flex: 1;
+}
+
+.recent-item__main strong {
+    display: block;
+
+    color: var(--text-dark);
+
+    font-size: 14px;
+}
+
+.recent-item__meta {
+    color: var(--green-mid);
+
+    font-size: 12px;
+}
+
+.recent-item__main small {
+    display: block;
+
+    margin-top: 2px;
+
+    color: var(--text-muted);
+
+    font-size: 11px;
+}
+
+.recent-item__right {
+    flex-shrink: 0;
+
+    text-align: right;
+}
+
+.recent-item__right strong {
+    display: block;
+
+    color: var(--text-dark);
+
+    font-size: 14px;
+}
+
+.recent-item__date {
+    color: var(--text-muted);
+
+    font-size: 11px;
+}
+
+/* =========================================================
+   Section Link
+========================================================= */
+
+.section-link {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 7px;
+
+    margin-top: 14px;
+    padding: 9px 12px;
+
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-sm);
+
+    background: var(--surface);
+    color: var(--accent);
+
+    font-size: 13px;
+    font-weight: 800;
+
+    text-decoration: none;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.section-link:hover {
+    background: var(--accent-soft);
+    border-color: var(--green-light);
+}
+
+.section-link span {
+    transition: transform 0.2s ease;
+}
+
+.section-link:hover span {
+    transform: translateX(3px);
+}
+
+/* =========================================================
+   Collapsible Sections
+========================================================= */
+
+.collapse-toggle {
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 16px 18px;
+
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-md);
+
+    background: var(--surface-elevated);
+    color: var(--text-dark);
+
+    cursor: pointer;
+
+    font-size: 15px;
+    font-weight: 800;
+
+    text-align: left;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.collapse-toggle:hover {
+    background: var(--surface-muted);
+    border-color: var(--green-light);
+}
+
+.collapse-toggle .debt-count {
+    margin-left: auto;
+}
+
+.collapse-toggle__chevron {
+    color: var(--green-mid);
+
+    transition: transform 0.2s ease;
+}
+
+.collapse-toggle.is-open .collapse-toggle__chevron {
+    transform: rotate(180deg);
+}
+
+.collapse-panel {
+    margin-top: 14px;
+}
+
+.collapse-panel[hidden] {
+    display: none;
+}
+
+/* =========================================================
+   Pagination
+========================================================= */
+
+.pagination {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 14px;
+
+    margin-top: 18px;
+}
+
+.pagination__info {
+    color: var(--text-muted);
+
+    font-size: 12px;
+}
+
+.pagination__list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+
+    gap: 6px;
+}
+
+.pagination__link {
+    min-width: 38px;
+    height: 38px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0 12px;
+
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-sm);
+
+    background: var(--surface);
+    color: var(--text-dark);
+
+    font-size: 13px;
+    font-weight: 700;
+
+    text-decoration: none;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease;
+}
+
+.pagination__link:hover:not(.is-disabled):not(.is-active) {
+    background: var(--accent-soft);
+    border-color: var(--green-light);
+}
+
+.pagination__link.is-active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #171d13;
+}
+
+.pagination__link.is-disabled {
+    opacity: 0.45;
+
+    cursor: not-allowed;
+}
+
+/* =========================================================
+   Debt cell / reference
+========================================================= */
+
+.debt-cell {
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+
+    gap: 6px;
+}
+
+.debt-ref {
+    display: inline-flex;
+    align-items: center;
+
+    padding: 4px 9px;
+
+    border-radius: 999px;
+
+    background: var(--surface-muted);
+    color: var(--text-muted);
+
+    font-size: 11px;
+    font-weight: 800;
+
+    letter-spacing: 0.03em;
+
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.items-table td small {
+    display: block;
+
+    color: var(--text-muted);
+
+    font-size: 11px;
+}
+
+.cell-stack {
+    display: flex;
+    flex-direction: column;
+
+    gap: 2px;
+}
+
+/* =========================================================
+   Accessibility helpers
+========================================================= */
+
+.sr-only {
+    position: absolute;
+
+    width: 1px;
+    height: 1px;
+
+    padding: 0;
+    margin: -1px;
+
+    overflow: hidden;
+
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+
+    border: 0;
+}
+
+/* =========================================================
+   Debt Card
+========================================================= */
+
+.debt-card {
+    overflow: hidden;
+
+    margin-bottom: 16px;
+
+    background: var(--surface-elevated);
+
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-lg);
+
+    box-shadow: var(--shadow-sm);
+}
+
+/* =========================================================
+   Debt Header
+========================================================= */
+
+.debt-card__header {
+    position: relative;
+
+    padding: 23px;
+
+    display: grid;
+
+    grid-template-columns: 1fr auto auto;
+
+    align-items: center;
+
+    gap: 24px;
+}
+
+.debt-card__label {
+    color: var(--text-muted);
+
+    font-size: 11px;
+    font-weight: 800;
+
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.debt-card__info h3 {
+    margin: 5px 0 4px;
+
+    color: var(--text-dark);
+
+    font-size: 19px;
+}
+
+.debt-card__date {
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+/* =========================================================
+   Debt Summary
+========================================================= */
+
+.debt-card__summary {
+    display: flex;
+    align-items: center;
+
+    gap: 24px;
+}
+
+.debt-card__summary > div {
+    display: flex;
+    flex-direction: column;
+
+    gap: 3px;
+}
+
+.debt-card__summary span:not(.status-badge) {
+    color: var(--text-muted);
+    font-size: 11px;
+}
+
+.debt-card__summary strong {
+    color: var(--text-dark);
+    font-size: 15px;
+}
+
+/* =========================================================
+   Status
+========================================================= */
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+
+    min-height: 28px;
+
+    padding: 5px 10px;
+
+    border-radius: 999px;
+
+    background: var(--accent-soft);
+    color: var(--accent);
+
+    font-size: 11px;
+    font-weight: 800;
+
+    text-transform: capitalize;
+}
+
+.status-badge--paid {
+    background: rgba(109, 135, 82, 0.16);
+    color: var(--green-mid);
+}
+
+.status-badge--partially_paid {
+    background: rgba(220, 204, 172, 0.35);
+    color: var(--green-dark);
+}
+
+.status-badge--unpaid {
+    background: rgba(220, 204, 172, 0.25);
+    color: var(--text-dark);
+}
+
+.status-badge--cancelled {
+    opacity: 0.65;
+}
+
+/* =========================================================
+   Collapse Button
+========================================================= */
+
+.debt-toggle {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 7px;
+
+    padding: 9px 12px;
+
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-sm);
+
+    background: transparent;
+    color: var(--accent);
+
+    cursor: pointer;
+
+    font-size: 12px;
+    font-weight: 800;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.debt-toggle:hover {
+    background: var(--accent-soft);
+    border-color: var(--green-light);
+}
+
+.debt-toggle svg {
+    transition: transform 0.2s ease;
+}
+
+.debt-toggle.is-open svg {
+    transform: rotate(180deg);
+}
+
+/* =========================================================
+   Collapsible Content
+========================================================= */
+
+.debt-card__content {
+    border-top: 1px solid var(--border-soft);
+}
+
+.debt-card__content[hidden] {
+    display: none;
+}
+
+/* =========================================================
+   Detail Sections
+========================================================= */
+
+.detail-section {
+    padding: 25px;
+}
+
+.detail-section + .detail-section {
+    border-top: 1px solid var(--border-soft);
+}
+
+.detail-section__heading {
+    margin-bottom: 16px;
+}
+
+.detail-section__heading h4 {
+    margin: 0 0 4px;
+
+    color: var(--text-dark);
+
+    font-size: 15px;
+}
+
+.detail-section__heading span {
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+/* =========================================================
+   Table
+========================================================= */
+
+.table-wrapper {
+    width: 100%;
+
+    overflow-x: auto;
+
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-md);
+}
+
+.debt-table {
+    width: 100%;
+
+    border-collapse: collapse;
+
+    min-width: 620px;
+}
+
+.debt-table th,
+.debt-table td {
+    padding: 14px 16px;
+
+    border-bottom: 1px solid var(--border-soft);
+
+    text-align: left;
+}
+
+.debt-table th {
+    background: var(--surface-muted);
+
+    color: var(--text-muted);
+
+    font-size: 11px;
+    font-weight: 800;
+
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.debt-table td {
+    color: var(--text-dark);
+    font-size: 13px;
+}
+
+.debt-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.debt-table tfoot td {
+    border-top: 1px solid var(--border-soft);
+    border-bottom: 0;
+
+    background: var(--surface-muted);
+
+    font-weight: 800;
+}
+
+.debt-table th:nth-child(n + 2),
+.debt-table td:nth-child(n + 2) {
+    white-space: nowrap;
+}
+
+/* =========================================================
+   Product Cell
+========================================================= */
+
+.product-cell {
+    display: flex;
+    align-items: center;
+
+    gap: 11px;
+}
+
+.product-cell__icon {
+    width: 34px;
+    height: 34px;
+
+    flex: 0 0 34px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 10px;
+
+    background: var(--accent-soft);
+    color: var(--accent);
+
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.product-cell strong {
+    display: block;
+
+    margin-bottom: 2px;
+
+    font-size: 13px;
+}
+
+.product-cell small {
+    display: block;
+
+    color: var(--text-muted);
+
+    font-size: 11px;
+}
+
+/* =========================================================
+   Payments
+========================================================= */
+
+.payments-list {
+    overflow: hidden;
+
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-md);
+}
+
+.payment-row {
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 14px 16px;
+
+    border-bottom: 1px solid var(--border-soft);
+}
+
+.payment-row:last-child {
+    border-bottom: 0;
+}
+
+.payment-row__icon {
+    width: 34px;
+    height: 34px;
+
+    flex: 0 0 34px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 50%;
+
+    background: var(--accent-soft);
+    color: var(--accent);
+
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.payment-row__info {
+    display: flex;
+    flex-direction: column;
+
+    flex: 1;
+
+    min-width: 0;
+
+    gap: 2px;
+}
+
+.payment-row__info strong {
+    color: var(--text-dark);
+    font-size: 14px;
+}
+
+.payment-row__info span,
+.payment-row time {
+    color: var(--text-muted);
+    font-size: 11px;
+}
+
+.payment-row time {
+    text-align: right;
+}
+
+/* =========================================================
+   Debt Footer
+========================================================= */
+
+.debt-card__footer {
+    padding: 17px 25px;
+
+    display: flex;
+    justify-content: flex-end;
+
+    gap: 35px;
+
+    background: var(--surface-muted);
+
+    border-top: 1px solid var(--border-soft);
+}
+
+.debt-card__footer div {
+    display: flex;
+    flex-direction: column;
+
+    gap: 3px;
+}
+
+.debt-card__footer span {
+    color: var(--text-muted);
+    font-size: 11px;
+}
+
+.debt-card__footer strong {
+    color: var(--text-dark);
+    font-size: 15px;
+}
+
+/* =========================================================
+   Empty States
+========================================================= */
+
+.empty-state {
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 17px;
+
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-md);
+
+    background: var(--surface-muted);
+}
+
+.empty-state__icon {
+    width: 36px;
+    height: 36px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 10px;
+
+    background: var(--accent-soft);
+    color: var(--accent);
+
+    font-weight: 800;
+}
+
+.empty-state strong {
+    display: block;
+
+    color: var(--text-dark);
+    font-size: 13px;
+}
+
+.empty-state p {
+    margin: 2px 0 0;
+
+    color: var(--text-muted);
+    font-size: 11px;
+}
+
+.empty-debts {
+    padding: 60px 20px;
+
+    text-align: center;
+
+    background: var(--surface-elevated);
+
+    border: 1px dashed var(--border-soft);
+    border-radius: var(--radius-lg);
+}
+
+.empty-debts__icon {
+    width: 52px;
+    height: 52px;
+
+    margin: 0 auto 14px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 15px;
+
+    background: var(--accent-soft);
+    color: var(--accent);
+
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.empty-debts h3 {
+    margin: 0 0 6px;
+
+    font-size: 17px;
+}
+
+.empty-debts p {
+    margin: 0;
+
+    color: var(--text-muted);
+
+    font-size: 13px;
+}
+
+/* =========================================================
+   Sidebar Drawer / Tablet Layout
+========================================================= */
+
+@media (max-width: 980px) {
+    .customer-shell,
+    .customer-shell.collapsed {
+        grid-template-columns: minmax(0, 1fr);
+
+        width: min(100% - 40px, 1240px);
+
+        gap: 0;
+    }
+
+    .customer-main {
+        grid-column: 1 / -1;
+
+        width: 100%;
+    }
+
+    .customer-sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+
+        width: min(300px, 84vw);
+        height: 100dvh;
+
+        z-index: 120;
+
+        border-radius: 0 18px 18px 0;
+
+        padding: 22px 16px;
+
+        overflow-y: auto;
+
+        transform: translateX(-105%);
+
+        transition: transform 0.28s ease;
+    }
+
+    .customer-sidebar.is-open {
+        transform: translateX(0);
+    }
+
+    .sidebar-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        width: 42px;
+        height: 42px;
+
+        padding: 0;
+
+        border: 1px solid var(--border-soft);
+        border-radius: var(--radius-sm);
+
+        background: var(--surface);
+        color: var(--text-dark);
+
+        cursor: pointer;
+
+        transition:
+            background 0.2s ease,
+            border-color 0.2s ease;
+    }
+
+    .sidebar-toggle:hover {
+        background: var(--surface-muted);
+        border-color: var(--green-light);
+    }
+
+    .sidebar-nav__close {
+        display: grid;
+        place-items: center;
+
+        width: 40px;
+        height: 40px;
+
+        margin: 0 0 8px auto;
+
+        border: 1px solid var(--border-soft);
+        border-radius: var(--radius-sm);
+
+        background: transparent;
+        color: var(--text-muted);
+
+        cursor: pointer;
+
+        transition:
+            background 0.2s ease,
+            color 0.2s ease;
+    }
+
+    .sidebar-nav__close:hover {
+        background: var(--surface-muted);
+        color: var(--text-dark);
+    }
+
+    .sidebar-collapse {
+        display: none;
+    }
+
+    .customer-nav__link {
+        min-height: 48px;
+
+        padding: 13px 15px;
+
+        font-size: 15px;
+    }
+
+    .customer-backdrop {
+        position: fixed;
+        inset: 0;
+
+        z-index: 110;
+
+        display: block;
+
+        background: rgba(23, 29, 19, 0.55);
+
+        opacity: 0;
+
+        transition: opacity 0.25s ease;
+    }
+
+    .customer-backdrop.is-visible {
+        opacity: 1;
+    }
+}
+
+/* =========================================================
+   Tablet
+========================================================= */
+
+@media (max-width: 900px) {
+    .summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .summary-card--balance {
+        grid-column: span 2;
+    }
+
+    .debt-card__header {
+        grid-template-columns: 1fr auto;
+    }
+
+    .debt-card__summary {
+        grid-column: 1 / -1;
+        justify-content: flex-start;
+    }
+
+    .debt-toggle {
+        grid-column: 2;
+        grid-row: 1;
+    }
+}
+
+/* =========================================================
+   Mobile
+========================================================= */
+
+@media (max-width: 640px) {
+    .customer-header__inner {
+        width: min(100% - 24px, 1180px);
+
+        min-height: 68px;
+
+        gap: 12px;
+    }
+
+    .brand__mark {
+        width: 34px;
+        height: 34px;
+
+        border-radius: 10px;
+    }
+
+    .brand__name {
+        font-size: 18px;
+    }
+
+    .customer-welcome {
+        display: none;
+    }
+
+    .customer-header__right {
+        gap: 10px;
+    }
+
+    .sidebar-toggle,
+    .theme-toggle {
+        width: 40px;
+        height: 40px;
+
+        flex: 0 0 40px;
+    }
+
+    .sidebar-toggle {
+        border-radius: 50%;
+    }
+
+    .btn--outline {
+        padding: 8px 11px;
+        font-size: 12px;
+    }
+
+    .customer-shell {
+        width: min(100% - 24px, 1240px);
+
+        padding: 28px 0 55px;
+    }
+
+    .customer-main {
+        width: 100%;
+
+        padding: 0;
+    }
+
+    .page-heading {
+        align-items: stretch;
+
+        flex-direction: column;
+
+        gap: 18px;
+
+        margin-bottom: 25px;
+    }
+
+    .page-heading h1 {
+        font-size: 32px;
+    }
+
+    .customer-code-card {
+        min-width: 0;
+        width: 100%;
+    }
+
+    .summary-grid {
+        grid-template-columns: 1fr;
+
+        gap: 12px;
+
+        margin-bottom: 40px;
+    }
+
+    .summary-card,
+    .summary-card--balance {
+        grid-column: auto;
+
+        min-height: 105px;
+
+        padding: 18px;
+    }
+
+    .summary-card__amount {
+        font-size: 23px;
+    }
+
+    .section-heading {
+        flex-wrap: wrap;
+        align-items: flex-start;
+
+        gap: 10px 14px;
+
+        margin-bottom: 14px;
+    }
+
+    .section-heading h2 {
+        font-size: 22px;
+    }
+
+    .debt-card {
+        border-radius: 16px;
+    }
+
+    .debt-card__info h3 {
+        font-size: 17px;
+    }
+
+    .debt-card__summary strong,
+    .debt-card__footer strong {
+        overflow-wrap: anywhere;
+    }
+
+    .debt-card__footer div {
+        min-width: 0;
+    }
+
+    .debt-card__header {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+
+        gap: 16px;
+
+        padding: 18px;
+    }
+
+    .debt-toggle {
+        width: 100%;
+
+        justify-content: center;
+    }
+
+    .debt-card__summary {
+        display: grid;
+
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+
+        gap: 12px;
+    }
+
+    .debt-card__summary .status-badge {
+        grid-column: 1 / -1;
+
+        justify-self: start;
+    }
+
+    .status-badge {
+        width: fit-content;
+    }
+
+    .detail-section {
+        padding: 18px;
+    }
+
+    /* Mobile table becomes cards */
+
+    .table-wrapper {
+        overflow: visible;
+
+        border: 0;
+    }
+
+    .debt-table {
+        min-width: 0;
+    }
+
+    .debt-table thead {
+        display: none;
+    }
+
+    .debt-table,
+    .debt-table tbody,
+    .debt-table tr,
+    .debt-table td {
+        display: block;
+
+        width: 100%;
+    }
+
+    .debt-table tr {
+        margin-bottom: 10px;
+
+        padding: 13px;
+
+        background: var(--surface-muted);
+
+        border: 1px solid var(--border-soft);
+        border-radius: var(--radius-md);
+    }
+
+    .debt-table tr:last-child {
+        margin-bottom: 0;
+    }
+
+    .debt-table td {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 15px;
+
+        padding: 7px 0;
+
+        border: 0;
+
+        text-align: right;
+    }
+
+    .debt-table tbody td::before {
+        content: attr(data-label);
+
+        color: var(--text-muted);
+
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .debt-table tbody td:first-child {
+        display: block;
+
+        padding-bottom: 12px;
+
+        margin-bottom: 5px;
+
+        border-bottom: 1px solid var(--border-soft);
+
+        text-align: left;
+    }
+
+    .debt-table tbody td:first-child::before {
+        display: none;
+    }
+
+    .debt-table tfoot {
+        display: block;
+
+        margin-top: 10px;
+    }
+
+    .debt-table tfoot tr {
+        display: flex;
+
+        align-items: center;
+        justify-content: space-between;
+
+        margin: 0;
+
+        padding: 14px;
+
+        background: var(--accent-soft);
+
+        border: 1px solid var(--border-soft);
+        border-radius: var(--radius-md);
+    }
+
+    .debt-table tfoot td {
+        display: block;
+
+        width: auto;
+
+        padding: 0;
+
+        border: 0;
+    }
+
+    .payments-list {
+        border-radius: 12px;
+    }
+
+    .payment-row {
+        flex-wrap: wrap;
+        align-items: flex-start;
+
+        gap: 10px 12px;
+
+        padding: 14px;
+    }
+
+    .payment-row__info {
+        flex: 1 1 auto;
+
+        min-width: 0;
+    }
+
+    .payment-row time {
+        flex: 1 0 100%;
+
+        max-width: none;
+
+        padding-left: 46px;
+
+        text-align: left;
+
+        line-height: 1.4;
+    }
+
+    .debt-card__footer {
+        padding: 16px 18px;
+
+        display: grid;
+
+        grid-template-columns: 1fr 1fr;
+
+        gap: 15px;
+    }
+
+    .debt-card__footer strong {
+        font-size: 14px;
+    }
+
+    .recent-item {
+        flex-wrap: wrap;
+        align-items: flex-start;
+
+        gap: 8px 14px;
+
+        padding: 14px;
+    }
+
+    .recent-item__right {
+        flex: 1 0 100%;
+
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+
+        gap: 10px;
+
+        padding-left: 52px;
+
+        text-align: left;
+    }
+
+    .recent-item__right strong {
+        font-size: 14px;
+    }
+
+    .recent-item__date {
+        max-width: none;
+
+        text-align: right;
+
+        line-height: 1.4;
+    }
+
+    .customer-block {
+        margin-bottom: 24px;
+    }
+
+    .collapse-toggle {
+        padding: 14px 15px;
+
+        font-size: 14px;
+    }
+
+    .section-link {
+        width: 100%;
+
+        justify-content: center;
+    }
+
+    .pagination {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+    .pagination__list {
+        width: 100%;
+
+        justify-content: center;
+    }
+
+    .debt-table .cell-stack {
+        align-items: flex-end;
+
+        text-align: right;
+    }
+
+    .debt-cell {
+        align-items: flex-end;
+    }
+
+    .empty-debts {
+        padding: 44px 20px;
+    }
+}
+
+/* =========================================================
+   Small phones
+========================================================= */
+
+@media (max-width: 380px) {
+    .brand__name {
+        display: none;
+    }
+
+    .customer-header__right {
+        gap: 8px;
+    }
+}

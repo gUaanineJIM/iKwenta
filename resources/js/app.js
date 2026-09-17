@@ -197,4 +197,251 @@
             input.focus();
         });
     });
+
+    // =========================
+    // CUSTOMER DASHBOARD SECTIONS
+    // =========================
+
+    const customerSection = document.getElementById('customer-section');
+
+    if (customerSection) {
+        const sidebar = document.querySelector('[data-sidebar]');
+        const sidebarToggle = document.querySelector('[data-sidebar-toggle]');
+        const sidebarBackdrop = document.querySelector('[data-sidebar-backdrop]');
+        const shell = document.querySelector('[data-shell]');
+        const sidebarCollapse = document.querySelector('[data-sidebar-collapse]');
+        const loginUrl = customerSection.getAttribute('data-login-url') || '/';
+
+        let collapsed = false;
+
+        const getSavedCollapsed = () => {
+            try {
+                return localStorage.getItem('ikwenta-sidebar-collapsed') === '1';
+            } catch {
+                return false;
+            }
+        };
+
+        let pendingSectionRequest = null;
+
+        const setLoading = (loading) => {
+            customerSection.classList.toggle('is-loading', loading);
+            customerSection.setAttribute('aria-busy', loading ? 'true' : 'false');
+        };
+
+        const setActiveNav = (key) => {
+            document.querySelectorAll('[data-nav]').forEach((link) => {
+                const isActive = link.getAttribute('data-nav') === key;
+                link.classList.toggle('is-active', isActive);
+
+                if (isActive) {
+                    link.setAttribute('aria-current', 'page');
+                } else {
+                    link.removeAttribute('aria-current');
+                }
+            });
+        };
+
+        const closeSidebar = () => {
+            if (!sidebar) return;
+
+            sidebar.classList.remove('is-open');
+            if (sidebarToggle) sidebarToggle.setAttribute('aria-expanded', 'false');
+
+            document.body.style.overflow = '';
+
+            if (sidebarBackdrop) {
+                sidebarBackdrop.classList.remove('is-visible');
+                sidebarBackdrop.hidden = true;
+            }
+        };
+
+        const openSidebar = () => {
+            if (!sidebar) return;
+
+            sidebar.classList.add('is-open');
+            if (sidebarToggle) sidebarToggle.setAttribute('aria-expanded', 'true');
+
+            document.body.style.overflow = 'hidden';
+
+            if (sidebarBackdrop) {
+                sidebarBackdrop.hidden = false;
+                requestAnimationFrame(() => sidebarBackdrop.classList.add('is-visible'));
+            }
+
+            const firstLink = sidebar.querySelector('[data-section-link]');
+            if (firstLink) firstLink.focus({ preventScroll: true });
+        };
+
+        const showLoadError = (url) => {
+            customerSection.innerHTML =
+                '<div class="empty-state" role="status">' +
+                '<span class="empty-state__icon">!</span>' +
+                '<div><strong>Something went wrong</strong>' +
+                '<p>We could not load this section. Please try again.</p></div></div>' +
+                '<a class="section-link" data-section-link href="' + url + '">Try again <span aria-hidden="true">→</span></a>';
+        };
+
+        const focusSectionHeading = () => {
+            const heading = customerSection.querySelector('[data-section-title]');
+            if (!heading) return;
+
+            heading.setAttribute('tabindex', '-1');
+            heading.focus({ preventScroll: true });
+
+            const top = heading.getBoundingClientRect().top + window.pageYOffset - 96;
+            window.scrollTo({ top: Math.max(top, 0), behavior: 'smooth' });
+        };
+
+        const loadSection = (url) => {
+            setLoading(true);
+
+            if (pendingSectionRequest) pendingSectionRequest.abort();
+            const controller = new AbortController();
+            pendingSectionRequest = controller;
+
+            fetch(url, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                credentials: 'same-origin',
+                signal: controller.signal,
+            })
+                .then((response) => {
+                    if (response.status === 401) {
+                        window.location.assign(loginUrl);
+                        throw new Error('Unauthenticated');
+                    }
+
+                    if (!response.ok) {
+                        throw new Error('Request failed');
+                    }
+
+                    return response.text();
+                })
+                .then((html) => {
+                    customerSection.innerHTML = html;
+
+                    if (window.history && window.history.replaceState) {
+                        window.history.replaceState(null, '', url);
+                    }
+
+                    setLoading(false);
+                    focusSectionHeading();
+                })
+                .catch((error) => {
+                    if (error.name === 'AbortError') return;
+                    if (error.message === 'Unauthenticated') return;
+
+                    setLoading(false);
+                    showLoadError(url);
+                })
+                .finally(() => {
+                    if (pendingSectionRequest === controller) {
+                        pendingSectionRequest = null;
+                        setLoading(false);
+                    }
+                });
+        };
+
+        const applyCollapsed = (value) => {
+            collapsed = value;
+
+            if (shell) shell.classList.toggle('collapsed', value);
+
+            if (sidebarCollapse) {
+                sidebarCollapse.setAttribute('aria-expanded', String(!value));
+                sidebarCollapse.setAttribute('aria-label', value ? 'Expand sidebar' : 'Collapse sidebar');
+
+                const label = sidebarCollapse.querySelector('span');
+                if (label) label.textContent = value ? 'Expand' : 'Collapse';
+            }
+
+            try {
+                localStorage.setItem('ikwenta-sidebar-collapsed', value ? '1' : '0');
+            } catch {}
+        };
+
+        if (sidebarCollapse) {
+            applyCollapsed(getSavedCollapsed());
+        }
+
+        // Handle everything with event delegation so it still works after
+        // sections are swapped in via fetch.
+
+        document.addEventListener('click', (event) => {
+            const collapseTrigger = event.target.closest('[data-sidebar-collapse]');
+            if (collapseTrigger) {
+                applyCollapsed(!collapsed);
+                return;
+            }
+
+            const closeTrigger = event.target.closest('[data-sidebar-close]');
+            if (closeTrigger) {
+                closeSidebar();
+                return;
+            }
+
+            const sectionLink = event.target.closest('[data-section-link]');
+            if (sectionLink) {
+                event.preventDefault();
+
+                const key = sectionLink.getAttribute('data-nav');
+                if (key) setActiveNav(key);
+
+                loadSection(sectionLink.getAttribute('href'));
+                closeSidebar();
+                return;
+            }
+
+            const pageLink = event.target.closest('[data-pagination] a');
+            if (pageLink) {
+                event.preventDefault();
+                loadSection(pageLink.getAttribute('href'));
+                return;
+            }
+
+            const debtToggle = event.target.closest('[data-debt-toggle]');
+            if (debtToggle) {
+                const contentId = debtToggle.getAttribute('aria-controls');
+                const content = contentId ? document.getElementById(contentId) : null;
+                const isOpen = debtToggle.getAttribute('aria-expanded') === 'true';
+
+                debtToggle.setAttribute('aria-expanded', String(!isOpen));
+                debtToggle.classList.toggle('is-open', !isOpen);
+                if (content) content.hidden = isOpen;
+
+                const label = debtToggle.querySelector('span');
+                if (label) label.textContent = isOpen ? 'View Details' : 'Hide Details';
+                return;
+            }
+
+            const collapseToggle = event.target.closest('[data-collapse-toggle]');
+            if (collapseToggle) {
+                const panelId = collapseToggle.getAttribute('aria-controls');
+                const panel = panelId ? document.getElementById(panelId) : null;
+                const isOpen = collapseToggle.getAttribute('aria-expanded') === 'true';
+
+                collapseToggle.setAttribute('aria-expanded', String(!isOpen));
+                collapseToggle.classList.toggle('is-open', !isOpen);
+                if (panel) panel.hidden = isOpen;
+            }
+        });
+
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', () => {
+                if (sidebar && sidebar.classList.contains('is-open')) {
+                    closeSidebar();
+                } else {
+                    openSidebar();
+                }
+            });
+        }
+
+        if (sidebarBackdrop) {
+            sidebarBackdrop.addEventListener('click', closeSidebar);
+        }
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') closeSidebar();
+        });
+    }
 })();

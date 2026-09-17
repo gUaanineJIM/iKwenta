@@ -11,23 +11,23 @@
     background: var(--page-bg);
 }
 
-.section-heading {
+.landing .section-heading {
     text-align: center;
     max-width: 650px;
     margin: 0 auto 50px;
 }
 
-.section-heading .eyebrow {
+.landing .section-heading .eyebrow {
     margin-bottom: 15px;
 }
 
-.section-heading h2 {
+.landing .section-heading h2 {
     font-size: clamp(30px, 4vw, 44px);
     color: var(--green-dark);
     margin-bottom: 15px;
 }
 
-.section-heading p {
+.landing .section-heading p {
     color: var(--text-muted);
     line-height: 1.7;
     font-size: 15px;
@@ -57,7 +57,7 @@
         padding: 60px 0;
     }
 
-    .section-heading {
+    .landing .section-heading {
         margin-bottom: 35px;
     }
 }
