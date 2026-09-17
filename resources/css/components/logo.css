@@ -1,0 +1,43 @@
+/* =========================
+   LOGO
+========================= */
+
+.logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--green-dark);
+}
+
+.logo-mark {
+    display: inline-flex;
+    line-height: 0;
+}
+
+.logo-mark svg {
+    height: 40px;
+    width: auto;
+    display: block;
+}
+
+.logo-text {
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: var(--green-dark);
+}
+
+/* the embedded photo inside the logo: flip it for dark surfaces */
+[data-theme='dark'] .logo-mark .ikwenta-photo {
+    filter: invert(1) brightness(1.15);
+}
+
+@media (max-width: 768px) {
+    .logo-mark svg {
+        height: 34px;
+    }
+
+    .logo-text {
+        font-size: 21px;
+    }
+}

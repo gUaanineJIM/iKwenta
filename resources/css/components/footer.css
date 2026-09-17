@@ -9,3 +9,16 @@
     font-size: 13px;
     border-top: 1px solid var(--border-soft);
 }
+
+.footer-brand {
+    color: var(--green-dark);
+    font-weight: 800;
+    font-size: 14px;
+    margin-bottom: 6px;
+    letter-spacing: -0.3px;
+}
+
+.footer-brand span {
+    color: var(--green-light);
+    font-weight: 600;
+}

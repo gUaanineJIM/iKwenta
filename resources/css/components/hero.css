@@ -122,7 +122,7 @@
 
 .floating-card {
     position: absolute;
-    bottom: 25px;
+    bottom: 1px;
     left: -35px;
     background: var(--surface-elevated);
     padding: 16px 20px;

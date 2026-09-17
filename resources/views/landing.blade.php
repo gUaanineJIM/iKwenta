@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Welcome')
+@section('title', 'iKwenta — Debt & Store Management')
 
 @section('content')
 
@@ -10,14 +10,12 @@
         NAVIGATION
         ========================== --}}
 
-        <nav class="navbar">
-            <div class="container navbar-inner">
+<nav class="navbar">
+        <div class="container navbar-inner">
 
-                <a href="/" class="logo">
-                    iKwenta<span>.</span>
-                </a>
+            @include('partials.logo')
 
-                <div class="nav-actions">
+            <div class="nav-actions">
 
                     <button type="button" class="theme-toggle" data-theme-toggle aria-label="Toggle dark mode">
                         <span class="icon-sun" aria-hidden="true">
@@ -37,7 +35,7 @@
                         <span class="icon-moon" aria-hidden="true">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M21 12.79A9 9 0 1 1 11.21 3
-                         7 7 0 0 0 21 12.79z"></path>
+                             7 7 0 0 0 21 12.79z"></path>
                             </svg>
                         </span>
                     </button>
@@ -88,21 +86,20 @@
                 </div>
 
                 <div class="hero-image-wrapper">
-
-                    <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=1000&q=80"
-                        alt="Store counter with receipt and ledger" class="hero-image">
+                    <video class="hero-image" autoplay muted loop playsinline>
+                        <source src="{{ asset('videos/iKwenta.mp4') }}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
 
                     <div class="floating-card">
                         <div class="floating-icon">
                             ✓
                         </div>
-
                         <div>
                             <strong>Tracked & Transparent</strong>
                             <small>Debts, payments & audit logs</small>
                         </div>
                     </div>
-
                 </div>
 
             </div>
@@ -166,17 +163,21 @@
         FOOTER
         ========================== --}}
 
-        <footer class="footer">
+<footer class="footer">
 
-            <div class="container">
+        <div class="container">
 
-                <p>
-                    © {{ date('Y') }} iKwenta — Debt & Store Management System. All rights reserved.
-                </p>
+            <p class="footer-brand">
+                iKwenta — <span>Debt & Store Management System</span>
+            </p>
 
-            </div>
+            <p>
+                © {{ date('Y') }} iKwenta. All rights reserved.
+            </p>
 
-        </footer>
+        </div>
+
+    </footer>
 
     </section>
 

@@ -10,7 +10,7 @@
         <h2 class="modal-title" id="customer-login-title">Customer Login</h2>
 
         <p class="modal-subtitle">
-            Enter the 6-digit code we sent to your registered contact to view your debts, credited items, and payment history.
+            Enter the 5-digit code we sent to your registered contact to view your debts, credited items, and payment history.
         </p>
 
         <form method="POST" action="{{ route('customer.login') }}" class="auth-form">
@@ -24,7 +24,6 @@
                     <input class="code-input" type="text" inputmode="numeric" maxlength="1" autocomplete="one-time-code" aria-label="Digit 3" required>
                     <input class="code-input" type="text" inputmode="numeric" maxlength="1" autocomplete="one-time-code" aria-label="Digit 4" required>
                     <input class="code-input" type="text" inputmode="numeric" maxlength="1" autocomplete="one-time-code" aria-label="Digit 5" required>
-                    <input class="code-input" type="text" inputmode="numeric" maxlength="1" autocomplete="one-time-code" aria-label="Digit 6" required>
                 </div>
 
                 <input type="hidden" name="code" id="customer-code">

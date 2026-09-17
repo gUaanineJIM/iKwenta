@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="iKwenta — Debt & Store Management System. Manage products, customers, debts, payments, and transactions.">
 
-    <title>@yield('title', 'iKwenta')</title>
+    <title>@yield('title', 'iKwenta — Debt & Store Management')</title>
+
+    <link rel="icon" type="image/svg+xml" href="{{ asset('images/iKwenta-logo.svg') }}">
 
     <script>
         (function () {
