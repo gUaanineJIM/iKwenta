@@ -20,6 +20,7 @@ class Payment extends Model
 
     protected $fillable = [
         'payment_id',
+        'customer_id',
         'debt_id',
         'amount_paid',
         'payment_date',
@@ -30,6 +31,15 @@ class Payment extends Model
         'amount_paid' => 'decimal:2',
         'payment_date' => 'datetime',
     ];
+
+    public function customer(): BelongsTo
+    {
+        return $this->belongsTo(
+            Customer::class,
+            'customer_id',
+            'customer_id'
+        );
+    }
 
     public function debt(): BelongsTo
     {

@@ -6,6 +6,7 @@ use App\Models\Customer;
 use App\Models\Debt;
 use App\Models\DebtItem;
 use App\Models\Payment;
+use App\Services\CustomerAccountService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -30,6 +31,13 @@ class CustomerDashboardController extends Controller
     private const ITEMS_PER_PAGE = 12;
 
     private const PAYMENTS_PER_PAGE = 8;
+
+    private CustomerAccountService $accounts;
+
+    public function __construct(CustomerAccountService $accounts)
+    {
+        $this->accounts = $accounts;
+    }
 
     /**
      * Render the customer dashboard shell with the overview section active.
@@ -120,7 +128,10 @@ class CustomerDashboardController extends Controller
     {
         return match ($section) {
             'debts' => ['debts' => $this->debtsFor($customer)],
-            'items' => ['items' => $this->itemsFor($customer)],
+            'items' => [
+                'items' => $this->itemsFor($customer),
+                'summary' => $this->summaryFor($customer),
+            ],
             'payments' => ['payments' => $this->paymentsFor($customer)],
             default => $this->overviewData($customer),
         };
@@ -140,29 +151,17 @@ class CustomerDashboardController extends Controller
     }
 
     /**
-     * Financial summary for the customer, excluding cancelled debts.
+     * Financial summary for the customer's account.
      */
     private function summaryFor(Customer $customer): array
     {
-        $totalDebt = (string) DebtItem::query()
-            ->join('debts', 'debts.debt_id', '=', 'debt_items.debt_id')
-            ->where('debts.customer_id', $customer->customer_id)
-            ->where('debts.status', '!=', 'cancelled')
-            ->sum('debt_items.subtotal');
-
-        $totalPaid = (string) Payment::query()
-            ->join('debts', 'debts.debt_id', '=', 'payments.debt_id')
-            ->where('debts.customer_id', $customer->customer_id)
-            ->where('debts.status', '!=', 'cancelled')
-            ->sum('payments.amount_paid');
-
-        $totalDebt = $totalDebt !== '' ? $totalDebt : '0.00';
-        $totalPaid = $totalPaid !== '' ? $totalPaid : '0.00';
+        $totalDebt = $this->accounts->totalCredit($customer);
+        $totalPaid = $this->accounts->totalPaid($customer);
 
         return [
             'totalDebt' => $totalDebt,
             'totalPaid' => $totalPaid,
-            'remainingBalance' => $this->decimalSub($totalDebt, $totalPaid),
+            'remainingBalance' => $this->accounts->outstandingBalance($customer),
         ];
     }
 
@@ -170,9 +169,7 @@ class CustomerDashboardController extends Controller
     {
         return DebtItem::query()
             ->whereHas('debt', function ($query) use ($customer) {
-                $query
-                    ->where('customer_id', $customer->customer_id)
-                    ->where('status', '!=', 'cancelled');
+                $query->where('customer_id', $customer->customer_id);
             })
             ->with(['product', 'debt'])
             ->latest()
@@ -183,12 +180,7 @@ class CustomerDashboardController extends Controller
     private function recentPayments(Customer $customer)
     {
         return Payment::query()
-            ->whereHas('debt', function ($query) use ($customer) {
-                $query
-                    ->where('customer_id', $customer->customer_id)
-                    ->where('status', '!=', 'cancelled');
-            })
-            ->with('debt')
+            ->where('customer_id', $customer->customer_id)
             ->latest('payment_date')
             ->limit(self::RECENT_PAYMENTS_LIMIT)
             ->get();
@@ -203,9 +195,9 @@ class CustomerDashboardController extends Controller
             ->get();
 
         $debts->each(function (Debt $debt) {
-            $debt->items_total = $this->decimalSum($debt->items, 'subtotal');
-            $debt->paid_total = $this->decimalSum($debt->payments, 'amount_paid');
-            $debt->remaining_total = $this->decimalSub($debt->items_total, $debt->paid_total);
+            $debt->items_total = $this->accounts->transactionTotal($debt);
+            $debt->paid_total = $this->accounts->paymentsTotal($debt);
+            $debt->remaining_total = $this->accounts->remainingBalance($debt);
         });
 
         return $debts;
@@ -215,9 +207,7 @@ class CustomerDashboardController extends Controller
     {
         return DebtItem::query()
             ->whereHas('debt', function ($query) use ($customer) {
-                $query
-                    ->where('customer_id', $customer->customer_id)
-                    ->where('status', '!=', 'cancelled');
+                $query->where('customer_id', $customer->customer_id);
             })
             ->with(['product', 'debt'])
             ->latest()
@@ -228,50 +218,9 @@ class CustomerDashboardController extends Controller
     private function paymentsFor(Customer $customer)
     {
         return Payment::query()
-            ->whereHas('debt', function ($query) use ($customer) {
-                $query
-                    ->where('customer_id', $customer->customer_id)
-                    ->where('status', '!=', 'cancelled');
-            })
-            ->with('debt')
+            ->where('customer_id', $customer->customer_id)
             ->latest('payment_date')
             ->paginate(self::PAYMENTS_PER_PAGE)
             ->withQueryString();
-    }
-
-    /**
-     * Sum a column across a collection using decimal-safe arithmetic.
-     */
-    private function decimalSum(iterable $items, string $column, int $scale = 2): string
-    {
-        $total = '0.00';
-
-        foreach ($items as $item) {
-            $value = $item->{$column};
-
-            if (! is_null($value) && $value !== '') {
-                $total = $this->decimalAdd($total, (string) $value, $scale);
-            }
-        }
-
-        return $total;
-    }
-
-    private function decimalAdd(string $a, string $b, int $scale = 2): string
-    {
-        if (function_exists('bcadd')) {
-            return bcadd($a, $b, $scale);
-        }
-
-        return number_format((float) $a + (float) $b, $scale, '.', '');
-    }
-
-    private function decimalSub(string $a, string $b, int $scale = 2): string
-    {
-        if (function_exists('bcsub')) {
-            return bcsub($a, $b, $scale);
-        }
-
-        return number_format((float) $a - (float) $b, $scale, '.', '');
     }
 }
