@@ -17,7 +17,21 @@
 @import './auth/forms.css';
 
 @import './pages/landing.css';
-@import './pages/customer-dashboard.css';
+
+
+@import './pages/customer/dashboard.css';
+@import './pages/customer/sidebar.css';
+@import './pages/customer/overview.css';
+@import './pages/customer/summary.css';
+@import './pages/customer/recent-items.css';
+@import './pages/customer/debt-overview.css';
+@import './pages/customer/items-list.css';
+@import './pages/customer/payment-history.css';
+@import './pages/customer/payment-list.css';
+@import './pages/customer/empty-state.css';
+@import './pages/customer/pagination.css';
+@import './pages/customer/table.css';
+@import './pages/customer/shared.css';
 
 @theme {
     --font-sans:
