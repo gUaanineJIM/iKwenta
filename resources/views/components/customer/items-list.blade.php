@@ -1,24 +1,35 @@
 @props([
     'items' => null,
+    'summary' => [
+        'totalDebt' => '0.00',
+        'totalPaid' => '0.00',
+        'remainingBalance' => '0.00',
+    ],
 ])
 
 @php
     $isPaginated = $items instanceof \Illuminate\Pagination\AbstractPaginator;
     $items = $items ?? collect();
     $recordCount = $isPaginated ? $items->total() : $items->count();
+
+    $itemsTotal = (float) ($summary['totalDebt'] ?? 0);
+    $paidTotal = (float) ($summary['totalPaid'] ?? 0);
+    $amountPayable = (float) ($summary['remainingBalance'] ?? 0);
+    $hasPayment = $paidTotal > 0;
+    $hasPartialPayment = $hasPayment && $paidTotal < $itemsTotal;
 @endphp
 
 <section class="customer-block" aria-labelledby="customer-items-heading">
     <div class="section-heading">
         <div>
-            <span class="eyebrow"> Inventory Activity </span>
+            <span class="customer-eyebrow"> Inventory Activity </span>
 
             <h2 id="customer-items-heading" tabindex="-1" data-section-title>Debt Items</h2>
 
-            <p class="section-heading__sub">All items loaned to you, with date and time.</p>
+            <p class="section-heading__description">All items loaned to you, with date and time.</p>
         </div>
 
-        <span class="debt-count">
+        <span class="count-badge">
             {{ $recordCount }} {{ $recordCount === 1 ? 'item' : 'items' }}
         </span>
     </div>
@@ -41,8 +52,8 @@
                         <th>Qty.</th>
                         <th>Unit Price</th>
                         <th>Subtotal</th>
+                        <th>Notes</th>
                         <th>Date &amp; Time</th>
-                        <th>Debt</th>
                     </tr>
                 </thead>
 
@@ -59,10 +70,6 @@
                                         <strong>
                                             {{ $item->product->product_name ?? 'Unknown Product' }}
                                         </strong>
-
-                                        @if ($item->notes)
-                                            <small> {{ $item->notes }} </small>
-                                        @endif
                                     </div>
                                 </div>
                             </td>
@@ -75,6 +82,10 @@
                                 <strong> ₱{{ number_format((float) $item->subtotal, 2) }} </strong>
                             </td>
 
+                            <td data-label="Notes" class="cell-notes">
+                                {{ $item->notes ?: '—' }}
+                            </td>
+
                             <td data-label="Date &amp; Time">
                                 <span class="cell-stack">
                                     {{ $item->created_at?->format('M d, Y') }}
@@ -82,23 +93,40 @@
                                 </span>
                             </td>
 
-                            <td data-label="Debt">
-                                @if ($item->debt)
-                                    <div class="debt-cell">
-                                        <span class="debt-ref"> #{{ substr($item->debt->debt_id, 0, 8) }} </span>
-
-                                        <span class="status-badge status-badge--{{ $item->debt->status }}">
-                                            {{ ucfirst($item->debt->status) }}
-                                        </span>
-                                    </div>
-                                @else
-                                    <span class="debt-ref"> — </span>
-                                @endif
-                            </td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
+        </div>
+
+        <div class="items-summary" aria-label="Debt items total and amount payable">
+            <div class="items-summary__row">
+                <span class="items-summary__label"> Total of debt items </span>
+
+                <strong class="items-summary__amount">
+                    ₱{{ number_format($itemsTotal, 2) }}
+                </strong>
+            </div>
+
+            @if ($hasPayment)
+                <div class="items-summary__row items-summary__row--deduction">
+                    <span class="items-summary__label">
+                        Less: {{ $hasPartialPayment ? 'partial payment' : 'payment' }}
+                    </span>
+
+                    <strong class="items-summary__amount">
+                        &minus;₱{{ number_format($paidTotal, 2) }}
+                    </strong>
+                </div>
+            @endif
+
+            <div class="items-summary__row items-summary__row--payable">
+                <span class="items-summary__label"> Amount payable </span>
+
+                <strong class="items-summary__amount">
+                    ₱{{ number_format($amountPayable, 2) }}
+                </strong>
+            </div>
         </div>
 
         @if ($isPaginated)

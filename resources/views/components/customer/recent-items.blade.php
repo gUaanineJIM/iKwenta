@@ -26,7 +26,7 @@
                 <div class="recent-item__main">
                     <strong> {{ $item->product->product_name ?? 'Unknown Product' }} </strong>
 
-                    <span class="recent-item__meta">
+                    <span class="recent-item__details">
                         {{ $item->quantity }} × ₱{{ number_format((float) $item->unit_price, 2) }}
                     </span>
 
@@ -35,7 +35,7 @@
                     @endif
                 </div>
 
-                <div class="recent-item__right">
+                <div class="recent-item__total">
                     <strong> ₱{{ number_format((float) $item->subtotal, 2) }} </strong>
 
                     <time class="recent-item__date" datetime="{{ $item->created_at?->toIso8601String() }}">

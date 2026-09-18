@@ -19,14 +19,14 @@
 
         <button
             type="button"
-            class="collapse-toggle"
+            @class(['collapse-toggle', 'is-open' => ! $collapsed])
             data-collapse-toggle
             aria-expanded="{{ $collapsed ? 'false' : 'true' }}"
             aria-controls="{{ $id }}-panel"
         >
             <span class="collapse-toggle__label"> {{ $title }} </span>
 
-            <span class="debt-count" aria-hidden="true"> {{ $total }} </span>
+            <span class="count-badge" aria-hidden="true"> {{ $total }} </span>
 
             <svg class="collapse-toggle__chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
@@ -58,14 +58,14 @@
 
         <div class="section-heading">
             <div>
-                <span class="eyebrow"> Account History </span>
+                <span class="customer-eyebrow"> Account History </span>
 
                 <h2 id="{{ $id }}-heading" tabindex="-1" data-section-title>{{ $title }}</h2>
 
-                <p class="section-heading__sub">Every payment applied to your debts.</p>
+                <p class="section-heading__description">Every payment applied to your debts.</p>
             </div>
 
-            <span class="debt-count">
+            <span class="count-badge">
                 {{ $total }} {{ $total === 1 ? 'payment' : 'payments' }}
             </span>
         </div>

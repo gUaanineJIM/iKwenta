@@ -20,12 +20,7 @@
                 <div class="payment-row__info">
                     <strong> ₱{{ number_format((float) $payment->amount_paid, 2) }} </strong>
 
-                    <span>
-                        Payment received
-                        @if ($payment->debt)
-                            · #{{ substr($payment->debt->debt_id, 0, 8) }}
-                        @endif
-                    </span>
+                    <span>Payment received</span>
                 </div>
 
                 <time datetime="{{ $payment->payment_date?->toIso8601String() }}">

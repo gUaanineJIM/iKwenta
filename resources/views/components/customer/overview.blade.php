@@ -13,7 +13,7 @@
     {{-- Page Heading --}}
     <section class="page-heading">
         <div>
-            <span class="eyebrow"> Customer Portal </span>
+            <span class="customer-eyebrow"> Customer Portal </span>
 
             <h1 tabindex="-1" data-section-title>My Account</h1>
 
@@ -34,7 +34,7 @@
     <section class="customer-block" aria-labelledby="recent-items-heading">
         <div class="section-heading">
             <div>
-                <span class="eyebrow"> Recent Activity </span>
+                <span class="customer-eyebrow"> Recent Activity </span>
 
                 <h2 id="recent-items-heading">Recent Debt Items</h2>
             </div>
@@ -48,7 +48,7 @@
         :payments="$payments"
         title="Payment History"
         collapsible
-        collapsed
+        :collapsed="false"
         show-view-all
         id="overview-payment-history"
     />
