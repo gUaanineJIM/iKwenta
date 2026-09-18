@@ -1,0 +1,67 @@
+/* =========================
+   CUSTOMER PAYMENT HISTORY
+========================= */
+
+/* =========================
+   Collapse toggle
+========================= */
+
+.collapse-toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 18px;
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-md);
+    background: var(--surface-elevated);
+    color: var(--text-dark);
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 800;
+    text-align: left;
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.collapse-toggle:hover {
+    background: var(--surface-muted);
+    border-color: var(--green-light);
+}
+
+.collapse-toggle .count-badge {
+    margin-left: auto;
+}
+
+.collapse-toggle__chevron {
+    color: var(--green-mid);
+    transition: transform 0.2s ease;
+}
+
+.collapse-toggle.is-open .collapse-toggle__chevron {
+    transform: rotate(180deg);
+}
+
+/* =========================
+   Collapse panel
+========================= */
+
+.collapse-panel {
+    margin-top: 14px;
+}
+
+.collapse-panel[hidden] {
+    display: none;
+}
+
+/* =========================
+   Responsive
+========================= */
+
+@media (max-width: 640px) {
+    .collapse-toggle {
+        padding: 14px 15px;
+        font-size: 14px;
+    }
+}

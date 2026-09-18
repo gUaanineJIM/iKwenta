@@ -1,0 +1,104 @@
+/* =========================
+   CUSTOMER SUMMARY
+========================= */
+
+/* =========================
+   Summary cards
+========================= */
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    margin-bottom: 54px;
+}
+
+.summary-card {
+    min-height: 130px;
+    padding: 22px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.summary-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.summary-card__icon {
+    width: 46px;
+    height: 46px;
+    flex: 0 0 46px;
+    display: grid;
+    place-items: center;
+    border-radius: 14px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: 19px;
+    font-weight: 800;
+}
+
+.summary-card__content {
+    min-width: 0;
+}
+
+.summary-card__label {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+.summary-card__amount {
+    display: block;
+    color: var(--text-dark);
+    font-size: clamp(21px, 3vw, 28px);
+    line-height: 1.1;
+    overflow-wrap: anywhere;
+}
+
+.summary-card--balance {
+    border-color: rgba(153, 173, 122, 0.4);
+    background: linear-gradient(135deg, var(--accent-soft), var(--surface));
+}
+
+/* =========================
+   Responsive
+========================= */
+
+@media (max-width: 900px) {
+    .summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .summary-card--balance {
+        grid-column: span 2;
+    }
+}
+
+@media (max-width: 640px) {
+    .summary-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        margin-bottom: 40px;
+    }
+
+    .summary-card,
+    .summary-card--balance {
+        grid-column: auto;
+        min-height: 105px;
+        padding: 18px;
+    }
+
+    .summary-card__amount {
+        font-size: 23px;
+    }
+}

@@ -1,63 +1,65 @@
-/* =========================
-   LANDING PAGE
-========================= */
+/* ========================= LANDING PAGE ========================= */ 
 
-.landing {
-    overflow: hidden;
+.landing  {
+  overflow: hidden;
 }
 
-.login-section {
-    padding: 100px 0;
-    background: var(--page-bg);
+.login-section  {
+  padding: 100px 0;
+  background: var(--page-bg);
 }
 
-.landing .section-heading {
-    text-align: center;
-    max-width: 650px;
-    margin: 0 auto 50px;
+
+.landing .section-heading  {
+  text-align: center;
+  max-width: 650px;
+  margin: 0 auto 50px;
+  display: block;
 }
 
-.landing .section-heading .eyebrow {
-    margin-bottom: 15px;
+.landing .section-heading .eyebrow  {
+  margin-bottom: 15px;
 }
 
-.landing .section-heading h2 {
-    font-size: clamp(30px, 4vw, 44px);
-    color: var(--green-dark);
-    margin-bottom: 15px;
+.landing .section-heading h2  {
+  font-size: clamp(30px, 4vw, 44px);
+  color: var(--green-dark);
+  margin-bottom: 15px;
 }
 
-.landing .section-heading p {
-    color: var(--text-muted);
-    line-height: 1.7;
-    font-size: 15px;
+.landing .section-heading p  {
+  color: var(--text-muted);
+  line-height: 1.7;
+  font-size: 15px;
 }
 
-.login-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 28px;
-    max-width: 900px;
-    margin: 0 auto;
+.login-grid  {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 28px;
+  max-width: 900px;
+  margin: 0 auto;
 }
 
-@media (max-width: 850px) {
-    .login-section {
-        padding: 75px 0;
-    }
+@media (max-width: 850px)  {
+  .login-section  {
+    padding: 75px 0;
+  }
+
 }
 
-@media (max-width: 600px) {
-    .login-grid {
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
+@media (max-width: 600px)  {
+  .login-grid  {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
 
-    .login-section {
-        padding: 60px 0;
-    }
+  .login-section  {
+    padding: 60px 0;
+  }
 
-    .landing .section-heading {
-        margin-bottom: 35px;
-    }
+  .landing .section-heading  {
+    margin-bottom: 35px;
+  }
+
 }

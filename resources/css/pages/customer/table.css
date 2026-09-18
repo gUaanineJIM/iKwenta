@@ -1,0 +1,228 @@
+/* =========================
+   CUSTOMER TABLES
+========================= */
+
+/* =========================
+   Table wrapper
+========================= */
+
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-md);
+    background: var(--surface-elevated);
+}
+
+/* =========================
+   Debt table
+========================= */
+
+.debt-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 620px;
+}
+
+.debt-table th,
+.debt-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border-soft);
+    text-align: left;
+}
+
+.debt-table th {
+    background: var(--surface-muted);
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.debt-table td {
+    color: var(--text-dark);
+    font-size: 13px;
+}
+
+.debt-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.debt-table tfoot td {
+    border-top: 1px solid var(--border-soft);
+    border-bottom: 0;
+    background: var(--surface-muted);
+    font-weight: 800;
+}
+
+.debt-table th:nth-child(n + 2),
+.debt-table td:nth-child(n + 2) {
+    white-space: nowrap;
+}
+
+.debt-table td.cell-notes {
+    min-width: 140px;
+    max-width: 260px;
+    white-space: normal;
+}
+
+/* =========================
+   Debt cell & reference
+========================= */
+
+.debt-cell {
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.debt-ref {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 9px;
+    border-radius: 999px;
+    background: var(--surface-muted);
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+/* =========================
+   Product cell
+========================= */
+
+.product-cell {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+}
+
+.product-cell__icon {
+    width: 34px;
+    height: 34px;
+    flex: 0 0 34px;
+    display: grid;
+    place-items: center;
+    border-radius: 10px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.product-cell strong {
+    display: block;
+    margin-bottom: 2px;
+    font-size: 13px;
+}
+
+.product-cell small {
+    display: block;
+    color: var(--text-muted);
+    font-size: 11px;
+}
+
+/* =========================
+   Responsive — table becomes cards
+========================= */
+
+@media (max-width: 640px) {
+    .table-wrapper {
+        overflow: visible;
+        border: 0;
+        background: transparent;
+    }
+
+    .debt-table {
+        min-width: 0;
+    }
+
+    .debt-table thead {
+        display: none;
+    }
+
+    .debt-table,
+    .debt-table tbody,
+    .debt-table tr,
+    .debt-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .debt-table tr {
+        margin-bottom: 10px;
+        padding: 13px;
+        background: var(--surface-muted);
+        border: 1px solid var(--border-soft);
+        border-radius: var(--radius-md);
+    }
+
+    .debt-table tr:last-child {
+        margin-bottom: 0;
+    }
+
+    .debt-table td {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        padding: 7px 0;
+        border: 0;
+        text-align: right;
+    }
+
+    .debt-table tbody td::before {
+        content: attr(data-label);
+        color: var(--text-muted);
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .debt-table tbody td:first-child {
+        display: block;
+        padding-bottom: 12px;
+        margin-bottom: 5px;
+        border-bottom: 1px solid var(--border-soft);
+        text-align: left;
+    }
+
+    .debt-table tbody td:first-child::before {
+        display: none;
+    }
+
+    .debt-table tfoot {
+        display: block;
+        margin-top: 10px;
+    }
+
+    .debt-table tfoot tr {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin: 0;
+        padding: 14px;
+        background: var(--accent-soft);
+        border: 1px solid var(--border-soft);
+        border-radius: var(--radius-md);
+    }
+
+    .debt-table tfoot td {
+        display: block;
+        width: auto;
+        padding: 0;
+        border: 0;
+    }
+
+    .debt-table .cell-stack {
+        align-items: flex-end;
+        text-align: right;
+    }
+
+    .debt-cell {
+        align-items: flex-end;
+    }
+}

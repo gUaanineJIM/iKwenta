@@ -1,0 +1,84 @@
+/* =========================
+   CUSTOMER ITEMS LIST
+========================= */
+
+/* =========================
+   Items ledger
+========================= */
+
+.items-summary {
+    width: min(100%, 360px);
+    margin: 16px 0 0 auto;
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+}
+
+.items-summary__row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.items-summary__label {
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+.items-summary__amount {
+    color: var(--text-dark);
+    font-size: 15px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.items-summary__row--deduction .items-summary__amount {
+    color: var(--text-muted);
+}
+
+.items-summary__row--payable {
+    padding-top: 10px;
+    border-top: 1px dashed var(--border-soft);
+}
+
+.items-summary__row--payable .items-summary__label {
+    color: var(--text-dark);
+    font-weight: 800;
+}
+
+.items-summary__row--payable .items-summary__amount {
+    color: var(--accent);
+    font-size: clamp(18px, 2.4vw, 22px);
+}
+
+/* =========================
+   Items table modifiers
+========================= */
+
+.items-table td small {
+    display: block;
+    color: var(--text-muted);
+    font-size: 11px;
+}
+
+.cell-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+/* =========================
+   Responsive
+========================= */
+
+@media (max-width: 640px) {
+    .items-summary {
+        width: 100%;
+    }
+}
