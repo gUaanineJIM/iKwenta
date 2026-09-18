@@ -64,7 +64,7 @@
 
                 <div class="hero-text">
 
-                    <span class="eyebrow">
+                    <span class="eyebrow" style="display: block; text-align: center;">
                         iKwenta · Debt & Store Management
                     </span>
 
