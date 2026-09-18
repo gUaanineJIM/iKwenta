@@ -2,11 +2,13 @@
 
 namespace Tests\Feature;
 
+use App\Enums\DebtStatus;
 use App\Models\Customer;
 use App\Models\Debt;
 use App\Models\DebtItem;
 use App\Models\Payment;
 use App\Models\Product;
+use App\Services\CustomerAccountService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -64,13 +66,12 @@ class CustomerDashboardTest extends TestCase
         ]);
     }
 
-    private function debt(Customer $customer, string $status = 'unpaid'): Debt
+    private function debt(Customer $customer): Debt
     {
         return Debt::create([
             'debt_id' => (string) Str::uuid(),
             'customer_id' => $customer->customer_id,
             'created_by' => $this->userId,
-            'status' => $status,
         ]);
     }
 
@@ -95,6 +96,7 @@ class CustomerDashboardTest extends TestCase
     {
         return Payment::create([
             'payment_id' => (string) Str::uuid(),
+            'customer_id' => $debt->customer_id,
             'debt_id' => $debt->debt_id,
             'amount_paid' => $amount,
             'payment_date' => $date ?: now()->toDateTimeString(),
@@ -120,11 +122,11 @@ class CustomerDashboardTest extends TestCase
     {
         $a = $this->customer('11111', 'Renesme Moral');
 
-        $debtOne = $this->debt($a, 'unpaid');
+        $debtOne = $this->debt($a);
         $this->item($debtOne, $this->product('Rice'), 2, '100.00');
         $this->payment($debtOne, '120.00');
 
-        $debtTwo = $this->debt($a, 'partially_paid');
+        $debtTwo = $this->debt($a);
         $this->item($debtTwo, $this->product('Soap'), 1, '25.00');
 
         $this->withSession(['customer_id' => $a->customer_id])
@@ -135,24 +137,91 @@ class CustomerDashboardTest extends TestCase
             ->assertSee('105.00');  // remaining
     }
 
-    public function test_cancelled_debts_are_excluded_from_the_summary(): void
+    public function test_summary_accounts_for_payments_across_transactions(): void
     {
         $a = $this->customer('11112', 'Renesme Moral');
+        $service = app(CustomerAccountService::class);
 
-        $active = $this->debt($a, 'unpaid');
-        $this->item($active, $this->product('Bread'), 1, '200.00');
-        $this->payment($active, '120.00');
+        $first = $this->debt($a);
+        $this->item($first, $this->product('Bread'), 1, '200.00');
 
-        $cancelled = $this->debt($a, 'cancelled');
-        $this->item($cancelled, $this->product('Cancelled Goods'), 1, '500.00');
+        $second = $this->debt($a);
+        $this->item($second, $this->product('Milk'), 1, '100.00');
+        $service->recordPayment($second, '40.00', $this->userId);
+
+        $third = $this->debt($a);
+        $this->item($third, $this->product('Coffee'), 1, '50.00');
+        $service->recordPayment($third, '50.00', $this->userId);
 
         $this->withSession(['customer_id' => $a->customer_id])
             ->get('/customer/dashboard')
             ->assertOk()
-            ->assertSee('200.00')
-            ->assertSee('120.00')
-            ->assertSee('80.00')
-            ->assertDontSee('700.00');
+            ->assertSee('350.00')   // total debt: 200 + 100 + 50
+            ->assertSee('90.00')    // total paid: 40 + 50
+            ->assertSee('260.00');  // remaining balance: 200 + 60 + 0
+    }
+
+    public function test_debt_transaction_renders_status_total_paid_and_remaining(): void
+    {
+        $a = $this->customer('11123', 'Renesme Moral');
+        $debt = $this->debt($a);
+        $this->item($debt, $this->product('Rice'), 1, '10.00');
+
+        $this->withSession(['customer_id' => $a->customer_id])
+            ->get('/customer/dashboard/section/debts', ['X-Requested-With' => 'XMLHttpRequest'])
+            ->assertOk()
+            ->assertSee('10.00')
+            ->assertSee('status-badge', false)
+            ->assertSee('Unpaid')
+            ->assertSee('Active Credits')
+            ->assertSee('Remaining');
+    }
+
+    public function test_debts_section_splits_active_and_history(): void
+    {
+        $a = $this->customer('11125', 'Renesme Moral');
+
+        $active = $this->debt($a);
+        $this->item($active, $this->product('Rice'), 1, '100.00');
+
+        $paid = $this->debt($a);
+        $this->item($paid, $this->product('Soap'), 1, '50.00');
+
+        $service = app(CustomerAccountService::class);
+        $service->recordPayment($active, '30.00', $this->userId);
+        $service->recordPayment($paid, '50.00', $this->userId);
+
+        $response = $this->withSession(['customer_id' => $a->customer_id])
+            ->get('/customer/dashboard/section/debts', ['X-Requested-With' => 'XMLHttpRequest']);
+
+        $response->assertOk()
+            ->assertSee('Active Credits')
+            ->assertSee('Partially Paid')
+            ->assertSee('History')
+            ->assertSee('status-badge--paid', false)
+            ->assertSee('70.00');   // active record's remaining
+    }
+
+    public function test_manually_marked_record_shows_manual_badge(): void
+    {
+        $a = $this->customer('11126', 'Renesme Moral');
+
+        $debt = $this->debt($a);
+        $this->item($debt, $this->product('Rice'), 1, '100.00');
+        $this->payment($debt, '30.00');
+
+        $debt->status = DebtStatus::Paid;
+        $debt->paid_manually = true;
+        $debt->paid_manually_by = $this->userId;
+        $debt->paid_manually_at = now();
+        $debt->save();
+
+        $this->withSession(['customer_id' => $a->customer_id])
+            ->get('/customer/dashboard/section/debts', ['X-Requested-With' => 'XMLHttpRequest'])
+            ->assertOk()
+            ->assertSee('History')
+            ->assertSee('status-badge--manual', false)
+            ->assertSee('Paid — Manually Marked');
     }
 
     public function test_customer_only_sees_their_own_data(): void
@@ -160,10 +229,10 @@ class CustomerDashboardTest extends TestCase
         $a = $this->customer('11113', 'Renesme Moral');
         $b = $this->customer('22222', 'Axel Moral');
 
-        $debtA = $this->debt($a, 'unpaid');
+        $debtA = $this->debt($a);
         $this->item($debtA, $this->product('Renesme Exclusive'), 1, '10.00');
 
-        $debtB = $this->debt($b, 'unpaid');
+        $debtB = $this->debt($b);
         $this->item($debtB, $this->product('Axel Exclusive'), 1, '10.00');
 
         $this->withSession(['customer_id' => $a->customer_id])
@@ -176,7 +245,7 @@ class CustomerDashboardTest extends TestCase
     public function test_overview_only_contains_five_recent_items(): void
     {
         $a = $this->customer('11114', 'Renesme Moral');
-        $debt = $this->debt($a, 'unpaid');
+        $debt = $this->debt($a);
 
         foreach (range(1, 8) as $i) {
             $this->item($debt, $this->product('Item '.$i), 1, '10.00', $i);
@@ -203,8 +272,8 @@ class CustomerDashboardTest extends TestCase
         $a = $this->customer('11115', 'Renesme Moral');
         $b = $this->customer('33333', 'Axel Moral');
 
-        $debtA = $this->debt($a, 'unpaid');
-        $debtB = $this->debt($b, 'unpaid');
+        $debtA = $this->debt($a);
+        $debtB = $this->debt($b);
 
         foreach (range(1, 15) as $i) {
             $this->item($debtA, $this->product('Mine '.str_pad((string) $i, 2, '0', STR_PAD_LEFT)), 1, '10.00', $i);
@@ -247,13 +316,12 @@ class CustomerDashboardTest extends TestCase
         $a = $this->customer('11116', 'Renesme Moral');
         $b = $this->customer('44444', 'Axel Moral');
 
-        $debtA = $this->debt($a, 'partially_paid');
-        $debtB = $this->debt($b, 'unpaid');
-
+        $debtA = $this->debt($a);
         foreach (range(1, 10) as $i) {
             $this->payment($debtA, number_format($i * 10, 2, '.', ''), now()->subDays($i)->toDateTimeString());
         }
 
+        $debtB = $this->debt($b);
         $this->payment($debtB, '999.00');
 
         $session = ['customer_id' => $a->customer_id];
@@ -281,8 +349,8 @@ class CustomerDashboardTest extends TestCase
         $a = $this->customer('11117', 'Renesme Moral');
         $b = $this->customer('55555', 'Axel Moral');
 
-        $debtA = $this->debt($a, 'unpaid');
-        $debtB = $this->debt($b, 'cancelled');
+        $debtA = $this->debt($a);
+        $debtB = $this->debt($b);
 
         $this->item($debtA, $this->product('My Goods'), 1, '10.00');
         $this->item($debtB, $this->product('Other Goods'), 1, '10.00');
@@ -290,15 +358,32 @@ class CustomerDashboardTest extends TestCase
         $this->withSession(['customer_id' => $a->customer_id])
             ->get('/customer/dashboard/section/debts', ['X-Requested-With' => 'XMLHttpRequest'])
             ->assertOk()
-            ->assertSee('#', false)
             ->assertSee('My Goods')
             ->assertDontSee('Other Goods');
+    }
+
+    public function test_debt_item_notes_are_shown_in_a_notes_column(): void
+    {
+        $a = $this->customer('11124', 'Renesme Moral');
+        $debt = $this->debt($a);
+
+        $withNote = $this->item($debt, $this->product('Rice'), 1, '10.00');
+        $withNote->notes = 'Handle with care';
+        $withNote->save();
+
+        $this->item($debt, $this->product('Soap'), 1, '5.00');
+
+        $this->withSession(['customer_id' => $a->customer_id])
+            ->get('/customer/dashboard/section/items', ['X-Requested-With' => 'XMLHttpRequest'])
+            ->assertOk()
+            ->assertSee('Notes')
+            ->assertSee('Handle with care');
     }
 
     public function test_no_js_page_fallback_renders_full_shell_with_section(): void
     {
         $a = $this->customer('11118', 'Renesme Moral');
-        $debt = $this->debt($a, 'unpaid');
+        $debt = $this->debt($a);
         $this->item($debt, $this->product('Fallback Item'), 1, '10.00');
 
         $this->withSession(['customer_id' => $a->customer_id])
@@ -308,18 +393,56 @@ class CustomerDashboardTest extends TestCase
             ->assertSee('Sign Out');
     }
 
-    public function test_payment_history_is_collapsible_on_overview(): void
+    public function test_payment_history_is_expanded_on_overview_by_default(): void
     {
         $a = $this->customer('11119', 'Renesme Moral');
-        $debt = $this->debt($a, 'partially_paid');
+        $debt = $this->debt($a);
         $this->payment($debt, '50.00');
 
         $this->withSession(['customer_id' => $a->customer_id])
             ->get('/customer/dashboard')
             ->assertOk()
             ->assertSee('data-collapse-toggle')
-            ->assertSee('aria-expanded="false"', false)
+            ->assertSee('collapse-toggle is-open', false)
+            ->assertSee('aria-expanded="true"', false)
             ->assertSee('50.00');
+    }
+
+    public function test_items_section_shows_items_total_and_amount_payable(): void
+    {
+        $a = $this->customer('11121', 'Renesme Moral');
+        $debt = $this->debt($a);
+
+        $this->item($debt, $this->product('Rice'), 1, '100.00');
+        $this->item($debt, $this->product('Soap'), 1, '200.00');
+        $this->payment($debt, '120.00');
+
+        $this->withSession(['customer_id' => $a->customer_id])
+            ->get('/customer/dashboard/section/items', ['X-Requested-With' => 'XMLHttpRequest'])
+            ->assertOk()
+            ->assertSee('Total of debt items')
+            ->assertSee('300.00')            // sum of item subtotals
+            ->assertSee('Less: partial payment')
+            ->assertSee('&minus;', false)    // payments shown as a deduction
+            ->assertSee('Amount payable')
+            ->assertSee('180.00');           // 300 - 120
+    }
+
+    public function test_items_section_hides_deduction_when_nothing_paid(): void
+    {
+        $a = $this->customer('11122', 'Renesme Moral');
+        $debt = $this->debt($a);
+
+        $this->item($debt, $this->product('Rice'), 1, '150.00');
+
+        $this->withSession(['customer_id' => $a->customer_id])
+            ->get('/customer/dashboard/section/items', ['X-Requested-With' => 'XMLHttpRequest'])
+            ->assertOk()
+            ->assertSee('Total of debt items')
+            ->assertSee('Amount payable')
+            ->assertSee('150.00')
+            ->assertDontSee('Less:')
+            ->assertDontSee('&minus;', false);
     }
 
     public function test_shell_has_theme_toggle_and_collapsible_sidebar_controls(): void
