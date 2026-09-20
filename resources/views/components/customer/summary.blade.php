@@ -8,7 +8,7 @@
 
 <section class="summary-grid" aria-label="Financial summary">
     {{-- Total Debt --}}
-    <article class="summary-card">
+    <article class="summary-card summary-card--debt">
         <div class="summary-card__icon" aria-hidden="true"> ₱ </div>
 
         <div class="summary-card__content">
@@ -19,7 +19,7 @@
     </article>
 
     {{-- Total Paid --}}
-    <article class="summary-card">
+    <article class="summary-card summary-card--paid">
         <div class="summary-card__icon" aria-hidden="true"> ✓ </div>
 
         <div class="summary-card__content">

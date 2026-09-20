@@ -45,13 +45,13 @@
 
 .pagination__link:hover:not(.is-disabled):not(.is-active) {
     background: var(--accent-soft);
-    border-color: var(--green-light);
+    border-color: var(--teal);
 }
 
 .pagination__link.is-active {
     background: var(--accent);
     border-color: var(--accent);
-    color: #171d13;
+    color: var(--ivory);
 }
 
 .pagination__link.is-disabled {

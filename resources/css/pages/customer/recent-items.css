@@ -40,6 +40,21 @@
     text-transform: uppercase;
 }
 
+.recent-item:nth-child(3n + 1) .recent-item__icon {
+    background: rgba(70, 75, 113, 0.16);
+    color: var(--indigo);
+}
+
+.recent-item:nth-child(3n + 2) .recent-item__icon {
+    background: rgba(17, 138, 178, 0.16);
+    color: var(--teal);
+}
+
+.recent-item:nth-child(3n + 3) .recent-item__icon {
+    background: rgba(124, 213, 199, 0.30);
+    color: var(--mint-deep);
+}
+
 .recent-item__main {
     min-width: 0;
     flex: 1;
@@ -52,7 +67,7 @@
 }
 
 .recent-item__details {
-    color: var(--green-mid);
+    color: var(--teal);
     font-size: 12px;
 }
 

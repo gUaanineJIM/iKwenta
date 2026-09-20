@@ -23,7 +23,7 @@
 
 .landing .section-heading h2  {
   font-size: clamp(30px, 4vw, 44px);
-  color: var(--green-dark);
+  color: var(--indigo);
   margin-bottom: 15px;
 }
 

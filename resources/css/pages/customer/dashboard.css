@@ -146,7 +146,7 @@
 
 .btn--outline:hover {
     background: var(--surface-muted);
-    border-color: var(--green-light);
+    border-color: var(--teal);
 }
 
 .btn--outline.is-loading {

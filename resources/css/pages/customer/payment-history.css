@@ -27,7 +27,7 @@
 
 .collapse-toggle:hover {
     background: var(--surface-muted);
-    border-color: var(--green-light);
+    border-color: var(--teal);
 }
 
 .collapse-toggle .count-badge {
@@ -35,7 +35,7 @@
 }
 
 .collapse-toggle__chevron {
-    color: var(--green-mid);
+    color: var(--teal);
     transition: transform 0.2s ease;
 }
 

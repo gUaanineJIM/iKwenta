@@ -33,6 +33,60 @@
     box-shadow: var(--shadow-md);
 }
 
+.summary-card--debt {
+    background: linear-gradient(135deg, rgba(70, 75, 113, 0.26), var(--surface) 60%);
+    border-color: rgba(70, 75, 113, 0.42);
+}
+
+.summary-card--debt .summary-card__icon {
+    background: var(--indigo);
+    color: var(--ivory);
+}
+
+.summary-card--debt .summary-card__label {
+    color: var(--indigo);
+}
+
+.summary-card--debt .summary-card__amount {
+    color: var(--indigo);
+}
+
+.summary-card--paid {
+    background: linear-gradient(135deg, rgba(17, 138, 178, 0.26), var(--surface) 60%);
+    border-color: rgba(17, 138, 178, 0.42);
+}
+
+.summary-card--paid .summary-card__icon {
+    background: var(--teal);
+    color: var(--ivory);
+}
+
+.summary-card--paid .summary-card__label {
+    color: var(--teal);
+}
+
+.summary-card--paid .summary-card__amount {
+    color: var(--teal);
+}
+
+.summary-card--balance {
+    background: linear-gradient(135deg, rgba(124, 213, 199, 0.70), var(--surface) 66%);
+    border-color: rgba(124, 213, 199, 0.70);
+}
+
+.summary-card--balance .summary-card__icon {
+    background: var(--mint);
+    color: var(--on-mint);
+}
+
+.summary-card--balance .summary-card__label {
+    color: var(--mint-deep);
+}
+
+.summary-card--balance .summary-card__amount {
+    color: var(--indigo);
+}
+
 .summary-card__icon {
     width: 46px;
     height: 46px;
@@ -63,11 +117,6 @@
     font-size: clamp(21px, 3vw, 28px);
     line-height: 1.1;
     overflow-wrap: anywhere;
-}
-
-.summary-card--balance {
-    border-color: rgba(153, 173, 122, 0.4);
-    background: linear-gradient(135deg, var(--accent-soft), var(--surface));
 }
 
 /* =========================

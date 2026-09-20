@@ -25,7 +25,7 @@
 .modal-backdrop {
     position: absolute;
     inset: 0;
-    background: rgba(19, 24, 16, 0.55);
+    background: rgba(13, 16, 26, 0.60);
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
 }
@@ -73,8 +73,8 @@
 
 .modal-close:hover {
     transform: rotate(90deg) scale(1.06);
-    background: var(--green-dark);
-    color: var(--cream);
+    background: var(--indigo);
+    color: var(--ivory);
 }
 
 .modal-badge {
@@ -82,7 +82,7 @@
     align-items: center;
     gap: 6px;
     background: var(--accent-soft);
-    color: var(--green-dark);
+    color: var(--indigo);
     border: 1px solid var(--border-soft);
     padding: 6px 12px;
     border-radius: 50px;
@@ -96,7 +96,7 @@
 .modal-title {
     font-size: 26px;
     letter-spacing: -0.5px;
-    color: var(--green-dark);
+    color: var(--indigo);
     margin-bottom: 8px;
 }
 

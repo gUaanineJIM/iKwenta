@@ -20,7 +20,7 @@
     overflow-y: auto;
     background: var(--surface-elevated);
     border-right: 1px solid var(--border-soft);
-    box-shadow: 10px 0 28px rgba(23, 29, 19, 0.06);
+    box-shadow: 10px 0 28px rgba(70, 75, 113, 0.12);
     transition:
         width 0.3s ease,
         flex-basis 0.3s ease,
@@ -50,7 +50,7 @@
 
 .sidebar-toggle:hover {
     background: var(--surface-muted);
-    border-color: var(--green-light);
+    border-color: var(--teal);
 }
 
 /* =========================
@@ -118,12 +118,12 @@
 
 .sidebar-logout__btn:hover {
     background: var(--surface-muted);
-    border-color: var(--green-light);
+    border-color: var(--teal);
 }
 
 .sidebar-logout__btn svg {
     flex: 0 0 auto;
-    color: var(--green-mid);
+    color: var(--teal);
 }
 
 .sidebar-logout__btn > span {
@@ -164,7 +164,7 @@
 
 .customer-nav__link svg {
     flex: 0 0 auto;
-    color: var(--green-mid);
+    color: var(--teal);
 }
 
 .customer-nav__link:hover {
@@ -257,7 +257,7 @@
         padding: 22px 16px;
         border-right: 1px solid var(--border-soft);
         border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
-        box-shadow: 14px 0 36px rgba(23, 29, 19, 0.22);
+        box-shadow: 14px 0 36px rgba(13, 16, 26, 0.40);
         transform: translateX(-105%);
         transition: transform 0.28s ease;
     }
@@ -277,7 +277,7 @@
         inset: 0;
         z-index: 110;
         display: block;
-        background: rgba(23, 29, 19, 0.55);
+        background: rgba(13, 16, 26, 0.60);
         opacity: 0;
         pointer-events: none;
         transition: opacity 0.25s ease;
