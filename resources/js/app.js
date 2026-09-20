@@ -57,7 +57,7 @@
         modal.setAttribute('aria-hidden', 'true');
         document.body.style.overflow = '';
 
-        const hiddenInput = modal.querySelector('input[type="hidden"]');
+        const hiddenInput = modal.querySelector('input[type="hidden"]:not([name="_token"]):not([name="_method"])');
         if (hiddenInput) hiddenInput.value = '';
     };
 
@@ -199,6 +199,29 @@
     });
 
     // =========================
+    // LOGOUT LOADING STATE
+    // =========================
+
+    const logoutForm = document.querySelector('[data-logout-form]');
+
+    if (logoutForm) {
+        const logoutButton = logoutForm.querySelector('[data-logout-button]');
+        const logoutLabel = logoutForm.querySelector('[data-logout-label]');
+
+        logoutForm.addEventListener('submit', () => {
+            if (logoutButton) {
+                logoutButton.disabled = true;
+                logoutButton.classList.add('is-loading');
+                logoutButton.setAttribute('aria-busy', 'true');
+            }
+
+            if (logoutLabel) {
+                logoutLabel.textContent = 'Signing out…';
+            }
+        });
+    }
+
+    // =========================
     // CUSTOMER DASHBOARD SECTIONS
     // =========================
 
@@ -206,21 +229,29 @@
 
     if (customerSection) {
         const sidebar = document.querySelector('[data-sidebar]');
-        const sidebarToggle = document.querySelector('[data-sidebar-toggle]');
         const sidebarBackdrop = document.querySelector('[data-sidebar-backdrop]');
         const shell = document.querySelector('[data-shell]');
-        const sidebarCollapse = document.querySelector('[data-sidebar-collapse]');
         const loginUrl = customerSection.getAttribute('data-login-url') || '/';
+
+        const setToggleAria = (expanded) => {
+            document.querySelectorAll('[data-sidebar-toggle]').forEach((btn) => {
+                btn.setAttribute('aria-expanded', String(expanded));
+            });
+        };
 
         let collapsed = false;
 
         const getSavedCollapsed = () => {
             try {
-                return localStorage.getItem('ikwenta-sidebar-collapsed') === '1';
+                return localStorage.getItem('ikwenta-sidebar-collapsed');
             } catch {
-                return false;
+                return null;
             }
         };
+
+        const isMobileViewport = () => window.matchMedia('(max-width: 767px)').matches;
+        const isTabletViewport = () =>
+            window.matchMedia('(min-width: 768px) and (max-width: 1023px)').matches;
 
         let pendingSectionRequest = null;
 
@@ -246,7 +277,7 @@
             if (!sidebar) return;
 
             sidebar.classList.remove('is-open');
-            if (sidebarToggle) sidebarToggle.setAttribute('aria-expanded', 'false');
+            setToggleAria(false);
 
             document.body.style.overflow = '';
 
@@ -260,7 +291,7 @@
             if (!sidebar) return;
 
             sidebar.classList.add('is-open');
-            if (sidebarToggle) sidebarToggle.setAttribute('aria-expanded', 'true');
+            setToggleAria(true);
 
             document.body.style.overflow = 'hidden';
 
@@ -347,39 +378,26 @@
 
             if (shell) shell.classList.toggle('collapsed', value);
 
-            if (sidebarCollapse) {
-                sidebarCollapse.setAttribute('aria-expanded', String(!value));
-                sidebarCollapse.setAttribute('aria-label', value ? 'Expand sidebar' : 'Collapse sidebar');
-
-                const label = sidebarCollapse.querySelector('span');
-                if (label) label.textContent = value ? 'Expand' : 'Collapse';
-            }
-
             try {
                 localStorage.setItem('ikwenta-sidebar-collapsed', value ? '1' : '0');
             } catch {}
+
+            setToggleAria(!value);
         };
 
-        if (sidebarCollapse) {
-            applyCollapsed(getSavedCollapsed());
+        if (document.querySelector('[data-sidebar-toggle]')) {
+            const saved = getSavedCollapsed();
+
+            // No saved preference: expanded on desktop, auto-reduced (icon-only)
+            // on tablet while keeping navigation accessible.
+            collapsed = saved !== null ? saved === '1' : isTabletViewport();
+            applyCollapsed(collapsed);
         }
 
         // Handle everything with event delegation so it still works after
         // sections are swapped in via fetch.
 
         document.addEventListener('click', (event) => {
-            const collapseTrigger = event.target.closest('[data-sidebar-collapse]');
-            if (collapseTrigger) {
-                applyCollapsed(!collapsed);
-                return;
-            }
-
-            const closeTrigger = event.target.closest('[data-sidebar-close]');
-            if (closeTrigger) {
-                closeSidebar();
-                return;
-            }
-
             const sectionLink = event.target.closest('[data-section-link]');
             if (sectionLink) {
                 event.preventDefault();
@@ -426,19 +444,29 @@
             }
         });
 
-        if (sidebarToggle) {
-            sidebarToggle.addEventListener('click', () => {
-                if (sidebar && sidebar.classList.contains('is-open')) {
-                    closeSidebar();
+        document.querySelectorAll('[data-sidebar-toggle]').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                if (isMobileViewport()) {
+                    if (sidebar && sidebar.classList.contains('is-open')) {
+                        closeSidebar();
+                    } else {
+                        openSidebar();
+                    }
                 } else {
-                    openSidebar();
+                    applyCollapsed(!collapsed);
                 }
             });
-        }
+        });
 
         if (sidebarBackdrop) {
             sidebarBackdrop.addEventListener('click', closeSidebar);
         }
+
+        // Resize across breakpoints: never leave the mobile drawer state stuck
+        // when the viewport grows back to an inline sidebar.
+        window.addEventListener('resize', () => {
+            if (!isMobileViewport()) closeSidebar();
+        });
 
         document.addEventListener('keydown', (event) => {
             if (event.key === 'Escape') closeSidebar();

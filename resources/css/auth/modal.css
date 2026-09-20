@@ -144,6 +144,17 @@
     text-decoration: underline;
 }
 
+.modal-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 26px;
+}
+
+.modal-actions .btn {
+    flex: 1 1 0;
+}
+
 @media (max-width: 480px) {
     .modal-dialog {
         padding: 26px 22px 24px;
