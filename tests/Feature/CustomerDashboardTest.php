@@ -445,7 +445,7 @@ class CustomerDashboardTest extends TestCase
             ->assertDontSee('&minus;', false);
     }
 
-    public function test_shell_has_theme_toggle_and_collapsible_sidebar_controls(): void
+    public function test_shell_has_theme_toggle_and_sidebar_controls(): void
     {
         $a = $this->customer('11120', 'Renesme Moral');
 
@@ -454,9 +454,9 @@ class CustomerDashboardTest extends TestCase
             ->assertOk()
             ->assertSee('data-theme-toggle')
             ->assertSee('data-shell', false)
-            ->assertSee('data-sidebar-collapse')
+            ->assertSee('sidebar-brand')
+            ->assertSee('logo-mark')
             ->assertSee('data-sidebar-toggle')
-            ->assertSee('data-sidebar-close')
             ->assertSee('aria-controls="customer-sidebar"', false);
     }
 }
