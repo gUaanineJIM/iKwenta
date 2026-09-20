@@ -3,41 +3,148 @@
 ========================= */
 
 /* =========================
-   Sidebar
+   Sidebar (desktop & tablet — inline right column)
 ========================= */
 
 .customer-sidebar {
     position: sticky;
-    top: 100px;
+    top: 0;
+    height: 100vh;
+    flex: 0 0 268px;
+    width: 268px;
     min-width: 0;
+    display: flex;
+    flex-direction: column;
     padding: 14px;
+    overflow-x: hidden;
+    overflow-y: auto;
     background: var(--surface-elevated);
-    border: 1px solid var(--border-soft);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-sm);
-    overflow: hidden;
+    border-right: 1px solid var(--border-soft);
+    box-shadow: 10px 0 28px rgba(23, 29, 19, 0.06);
+    transition:
+        width 0.3s ease,
+        flex-basis 0.3s ease,
+        padding 0.3s ease;
 }
+
+/* Burger toggle — visible at every breakpoint so the sidebar can always
+   be expanded or collapsed. */
 
 .sidebar-toggle {
-    display: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    flex: 0 0 42px;
+    padding: 0;
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--text-dark);
+    cursor: pointer;
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease;
 }
 
-.sidebar-nav__close {
-    display: none;
+.sidebar-toggle:hover {
+    background: var(--surface-muted);
+    border-color: var(--green-light);
 }
 
-.sidebar-nav__label {
-    display: block;
-    padding: 8px 14px 12px;
-    color: var(--text-muted);
-    font-size: 11px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
+/* =========================
+   Brand logo (sidebar header)
+========================= */
+
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 6px 14px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--border-soft);
+    min-height: 58px;
+}
+
+.sidebar-brand .logo {
+    gap: 10px;
+}
+
+.sidebar-brand .logo-text {
+    white-space: nowrap;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
 }
 
 .sidebar-nav__list {
+    flex: 1 1 auto;
     list-style: none;
+}
+
+/* =========================
+   Sign out (sidebar footer)
+========================= */
+
+.sidebar-logout {
+    padding-top: 14px;
+    margin-top: 14px;
+    border-top: 1px solid var(--border-soft);
+}
+
+.sidebar-logout__btn {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text-dark);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.sidebar-logout__btn:hover {
+    background: var(--surface-muted);
+    border-color: var(--green-light);
+}
+
+.sidebar-logout__btn svg {
+    flex: 0 0 auto;
+    color: var(--green-mid);
+}
+
+.sidebar-logout__btn > span {
+    white-space: nowrap;
+}
+
+.sidebar-logout__btn.is-loading {
+    pointer-events: none;
+    opacity: 0.75;
+}
+
+.sidebar-logout__btn.is-loading::before {
+    content: '';
+    width: 15px;
+    height: 15px;
+    flex: 0 0 15px;
+    margin-left: auto;
+    border: 2px solid var(--border-soft);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: customer-spin 0.8s linear infinite;
 }
 
 .customer-nav__link {
@@ -78,60 +185,29 @@
     transition: opacity 0.18s ease;
 }
 
-.sidebar-collapse {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    width: 100%;
-    margin-top: 16px;
-    padding: 11px 14px;
-    border: 1px solid var(--border-soft);
-    border-radius: var(--radius-sm);
-    background: transparent;
-    color: var(--text-muted);
-    font-size: 13px;
-    font-weight: 700;
-    text-align: left;
-    cursor: pointer;
-    transition:
-        background 0.2s ease,
-        border-color 0.2s ease,
-        color 0.2s ease;
-}
-
-.sidebar-collapse svg {
-    flex: 0 0 auto;
-    transition: transform 0.3s ease;
-}
-
-.sidebar-collapse:hover {
-    background: var(--surface-muted);
-    color: var(--text-dark);
-    border-color: var(--green-light);
-}
-
 .customer-backdrop {
     display: none;
 }
 
 /* =========================
-   Collapsed state (desktop)
+   Collapsed state (desktop & tablet)
 ========================= */
 
-@media (min-width: 981px) {
-    .customer-sidebar {
-        transition: padding 0.3s ease;
-    }
-
-    .customer-shell.collapsed {
-        grid-template-columns: 84px minmax(0, 1fr);
-    }
+@media (min-width: 768px) {
+    /* The header burger toggles the sidebar expand/collapse. */
 
     .customer-shell.collapsed .customer-sidebar {
+        width: 84px;
+        flex-basis: 84px;
         padding: 12px 10px;
     }
 
-    .customer-shell.collapsed .sidebar-nav__label {
+    .customer-shell.collapsed .sidebar-brand {
+        justify-content: center;
+        padding: 0;
+    }
+
+    .customer-shell.collapsed .sidebar-brand .logo-text {
         display: none;
     }
 
@@ -142,107 +218,52 @@
     }
 
     .customer-shell.collapsed .customer-nav__link > span {
-        position: absolute;
-        opacity: 0;
-        pointer-events: none;
+        display: none;
     }
 
-    .customer-shell.collapsed .sidebar-collapse {
+    .customer-shell.collapsed .sidebar-logout {
+        padding-top: 12px;
+        margin-top: 12px;
+    }
+
+    .customer-shell.collapsed .sidebar-logout__btn {
         justify-content: center;
+        gap: 0;
         padding: 12px;
     }
 
-    .customer-shell.collapsed .sidebar-collapse > span {
-        position: absolute;
-        opacity: 0;
-        pointer-events: none;
+    .customer-shell.collapsed .sidebar-logout__btn > span {
+        display: none;
     }
 
-    .customer-shell.collapsed .sidebar-collapse svg {
-        transform: rotate(180deg);
+    .customer-shell.collapsed .sidebar-logout__btn.is-loading::before {
+        margin-left: 0;
     }
 }
 
 /* =========================
-   Drawer (tablet & mobile)
+   Drawer (mobile)
 ========================= */
 
-@media (max-width: 980px) {
-    .customer-shell,
-    .customer-shell.collapsed {
-        grid-template-columns: minmax(0, 1fr);
-        width: min(100% - 40px, 1240px);
-        gap: 0;
-    }
-
-    .customer-main {
-        grid-column: 1 / -1;
-        width: 100%;
-    }
-
+@media (max-width: 767px) {
     .customer-sidebar {
         position: fixed;
         top: 0;
         left: 0;
         width: min(300px, 84vw);
         height: 100dvh;
+        flex: none;
         z-index: 120;
-        border-radius: 0 18px 18px 0;
         padding: 22px 16px;
-        overflow-y: auto;
+        border-right: 1px solid var(--border-soft);
+        border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+        box-shadow: 14px 0 36px rgba(23, 29, 19, 0.22);
         transform: translateX(-105%);
         transition: transform 0.28s ease;
     }
 
     .customer-sidebar.is-open {
         transform: translateX(0);
-    }
-
-    .sidebar-toggle {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 42px;
-        height: 42px;
-        padding: 0;
-        border: 1px solid var(--border-soft);
-        border-radius: var(--radius-sm);
-        background: var(--surface);
-        color: var(--text-dark);
-        cursor: pointer;
-        transition:
-            background 0.2s ease,
-            border-color 0.2s ease;
-    }
-
-    .sidebar-toggle:hover {
-        background: var(--surface-muted);
-        border-color: var(--green-light);
-    }
-
-    .sidebar-nav__close {
-        display: grid;
-        place-items: center;
-        width: 40px;
-        height: 40px;
-        margin: 0 0 8px auto;
-        border: 1px solid var(--border-soft);
-        border-radius: var(--radius-sm);
-        background: transparent;
-        color: var(--text-muted);
-        cursor: pointer;
-        transition:
-            background 0.2s ease,
-            color 0.2s ease;
-    }
-
-    .sidebar-nav__close:hover {
-        background: var(--surface-muted);
-        color: var(--text-dark);
-    }
-
-    .sidebar-collapse {
-        display: none;
     }
 
     .customer-nav__link {
@@ -258,11 +279,13 @@
         display: block;
         background: rgba(23, 29, 19, 0.55);
         opacity: 0;
+        pointer-events: none;
         transition: opacity 0.25s ease;
     }
 
     .customer-backdrop.is-visible {
         opacity: 1;
+        pointer-events: auto;
     }
 }
 

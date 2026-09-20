@@ -48,18 +48,9 @@
 @endphp
 
 <nav class="sidebar-nav" aria-label="Dashboard navigation">
-    <button
-        type="button"
-        class="sidebar-nav__close"
-        data-sidebar-close
-        aria-label="Close menu"
-    >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-        </svg>
-    </button>
-
-    <span class="sidebar-nav__label"> Menu </span>
+    <div class="sidebar-brand">
+        @include('partials.logo', ['href' => route('customer.dashboard')])
+    </div>
 
     <ul class="sidebar-nav__list">
         @foreach ($items as $key => $item)
@@ -80,17 +71,15 @@
         @endforeach
     </ul>
 
-    <button
-        type="button"
-        class="sidebar-collapse"
-        data-sidebar-collapse
-        aria-expanded="true"
-        aria-label="Collapse sidebar"
-    >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M15 6L9 12L15 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-        </svg>
+    <div class="sidebar-logout">
+        <button type="button" class="sidebar-logout__btn" data-open-modal="confirm-logout-modal">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <path d="M16 17L21 12L16 7" />
+                <path d="M21 12H9" />
+            </svg>
 
-        <span> Collapse </span>
-    </button>
+            <span>Sign Out</span>
+        </button>
+    </div>
 </nav>
