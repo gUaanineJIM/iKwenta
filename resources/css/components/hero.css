@@ -113,10 +113,9 @@
 
 .hero-image {
     width: 100%;
-    aspect-ratio: 16 / 11;
-    object-fit: cover;
-    border-radius: var(--radius-xl);
+    height: auto;
     display: block;
+    border-radius: var(--radius-xl);
     box-shadow: var(--shadow-lg);
 }
 
@@ -195,10 +194,6 @@
         margin: 0 auto;
     }
 
-    .hero-image {
-        aspect-ratio: 8 / 5;
-    }
-
     .floating-card {
         left: 15px;
     }
@@ -214,7 +209,6 @@
     }
 
     .hero-image {
-        aspect-ratio: 8 / 5;
         border-radius: 22px;
     }
 
