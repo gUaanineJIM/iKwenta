@@ -1,247 +1,170 @@
-<!doctype html>
-<html lang="en">
+@extends('layouts.owner')
 
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+@section('title', 'Owner Portal | iKwenta')
 
-    <title>Owner Portal | iKwenta</title>
-
-    <script>
-        (function () {
-            try {
-                var t = localStorage.getItem('ikwenta-theme');
-                if (!t && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) t = 'dark';
-                document.documentElement.setAttribute('data-theme', t || 'light');
-            } catch (e) {
-                document.documentElement.setAttribute('data-theme', 'light');
-            }
-        })();
-    </script>
-
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-
+@push('head')
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js" defer></script>
+@endpush
 
-    @stack('styles')
-</head>
+@section('content')
+    @php
+        // Frontend-only mock ranking: customers sorted by highest unpaid debt.
+        $rankingSeed = [
+            ['name' => 'Maria Santos', 'code' => 'C-1021', 'total' => 25400.00, 'paid' => 4000.00],
+            ['name' => 'Juan Dela Cruz', 'code' => 'C-1004', 'total' => 18750.00, 'paid' => 2500.00],
+            ['name' => 'Ana Reyes', 'code' => 'C-1033', 'total' => 12300.00, 'paid' => 1800.00],
+            ['name' => 'Carlos Mendoza', 'code' => 'C-1015', 'total' => 9850.00, 'paid' => 3200.00],
+            ['name' => 'Liza Fernandez', 'code' => 'C-1009', 'total' => 7400.00, 'paid' => 3900.00],
+            ['name' => 'Ramon Garcia', 'code' => 'C-1027', 'total' => 5600.00, 'paid' => 4100.00],
+        ];
 
-<body class="owner-page">
-    {{-- ========================= Shell ========================== --}}
-    <div class="owner-shell" data-owner-shell>
-        {{-- Sidebar --}}
-        <aside class="owner-sidebar" id="owner-sidebar" data-owner-sidebar aria-label="Owner dashboard navigation">
-            <x-owner.sidebar :active="$activeSection ?? 'overview'" />
-        </aside>
+        $ranking = [];
 
-        {{-- Main content (owner sections will load here) --}}
-        <main class="owner-main" id="owner-main">
-            {{-- =================== Header =================== --}}
-            <header class="owner-header">
-                <div class="owner-header__inner">
-                    <div class="owner-header__left">
-                        <button type="button" class="sidebar-toggle" data-owner-sidebar-toggle
-                            aria-controls="owner-sidebar" aria-expanded="false" aria-label="Toggle sidebar">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                <path d="M4 7H20M4 12H20M4 17H20" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" />
-                            </svg>
-                        </button>
+        foreach ($rankingSeed as $index => $row) {
+            $row['rank'] = $index + 1;
+            $row['unpaid'] = $row['total'] - $row['paid'];
+            $row['progress'] = $row['total'] > 0 ? round(($row['paid'] / $row['total']) * 100) : 0;
+            $ranking[] = $row;
+        }
+    @endphp
 
-                    </div>
+    <section class="owner-section" id="owner-section" data-owner-section aria-busy="false">
+        {{-- =================== Top statistic cards =================== --}}
+        <div class="owner-top-grid" aria-label="Owner overview">
+            {{-- Card 1: weekly debts chart --}}
+            <article class="owner-stat-card owner-stat-card--chart">
+                <div class="owner-stat-card__header">
+                    <span class="owner-stat-card__icon" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 3v18h18" />
+                            <path d="M7 14l3-4 4 4 5-7" />
+                        </svg>
+                    </span>
 
-                    <div class="owner-header__right">
-                        <div class="owner-welcome">
-                            <span class="owner-welcome__label"> Owner Portal </span>
+                    <div class="owner-stat-card__meta">
+                        <span class="owner-stat-card__label"> Debts Added This Week </span>
 
-                            <strong> Store Owner </strong>
-                        </div>
-
-                        <button type="button" class="theme-toggle" data-theme-toggle aria-label="Toggle dark mode">
-                            <span class="icon-sun" aria-hidden="true">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <circle cx="12" cy="12" r="4"></circle>
-                                    <path d="M12 2v2"></path>
-                                    <path d="M12 20v2"></path>
-                                    <path d="m4.93 4.93 1.41 1.41"></path>
-                                    <path d="m17.66 17.66 1.41 1.41"></path>
-                                    <path d="M2 12h2"></path>
-                                    <path d="M20 12h2"></path>
-                                    <path d="m6.34 17.66-1.41 1.41"></path>
-                                    <path d="m19.07 4.93-1.41 1.41"></path>
-                                </svg>
-                            </span>
-
-                            <span class="icon-moon" aria-hidden="true">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                                </svg>
-                            </span>
-                        </button>
+                        <strong class="owner-stat-card__value"> ₱53,590 </strong>
                     </div>
                 </div>
-            </header>
 
-            @php
-                // Frontend-only mock ranking: customers sorted by highest unpaid debt.
-                $rankingSeed = [
-                    ['name' => 'Maria Santos', 'code' => 'C-1021', 'total' => 25400.00, 'paid' => 4000.00],
-                    ['name' => 'Juan Dela Cruz', 'code' => 'C-1004', 'total' => 18750.00, 'paid' => 2500.00],
-                    ['name' => 'Ana Reyes', 'code' => 'C-1033', 'total' => 12300.00, 'paid' => 1800.00],
-                    ['name' => 'Carlos Mendoza', 'code' => 'C-1015', 'total' => 9850.00, 'paid' => 3200.00],
-                    ['name' => 'Liza Fernandez', 'code' => 'C-1009', 'total' => 7400.00, 'paid' => 3900.00],
-                    ['name' => 'Ramon Garcia', 'code' => 'C-1027', 'total' => 5600.00, 'paid' => 4100.00],
-                ];
-
-                $ranking = [];
-
-                foreach ($rankingSeed as $index => $row) {
-                    $row['rank'] = $index + 1;
-                    $row['unpaid'] = $row['total'] - $row['paid'];
-                    $row['progress'] = $row['total'] > 0 ? round(($row['paid'] / $row['total']) * 100) : 0;
-                    $ranking[] = $row;
-                }
-            @endphp
-
-            <section class="owner-section" id="owner-section" data-owner-section aria-busy="false">
-                {{-- =================== Top statistic cards =================== --}}
-                <div class="owner-top-grid" aria-label="Owner overview">
-                    {{-- Card 1: weekly debts chart --}}
-                    <article class="owner-stat-card owner-stat-card--chart">
-                        <div class="owner-stat-card__header">
-                            <span class="owner-stat-card__icon" aria-hidden="true">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M3 3v18h18" />
-                                    <path d="M7 14l3-4 4 4 5-7" />
-                                </svg>
-                            </span>
-
-                            <div class="owner-stat-card__meta">
-                                <span class="owner-stat-card__label"> Debts Added This Week </span>
-
-                                <strong class="owner-stat-card__value"> ₱53,590 </strong>
-                            </div>
-                        </div>
-
-                        <div class="owner-chart">
-                            <canvas id="owner-weekly-debts-chart" role="img"
-                                aria-label="Total debt added per day this week, bar chart"></canvas>
-                        </div>
-                    </article>
-
-                    {{-- Card 2: customers in debt --}}
-                    <article class="owner-stat-card owner-stat-card--customers">
-                        <span class="owner-stat-card__icon" aria-hidden="true">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="9" cy="8" r="3.5" />
-                                <path d="M2.5 20C3.5 16.5 6 15 9 15c3 0 5.5 1.5 6.5 5" />
-                                <circle cx="17" cy="9" r="2.5" />
-                                <path d="M16.5 15c2.5 0 4.5 1.5 5 5" />
-                            </svg>
-                        </span>
-
-                        <div class="owner-stat-card__meta">
-                            <span class="owner-stat-card__label"> Customers in Debt </span>
-
-                            <strong class="owner-stat-card__value"> 28 </strong>
-
-                            <span class="owner-stat-card__hint"> out of 42 active customers </span>
-                        </div>
-                    </article>
-
-                    {{-- Card 3: pending debt items --}}
-                    <article class="owner-stat-card owner-stat-card--debts">
-                        <span class="owner-stat-card__icon" aria-hidden="true">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M21 8L12 3L3 8V16L12 21L21 16V8Z" />
-                                <path d="M3 8L12 13L21 8" />
-                                <path d="M12 13V21" />
-                            </svg>
-                        </span>
-
-                        <div class="owner-stat-card__meta">
-                            <span class="owner-stat-card__label"> Pending Debt Items </span>
-
-                            <strong class="owner-stat-card__value"> 46 </strong>
-
-                            <span class="owner-stat-card__hint"> open debt transactions </span>
-                        </div>
-                    </article>
+                <div class="owner-chart">
+                    <canvas id="owner-weekly-debts-chart" role="img"
+                        aria-label="Total debt added per day this week, bar chart"></canvas>
                 </div>
+            </article>
 
-                {{-- =================== Debt ranking table =================== --}}
-                <section class="owner-ranking" aria-labelledby="owner-ranking-title">
-                    <div class="section-heading">
-                        <div>
-                            <span class="owner-eyebrow"> Customer Insights </span>
+            {{-- Card 2: customers in debt --}}
+            <article class="owner-stat-card owner-stat-card--customers">
+                <span class="owner-stat-card__icon" aria-hidden="true">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="9" cy="8" r="3.5" />
+                        <path d="M2.5 20C3.5 16.5 6 15 9 15c3 0 5.5 1.5 6.5 5" />
+                        <circle cx="17" cy="9" r="2.5" />
+                        <path d="M16.5 15c2.5 0 4.5 1.5 5 5" />
+                    </svg>
+                </span>
 
-                            <h2 id="owner-ranking-title" tabindex="-1">Debt Ranking</h2>
+                <div class="owner-stat-card__meta">
+                    <span class="owner-stat-card__label"> Customers in Debt </span>
 
-                            <p class="section-heading__description">
-                                Customers with the highest unpaid debt, top to bottom.
-                            </p>
-                        </div>
-                    </div>
+                    <strong class="owner-stat-card__value"> 28 </strong>
 
-                    <div class="owner-table-wrap">
-                        <table class="owner-rank-table">
-                            <thead>
-                                <tr>
-                                    <th scope="col">Rank</th>
-                                    <th scope="col">Customer</th>
-                                    <th scope="col">Total Debt</th>
-                                    <th scope="col">Paid</th>
-                                    <th scope="col">Unpaid</th>
-                                </tr>
-                            </thead>
+                    <span class="owner-stat-card__hint"> out of 42 active customers </span>
+                </div>
+            </article>
 
-                            <tbody>
-                                @foreach ($ranking as $entry)
-                                    <tr>
-                                        <td data-label="Rank">
-                                            <span class="owner-rank-badge {{ $loop->iteration <= 3 ? 'owner-rank-badge--top' : '' }}">
-                                                {{ $entry['rank'] }}
-                                            </span>
-                                        </td>
+            {{-- Card 3: pending debt items --}}
+            <article class="owner-stat-card owner-stat-card--debts">
+                <span class="owner-stat-card__icon" aria-hidden="true">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 8L12 3L3 8V16L12 21L21 16V8Z" />
+                        <path d="M3 8L12 13L21 8" />
+                        <path d="M12 13V21" />
+                    </svg>
+                </span>
 
-                                        <td data-label="Customer">
-                                            <div class="owner-customer-cell">
-                                                <strong> {{ $entry['name'] }} </strong>
+                <div class="owner-stat-card__meta">
+                    <span class="owner-stat-card__label"> Pending Debt Items </span>
 
-                                                <small> {{ $entry['code'] }} </small>
+                    <strong class="owner-stat-card__value"> 46 </strong>
 
-                                                <span class="owner-progress" aria-hidden="true">
-                                                    <span class="owner-progress__bar" style="width: {{ $entry['progress'] }}%;"></span>
-                                                </span>
-                                            </div>
-                                        </td>
+                    <span class="owner-stat-card__hint"> open debt transactions </span>
+                </div>
+            </article>
+        </div>
 
-                                        <td data-label="Total Debt" class="owner-amount">
-                                            ₱{{ number_format($entry['total'], 2) }}
-                                        </td>
+        {{-- =================== Debt ranking table =================== --}}
+        <section class="owner-ranking" aria-labelledby="owner-ranking-title">
+            <div class="section-heading">
+                <div>
+                    <span class="owner-eyebrow"> Customer Insights </span>
 
-                                        <td data-label="Paid" class="owner-amount owner-amount--paid">
-                                            ₱{{ number_format($entry['paid'], 2) }}
-                                        </td>
+                    <h2 id="owner-ranking-title" tabindex="-1">Debt Ranking</h2>
 
-                                        <td data-label="Unpaid" class="owner-amount owner-amount--unpaid">
-                                            ₱{{ number_format($entry['unpaid'], 2) }}
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
-            </section>
-        </main>
+                    <p class="section-heading__description">
+                        Customers with the highest unpaid debt, top to bottom.
+                    </p>
+                </div>
+            </div>
 
-        <div class="owner-backdrop" data-owner-backdrop hidden aria-hidden="true"></div>
-    </div>
+            <div class="owner-table-wrap">
+                <table class="owner-rank-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Rank</th>
+                            <th scope="col">Customer</th>
+                            <th scope="col">Total Debt</th>
+                            <th scope="col">Paid</th>
+                            <th scope="col">Unpaid</th>
+                        </tr>
+                    </thead>
 
+                    <tbody>
+                        @foreach ($ranking as $entry)
+                            <tr>
+                                <td data-label="Rank">
+                                    <span class="owner-rank-badge {{ $loop->iteration <= 3 ? 'owner-rank-badge--top' : '' }}">
+                                        {{ $entry['rank'] }}
+                                    </span>
+                                </td>
+
+                                <td data-label="Customer">
+                                    <div class="owner-customer-cell">
+                                        <strong> {{ $entry['name'] }} </strong>
+
+                                        <small> {{ $entry['code'] }} </small>
+
+                                        <span class="owner-progress" aria-hidden="true">
+                                            <span class="owner-progress__bar" style="width: {{ $entry['progress'] }}%;"></span>
+                                        </span>
+                                    </div>
+                                </td>
+
+                                <td data-label="Total Debt" class="owner-amount">
+                                    ₱{{ number_format($entry['total'], 2) }}
+                                </td>
+
+                                <td data-label="Paid" class="owner-amount owner-amount--paid">
+                                    ₱{{ number_format($entry['paid'], 2) }}
+                                </td>
+
+                                <td data-label="Unpaid" class="owner-amount owner-amount--unpaid">
+                                    ₱{{ number_format($entry['unpaid'], 2) }}
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </section>
+@endsection
+
+@push('scripts')
     <script>
         (function () {
             const canvas = document.getElementById('owner-weekly-debts-chart');
@@ -325,6 +248,4 @@
             init();
         })();
     </script>
-</body>
-
-</html>
+@endpush
