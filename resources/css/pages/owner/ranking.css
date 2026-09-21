@@ -184,7 +184,7 @@
    Responsive — table becomes cards
 ========================= */
 
-@media (max-width: 640px) {
+@media (max-width: 767px) {
     .owner-table-wrap {
         overflow: visible;
         border: 0;
@@ -253,10 +253,24 @@
     .owner-customer-cell {
         align-items: flex-end;
         text-align: right;
+        min-width: 0;
     }
 
-    .owner-amount--paid,
-    .owner-amount--unpaid {
-        justify-content: space-between;
+    .owner-progress {
+        width: 100%;
+        max-width: 130px;
+    }
+}
+
+/* Very small screens */
+@media (max-width: 380px) {
+    .owner-top-grid {
+        gap: 12px;
+    }
+
+    .owner-stat-card__header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
     }
 }
