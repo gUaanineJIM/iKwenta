@@ -472,4 +472,108 @@
             if (event.key === 'Escape') closeSidebar();
         });
     }
+
+    // =========================
+    // OWNER DASHBOARD SIDEBAR
+    // =========================
+
+    const ownerShell = document.querySelector('[data-owner-shell]');
+
+    if (ownerShell) {
+        const ownerSidebar = document.querySelector('[data-owner-sidebar]');
+        const ownerBackdrop = document.querySelector('[data-owner-backdrop]');
+
+        const setOwnerToggleAria = (expanded) => {
+            document.querySelectorAll('[data-owner-sidebar-toggle]').forEach((btn) => {
+                btn.setAttribute('aria-expanded', String(expanded));
+            });
+        };
+
+        const isOwnerMobileViewport = () => window.matchMedia('(max-width: 767px)').matches;
+        const isOwnerTabletViewport = () =>
+            window.matchMedia('(min-width: 768px) and (max-width: 1023px)').matches;
+
+        let ownerCollapsed = false;
+
+        const getSavedOwnerCollapsed = () => {
+            try {
+                return localStorage.getItem('ikwenta-owner-sidebar-collapsed');
+            } catch {
+                return null;
+            }
+        };
+
+        const closeOwnerSidebar = () => {
+            if (!ownerSidebar) return;
+
+            ownerSidebar.classList.remove('is-open');
+            setOwnerToggleAria(false);
+
+            document.body.style.overflow = '';
+
+            if (ownerBackdrop) {
+                ownerBackdrop.classList.remove('is-visible');
+                ownerBackdrop.hidden = true;
+            }
+        };
+
+        const openOwnerSidebar = () => {
+            if (!ownerSidebar) return;
+
+            ownerSidebar.classList.add('is-open');
+            setOwnerToggleAria(true);
+
+            document.body.style.overflow = 'hidden';
+
+            if (ownerBackdrop) {
+                ownerBackdrop.hidden = false;
+                requestAnimationFrame(() => ownerBackdrop.classList.add('is-visible'));
+            }
+        };
+
+        const applyOwnerCollapsed = (value) => {
+            ownerCollapsed = value;
+
+            ownerShell.classList.toggle('collapsed', value);
+
+            try {
+                localStorage.setItem('ikwenta-owner-sidebar-collapsed', value ? '1' : '0');
+            } catch {}
+
+            setOwnerToggleAria(!value);
+        };
+
+        if (document.querySelector('[data-owner-sidebar-toggle]')) {
+            const saved = getSavedOwnerCollapsed();
+
+            ownerCollapsed = saved !== null ? saved === '1' : isOwnerTabletViewport();
+            applyOwnerCollapsed(ownerCollapsed);
+        }
+
+        document.querySelectorAll('[data-owner-sidebar-toggle]').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                if (isOwnerMobileViewport()) {
+                    if (ownerSidebar && ownerSidebar.classList.contains('is-open')) {
+                        closeOwnerSidebar();
+                    } else {
+                        openOwnerSidebar();
+                    }
+                } else {
+                    applyOwnerCollapsed(!ownerCollapsed);
+                }
+            });
+        });
+
+        if (ownerBackdrop) {
+            ownerBackdrop.addEventListener('click', closeOwnerSidebar);
+        }
+
+        window.addEventListener('resize', () => {
+            if (!isOwnerMobileViewport()) closeOwnerSidebar();
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') closeOwnerSidebar();
+        });
+    }
 })();

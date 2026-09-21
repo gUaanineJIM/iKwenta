@@ -33,6 +33,10 @@
 @import './pages/customer/table.css';
 @import './pages/customer/shared.css';
 
+@import './pages/owner/dashboard.css';
+@import './pages/owner/sidebar.css';
+@import './pages/owner/top-cards.css';
+
 @theme {
     --font-sans:
         'Instrument Sans',

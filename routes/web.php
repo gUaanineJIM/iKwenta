@@ -39,3 +39,9 @@ Route::post('/customer/logout', [
     CustomerAuthController::class,
     'logout',
 ])->name('customer.logout');
+
+// Owner Dashboard
+
+Route::get('/owner/dashboard', function () {
+    return view('owner.dashboard');
+})->name('owner.dashboard');

@@ -1,0 +1,54 @@
+/* =========================
+   OWNER TOP CONTAINERS
+========================= */
+
+.owner-top-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.owner-top-card {
+    min-height: 150px;
+    background: var(--surface);
+    border: 1px dashed var(--border-soft);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+}
+
+.owner-top-card:hover {
+    border-color: var(--teal);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+/* =========================
+   Responsive
+========================= */
+
+@media (max-width: 900px) {
+    .owner-top-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .owner-top-card:last-child {
+        grid-column: span 2;
+    }
+}
+
+@media (max-width: 640px) {
+    .owner-top-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .owner-top-card,
+    .owner-top-card:last-child {
+        grid-column: auto;
+        min-height: 120px;
+    }
+}
