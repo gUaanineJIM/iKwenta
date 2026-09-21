@@ -24,6 +24,9 @@
     --accent-hover: var(--indigo-deep);
     --accent-soft: rgba(124, 213, 199, 0.18);
 
+    --danger: #D64550;
+    --danger-soft: rgba(214, 69, 80, 0.12);
+
     --radius-sm: 10px;
     --radius-md: 14px;
     --radius-lg: 20px;
@@ -63,6 +66,9 @@
     --accent-hover: var(--indigo-deep);
     --accent-soft: rgba(124, 213, 199, 0.14);
 
+    --danger: #F27777;
+    --danger-soft: rgba(242, 119, 119, 0.14);
+
     --gradient-a: rgba(124, 213, 199, 0.18);
     --gradient-b: rgba(70, 80, 130, 0.18);
 
@@ -95,6 +101,9 @@
         --accent: var(--indigo);
         --accent-hover: var(--indigo-deep);
         --accent-soft: rgba(124, 213, 199, 0.14);
+
+        --danger: #F27777;
+        --danger-soft: rgba(242, 119, 119, 0.14);
 
         --gradient-a: rgba(124, 213, 199, 0.18);
         --gradient-b: rgba(70, 80, 130, 0.18);
