@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CustomerAuthController;
 use App\Http\Controllers\CustomerDashboardController;
+use App\Http\Controllers\OwnerProductController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -45,3 +46,34 @@ Route::post('/customer/logout', [
 Route::get('/owner/dashboard', function () {
     return view('owner.dashboard');
 })->name('owner.dashboard');
+
+Route::get('/owner/products', [
+    OwnerProductController::class,
+    'index',
+])->name('owner.products');
+
+Route::get('/owner/products/list', [
+    OwnerProductController::class,
+    'list',
+])->name('owner.products.list');
+
+Route::post('/owner/products', [
+    OwnerProductController::class,
+    'store',
+])
+    ->name('owner.products.store')
+    ->middleware('throttle:20,1');
+
+Route::put('/owner/products/{product}', [
+    OwnerProductController::class,
+    'update',
+])
+    ->name('owner.products.update')
+    ->middleware('throttle:20,1');
+
+Route::delete('/owner/products/{product}', [
+    OwnerProductController::class,
+    'destroy',
+])
+    ->name('owner.products.destroy')
+    ->middleware('throttle:20,1');
