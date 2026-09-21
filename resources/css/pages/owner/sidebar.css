@@ -1,0 +1,281 @@
+/* =========================
+   OWNER SIDEBAR
+========================= */
+
+/* =========================
+   Sidebar (desktop & tablet — inline left column)
+========================= */
+
+.owner-sidebar {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    flex: 0 0 268px;
+    width: 268px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 14px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background: var(--surface-elevated);
+    border-right: 1px solid var(--border-soft);
+    box-shadow: 10px 0 28px rgba(70, 75, 113, 0.12);
+    transition:
+        width 0.3s ease,
+        flex-basis 0.3s ease,
+        padding 0.3s ease;
+}
+
+/* Burger toggle — visible at every breakpoint so the sidebar can always
+   be expanded or collapsed. */
+
+.sidebar-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    flex: 0 0 42px;
+    padding: 0;
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--text-dark);
+    cursor: pointer;
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.sidebar-toggle:hover {
+    background: var(--surface-muted);
+    border-color: var(--teal);
+}
+
+/* =========================
+   Brand logo (sidebar header)
+========================= */
+
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 6px 14px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--border-soft);
+    min-height: 58px;
+}
+
+.sidebar-brand .logo {
+    gap: 10px;
+}
+
+.sidebar-brand .logo-text {
+    white-space: nowrap;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+.sidebar-nav__list {
+    flex: 1 1 auto;
+    list-style: none;
+}
+
+/* =========================
+   Sign out (sidebar footer)
+========================= */
+
+.sidebar-logout {
+    padding-top: 14px;
+    margin-top: 14px;
+    border-top: 1px solid var(--border-soft);
+}
+
+.sidebar-logout__btn {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text-dark);
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.sidebar-logout__btn:hover {
+    background: var(--surface-muted);
+    border-color: var(--teal);
+}
+
+.sidebar-logout__btn svg {
+    flex: 0 0 auto;
+    color: var(--teal);
+}
+
+.sidebar-logout__btn > span {
+    white-space: nowrap;
+}
+
+/* =========================
+   Owner nav links
+========================= */
+
+.owner-nav__link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: var(--radius-sm);
+    color: var(--text-dark);
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    transition:
+        background 0.2s ease,
+        color 0.2s ease;
+}
+
+.owner-nav__link svg {
+    flex: 0 0 auto;
+    color: var(--teal);
+}
+
+.owner-nav__link:hover {
+    background: var(--surface-muted);
+}
+
+.owner-nav__link.is-active {
+    background: var(--accent-soft);
+    color: var(--accent);
+}
+
+.owner-nav__link.is-active svg {
+    color: var(--accent);
+}
+
+.owner-nav__link > span {
+    white-space: nowrap;
+    transition: opacity 0.18s ease;
+}
+
+.owner-backdrop {
+    display: none;
+}
+
+/* =========================
+   Collapsed state (desktop & tablet)
+========================= */
+
+@media (min-width: 768px) {
+    .owner-shell.collapsed .owner-sidebar {
+        width: 84px;
+        flex-basis: 84px;
+        padding: 12px 10px;
+    }
+
+    .owner-shell.collapsed .sidebar-brand {
+        justify-content: center;
+        padding: 0;
+    }
+
+    .owner-shell.collapsed .sidebar-brand .logo-text {
+        display: none;
+    }
+
+    .owner-shell.collapsed .owner-nav__link {
+        justify-content: center;
+        gap: 0;
+        padding: 12px;
+    }
+
+    .owner-shell.collapsed .owner-nav__link > span {
+        display: none;
+    }
+
+    .owner-shell.collapsed .sidebar-logout {
+        padding-top: 12px;
+        margin-top: 12px;
+    }
+
+    .owner-shell.collapsed .sidebar-logout__btn {
+        justify-content: center;
+        gap: 0;
+        padding: 12px;
+    }
+
+    .owner-shell.collapsed .sidebar-logout__btn > span {
+        display: none;
+    }
+}
+
+/* =========================
+   Drawer (mobile)
+========================= */
+
+@media (max-width: 767px) {
+    .owner-sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: min(300px, 84vw);
+        height: 100dvh;
+        flex: none;
+        z-index: 120;
+        padding: 22px 16px;
+        border-right: 1px solid var(--border-soft);
+        border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+        box-shadow: 14px 0 36px rgba(13, 16, 26, 0.40);
+        transform: translateX(-105%);
+        transition: transform 0.28s ease;
+    }
+
+    .owner-sidebar.is-open {
+        transform: translateX(0);
+    }
+
+    .owner-nav__link {
+        min-height: 48px;
+        padding: 13px 15px;
+        font-size: 15px;
+    }
+
+    .owner-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 110;
+        display: block;
+        background: rgba(13, 16, 26, 0.60);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.25s ease;
+    }
+
+    .owner-backdrop.is-visible {
+        opacity: 1;
+        pointer-events: auto;
+    }
+}
+
+@media (max-width: 640px) {
+    .sidebar-toggle {
+        width: 40px;
+        height: 40px;
+        flex: 0 0 40px;
+        border-radius: 50%;
+    }
+}

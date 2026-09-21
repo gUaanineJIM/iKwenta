@@ -1,0 +1,180 @@
+/* =========================
+   OWNER DASHBOARD — SHELL
+========================= */
+
+/* =========================
+   Page base
+========================= */
+
+.owner-page {
+    min-height: 100vh;
+    margin: 0;
+    overflow-x: clip;
+    background:
+        radial-gradient(circle at top right, var(--page-bg-2), transparent 35%),
+        var(--page-bg);
+    color: var(--text-dark);
+    font-family: var(--font);
+}
+
+.owner-page *,
+.owner-page *::before,
+.owner-page *::after {
+    box-sizing: border-box;
+}
+
+.owner-page button,
+.owner-page input {
+    font: inherit;
+}
+
+/* =========================
+   Header
+========================= */
+
+.owner-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: color-mix(in srgb, var(--surface) 92%, transparent);
+    border-bottom: 1px solid var(--border-soft);
+    backdrop-filter: blur(16px);
+}
+
+.owner-header__inner {
+    width: min(1240px, calc(100% - 40px));
+    min-height: 76px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+/* Left group: burger toggle + brand (always aligned top-left) */
+
+.owner-header__left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+}
+
+.owner-header__brand .logo {
+    gap: 10px;
+}
+
+.owner-header__brand .logo-text {
+    white-space: nowrap;
+}
+
+/* =========================
+   Header right / welcome
+========================= */
+
+.owner-header__right {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.owner-welcome {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+}
+
+.owner-welcome__label {
+    color: var(--text-muted);
+    font-size: 14px;
+}
+
+.owner-welcome strong {
+    color: var(--text-dark);
+    font-size: 18px;
+}
+
+/* =========================
+   Shell
+========================= */
+
+.owner-shell {
+    display: flex;
+    width: 100%;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+
+/* =========================
+   Main content
+========================= */
+
+.owner-main {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+
+.owner-section {
+    position: relative;
+    width: 100%;
+    max-width: 1288px;
+    min-width: 0;
+    min-height: 320px;
+    margin: 0 auto;
+    padding: 38px 24px 80px;
+}
+
+/* =========================
+   Responsive
+========================= */
+
+@media (max-width: 640px) {
+    .owner-header__inner {
+        width: min(100% - 24px, 1180px);
+        min-height: 68px;
+        gap: 12px;
+    }
+
+    .owner-header__left {
+        gap: 10px;
+    }
+
+    .owner-header__brand .logo-text {
+        display: none;
+    }
+
+    .owner-welcome {
+        display: none;
+    }
+
+    .owner-header__right {
+        gap: 10px;
+    }
+
+    .theme-toggle {
+        width: 40px;
+        height: 40px;
+        flex: 0 0 40px;
+    }
+
+    .owner-shell {
+        width: 100%;
+        padding: 0;
+    }
+
+    .owner-main {
+        width: 100%;
+        padding: 0;
+    }
+
+    .owner-section {
+        padding: 28px 12px 55px;
+    }
+}
