@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CustomerAuthController;
 use App\Http\Controllers\CustomerDashboardController;
+use App\Http\Controllers\OwnerAuthController;
 use App\Http\Controllers\OwnerProductController;
 use Illuminate\Support\Facades\Route;
 
@@ -16,6 +17,11 @@ Route::get('/customer/login', function () {
 Route::get('/owner/login', function () {
     return redirect()->route('landing', '#login');
 })->name('owner.login');
+
+Route::post('/owner/login', [
+    OwnerAuthController::class,
+    'login',
+])->name('owner.login.submit');
 
 // Customer Dashboard
 
@@ -43,10 +49,18 @@ Route::post('/customer/logout', [
 
 // Owner Dashboard
 
-Route::get('/owner/dashboard', function () {
+Route::get('/owner/dashboard', function (\Illuminate\Http\Request $request) {
+    if (! $request->session()->has('owner_id')) {
+        return redirect()->route('landing', ['#login']);
+    }
+
     return view('owner.dashboard');
 })->name('owner.dashboard');
 
+Route::post('/owner/logout', [
+    OwnerAuthController::class,
+    'logout',
+])->name('owner.logout');
 Route::get('/owner/products', [
     OwnerProductController::class,
     'index',

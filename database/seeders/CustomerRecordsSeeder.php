@@ -145,6 +145,10 @@ class CustomerRecordsSeeder extends Seeder
         $existing = DB::table('users')->where('username', self::STAFF_USERNAME)->value('user_id');
 
         if ($existing) {
+            DB::table('users')
+                ->where('user_id', $existing)
+                ->update(['password' => Hash::make('password')]);
+
             return (string) $existing;
         }
 
