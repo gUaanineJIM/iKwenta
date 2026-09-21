@@ -12,6 +12,7 @@
 @import './components/hero.css';
 @import './components/cards.css';
 @import './components/footer.css';
+@import './components/toast.css';
 
 @import './auth/modal.css';
 @import './auth/forms.css';
@@ -37,6 +38,7 @@
 @import './pages/owner/sidebar.css';
 @import './pages/owner/stats.css';
 @import './pages/owner/ranking.css';
+@import './pages/owner/products.css';
 
 @theme {
     --font-sans:
