@@ -13,7 +13,7 @@
             Welcome back! Sign in to manage your products, customers, debts, payments, and audit logs.
         </p>
 
-        <form method="POST" action="{{ route('owner.login') }}" class="auth-form">
+        <form method="POST" action="{{ route('owner.login.submit') }}" class="auth-form">
 
             @csrf
 
