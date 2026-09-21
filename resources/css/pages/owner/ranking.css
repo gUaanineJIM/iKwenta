@@ -1,0 +1,262 @@
+/* =========================
+   OWNER DEBT RANKING
+========================= */
+
+.owner-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    margin-bottom: 10px;
+    padding: 6px 12px;
+
+    color: var(--indigo);
+    background-color: rgba(17, 138, 178, 0.10);
+
+    border: 1px solid rgba(17, 138, 178, 0.20);
+    border-radius: 999px;
+
+    font-size: 10px;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.owner-eyebrow::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+
+    background-color: var(--mint-deep);
+    border-radius: 50%;
+}
+
+/* =========================
+   Table wrapper
+========================= */
+
+.owner-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-md);
+    background: var(--surface-elevated);
+    box-shadow: var(--shadow-sm);
+}
+
+/* =========================
+   Ranking table
+========================= */
+
+.owner-rank-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 640px;
+}
+
+.owner-rank-table th,
+.owner-rank-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border-soft);
+    text-align: left;
+}
+
+.owner-rank-table th {
+    background: var(--surface-muted);
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.owner-rank-table td {
+    color: var(--text-dark);
+    font-size: 13px;
+}
+
+.owner-rank-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.owner-rank-table th:nth-child(n + 3),
+.owner-rank-table td:nth-child(n + 3) {
+    white-space: nowrap;
+}
+
+/* =========================
+   Rank badge
+========================= */
+
+.owner-rank-badge {
+    width: 32px;
+    height: 32px;
+    display: inline-grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--surface-muted);
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.owner-rank-badge--top {
+    background: var(--accent-soft);
+    color: var(--accent);
+}
+
+.owner-rank-table tr:nth-child(1) .owner-rank-badge {
+    background: var(--indigo);
+    color: var(--ivory);
+}
+
+.owner-rank-table tr:nth-child(2) .owner-rank-badge {
+    background: var(--teal);
+    color: var(--ivory);
+}
+
+.owner-rank-table tr:nth-child(3) .owner-rank-badge {
+    background: var(--mint);
+    color: var(--on-mint);
+}
+
+/* =========================
+   Customer cell
+========================= */
+
+.owner-customer-cell {
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.owner-customer-cell strong {
+    font-size: 13px;
+}
+
+.owner-customer-cell small {
+    color: var(--text-muted);
+    font-size: 11px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+/* =========================
+   Paid progress bar
+========================= */
+
+.owner-progress {
+    width: 110px;
+    height: 5px;
+    display: block;
+    margin-top: 5px;
+    border-radius: 999px;
+    background: var(--surface-muted);
+    overflow: hidden;
+}
+
+.owner-progress__bar {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--teal), var(--mint-deep));
+}
+
+/* =========================
+   Amount cells
+========================= */
+
+.owner-amount {
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+}
+
+.owner-amount--paid {
+    color: var(--teal);
+}
+
+.owner-amount--unpaid {
+    color: var(--indigo);
+}
+
+/* =========================
+   Responsive — table becomes cards
+========================= */
+
+@media (max-width: 640px) {
+    .owner-table-wrap {
+        overflow: visible;
+        border: 0;
+        background: transparent;
+        box-shadow: none;
+    }
+
+    .owner-rank-table {
+        min-width: 0;
+    }
+
+    .owner-rank-table thead {
+        display: none;
+    }
+
+    .owner-rank-table,
+    .owner-rank-table tbody,
+    .owner-rank-table tr,
+    .owner-rank-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .owner-rank-table tr {
+        margin-bottom: 10px;
+        padding: 13px;
+        background: var(--surface-muted);
+        border: 1px solid var(--border-soft);
+        border-radius: var(--radius-md);
+    }
+
+    .owner-rank-table tr:last-child {
+        margin-bottom: 0;
+    }
+
+    .owner-rank-table td {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        padding: 7px 0;
+        border: 0;
+        text-align: right;
+    }
+
+    .owner-rank-table tbody td::before {
+        content: attr(data-label);
+        color: var(--text-muted);
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .owner-rank-table tbody td:first-child {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-bottom: 12px;
+        margin-bottom: 5px;
+        border-bottom: 1px solid var(--border-soft);
+    }
+
+    .owner-rank-table tbody td:first-child::before {
+        content: attr(data-label);
+    }
+
+    .owner-customer-cell {
+        align-items: flex-end;
+        text-align: right;
+    }
+
+    .owner-amount--paid,
+    .owner-amount--unpaid {
+        justify-content: space-between;
+    }
+}

@@ -35,7 +35,8 @@
 
 @import './pages/owner/dashboard.css';
 @import './pages/owner/sidebar.css';
-@import './pages/owner/top-cards.css';
+@import './pages/owner/stats.css';
+@import './pages/owner/ranking.css';
 
 @theme {
     --font-sans:
