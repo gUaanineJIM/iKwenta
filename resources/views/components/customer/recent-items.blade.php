@@ -20,11 +20,11 @@
         @foreach ($items as $item)
             <li class="recent-item">
                 <span class="recent-item__icon" aria-hidden="true">
-                    {{ strtoupper(substr($item->product->product_name ?? 'P', 0, 1)) }}
+                    <span aria-hidden="true">₱</span>
                 </span>
 
                 <div class="recent-item__main">
-                    <strong> {{ $item->product->product_name ?? 'Unknown Product' }} </strong>
+                    <strong> {{ $item->product_name ?? $item->product->product_name ?? 'Unknown Product' }} </strong>
 
                     <span class="recent-item__details">
                         {{ $item->quantity }} × ₱{{ number_format((float) $item->unit_price, 2) }}
@@ -38,8 +38,8 @@
                 <div class="recent-item__total">
                     <strong> ₱{{ number_format((float) $item->subtotal, 2) }} </strong>
 
-                    <time class="recent-item__date" datetime="{{ $item->created_at?->toIso8601String() }}">
-                        {{ $item->created_at?->format('M d, Y') }} · {{ $item->created_at?->format('h:i A') }}
+                    <time class="recent-item__date" datetime="{{ $item->debt?->loaned_at?->toIso8601String() }}">
+                        {{ $item->debt?->loaned_at?->format('M d, Y') }} · {{ $item->debt?->loaned_at?->format('h:i A') }}
                     </time>
                 </div>
             </li>

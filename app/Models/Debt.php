@@ -28,12 +28,16 @@ class Debt extends Model
         'paid_manually',
         'paid_manually_by',
         'paid_manually_at',
+        'money_amount',
+        'loaned_at',
     ];
 
     protected $casts = [
         'status' => DebtStatus::class,
         'paid_manually' => 'boolean',
         'paid_manually_at' => 'datetime',
+        'money_amount' => 'decimal:2',
+        'loaned_at' => 'datetime',
     ];
 
     public function customer(): BelongsTo

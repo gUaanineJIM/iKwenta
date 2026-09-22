@@ -1,0 +1,72 @@
+@extends('layouts.owner', ['activeSection' => 'customers'])
+
+@section('title', 'Customers | iKwenta')
+
+@section('content')
+    <section class="owner-section owner-customers" data-customers-page>
+        <div class="page-heading owner-products__heading">
+            <div><span class="owner-eyebrow">Customer Accounts</span><h1>Customers</h1><p>Track what each customer owes and record payments in seconds.</p></div>
+        </div>
+
+        <div class="owner-products__toolbar">
+            <label class="owner-products__search"><span aria-hidden="true">⌕</span><input type="search" placeholder="Search customers" data-customer-search aria-label="Search customers"></label>
+            <button type="button" class="owner-btn owner-btn--primary" data-open-modal="add-customer-modal"><span>＋</span><span>Add Customer</span></button>
+        </div>
+
+        <div id="customers-region" data-customers-region>@include('components.owner.customers-list', ['customerGroups' => $customerGroups, 'q' => $q])</div>
+    </section>
+
+    <div class="modal owner-modal" id="add-customer-modal" aria-hidden="true">
+        <div class="modal-backdrop" data-modal-close></div>
+        <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="customer-modal-title">
+            <button type="button" class="modal-close" data-modal-close aria-label="Close">×</button>
+            <div class="owner-modal__head"><div><span class="modal-badge">Customer account</span><h2 class="modal-title" id="customer-modal-title">Add Customer</h2><p class="modal-subtitle">Create a portal code and record the opening debt.</p></div></div>
+            <form class="owner-modal__form" data-customer-form enctype="multipart/form-data">
+                @csrf
+                <input type="hidden" name="customer_id">
+                <label class="field-label">Customer name<input class="form-input" name="full_name" required maxlength="150"></label>
+                <fieldset class="customer-gender"><legend>Gender</legend><label><input type="radio" name="gender" value="male" required> Male</label><label><input type="radio" name="gender" value="female"> Female</label></fieldset>
+                <label class="field-label">Profile picture <span class="field-hint">Optional</span><input class="form-input" name="avatar" type="file" accept="image/jpeg,image/png,image/webp"></label>
+                <label class="field-label">Loaned on (Philippine time)<input class="form-input" name="loaned_at" type="datetime-local" value="{{ now('Asia/Manila')->format('Y-m-d\\TH:i') }}" required></label>
+                <fieldset class="customer-debt-types"><legend>Debt owed</legend><label><input type="checkbox" name="debt_types[]" value="product" data-type-toggle="product"> Product</label><label><input type="checkbox" name="debt_types[]" value="money" data-type-toggle="money"> Money</label></fieldset>
+                <div data-product-fields hidden><div class="customer-product-rows" data-product-rows></div><button type="button" class="owner-modal__add-row" data-add-product>＋ Add product</button></div>
+                <label class="field-label" data-money-fields hidden>Money owed (₱)<input class="form-input" name="money_amount" type="number" min="0.01" step="0.01" placeholder="0.00"></label>
+                <p class="owner-modal__error" data-customer-error hidden></p>
+                <div class="modal-actions"><button type="button" class="btn btn-secondary" data-modal-close>Cancel</button><button type="submit" class="btn btn-primary">Save Customer</button></div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal owner-modal" id="payment-modal" aria-hidden="true">
+        <div class="modal-backdrop" data-modal-close></div><div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="payment-title"><button type="button" class="modal-close" data-modal-close aria-label="Close">×</button><span class="modal-badge">Payment</span><h2 class="modal-title" id="payment-title">Record payment</h2><p class="modal-subtitle" data-payment-name></p><form class="owner-modal__form" data-payment-form>@csrf<input type="hidden" name="customer_id"><label class="field-label">Amount paid (₱)<input class="form-input" name="amount" type="number" min="0.01" step="0.01" required placeholder="0.00"></label><p class="owner-modal__error" data-payment-error hidden></p><div class="modal-actions"><button type="button" class="btn btn-secondary" data-modal-close>Cancel</button><button type="button" class="btn btn-secondary" data-pay-in-full>Paid in Full</button><button type="submit" class="btn btn-primary">Apply payment</button></div></form></div>
+    </div>
+@endsection
+
+@push('scripts')
+<script>
+(() => {
+    const page = document.querySelector('[data-customers-page]'); if (!page) return;
+    const region = document.querySelector('[data-customers-region]'), form = document.querySelector('[data-customer-form]'), paymentForm = document.querySelector('[data-payment-form]');
+    const token = form.querySelector('[name=_token]').value, addModal = document.getElementById('add-customer-modal'), paymentModal = document.getElementById('payment-modal');
+    const open = (modal) => { modal.classList.add('is-open'); modal.setAttribute('aria-hidden', 'false'); document.body.style.overflow = 'hidden'; };
+    const close = (modal) => { modal.classList.remove('is-open'); modal.setAttribute('aria-hidden', 'true'); document.body.style.overflow = ''; };
+    document.addEventListener('click', e => { const closeDetails = e.target.closest('[data-close-details]'); if (closeDetails) close(closeDetails.closest('.modal')); const card = e.target.closest('[data-customer-details]'); const cardAction = e.target.closest('.owner-customer-card__actions'); if (card && !closeDetails && !cardAction) open(document.getElementById(card.dataset.customerDetails)); });
+    document.addEventListener('keydown', e => { const card = e.target.closest('[data-customer-details]'); if (card && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); open(document.getElementById(card.dataset.customerDetails)); } });
+    const refresh = (q = '') => fetch('/owner/customers/list?q=' + encodeURIComponent(q), { headers: { 'X-Requested-With': 'XMLHttpRequest' } }).then(r => r.text()).then(html => region.innerHTML = html);
+    const request = (url, options = {}) => { const isMultipart = options.body instanceof FormData; return fetch(url, { ...options, headers: { 'X-CSRF-TOKEN': token, ...(isMultipart ? {} : { 'Content-Type': 'application/json' }), Accept: 'application/json' } }).then(async r => { const data = await r.json(); if (!r.ok) throw new Error(data.message || Object.values(data.errors || {}).flat()[0] || 'Request failed.'); return data; }); };
+    const productRows = form.querySelector('[data-product-rows]');
+    document.querySelector('[data-open-modal="add-customer-modal"]').addEventListener('click', () => { form.reset(); form.customer_id.value = ''; form.querySelector('.customer-debt-types').hidden = false; addModal.querySelector('.modal-title').textContent = 'Add Customer'; addModal.querySelector('.modal-subtitle').textContent = 'Create a portal code and record the opening debt.'; productRows.innerHTML = ''; });
+    const addProduct = (row = {}) => { const item = document.createElement('div'); item.className = 'customer-product-row'; item.innerHTML = `<input class="form-input" name="products[][product_name]" placeholder="Product name" required value="${row.name || ''}"><input class="form-input" name="products[][quantity]" type="number" min="1" placeholder="Qty" required value="${row.quantity || 1}"><input class="form-input" name="products[][amount]" type="text" inputmode="decimal" autocomplete="off" pattern="[0-9]+([.][0-9]{1,2})?" placeholder="₱ 0.00" required value="${row.amount || ''}" data-product-amount><button type="button" class="owner-product-card__action owner-product-card__action--danger" data-remove-product aria-label="Remove product">×</button>`; productRows.append(item); };
+    form.addEventListener('input', e => { if (e.target.matches('[data-product-amount]')) { e.target.value = e.target.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\./g, '$1').replace(/^(\d+\.\d{0,2}).*$/, '$1'); } });
+    form.querySelector('[data-add-product]').addEventListener('click', () => addProduct());
+    form.querySelectorAll('[data-type-toggle]').forEach(toggle => toggle.addEventListener('change', () => { form.querySelector('[data-product-fields]').hidden = !form.querySelector('[value=product]').checked; form.querySelector('[data-money-fields]').hidden = !form.querySelector('[value=money]').checked; if (form.querySelector('[value=product]').checked && !productRows.children.length) addProduct(); }));
+    form.addEventListener('click', e => { if (e.target.closest('[data-remove-product]')) e.target.closest('.customer-product-row').remove(); });
+    form.addEventListener('submit', e => { e.preventDefault(); const id = form.customer_id.value; const payload = new FormData(); payload.append('full_name', form.full_name.value); if (form.gender.value) payload.append('gender', form.gender.value); if (form.avatar.files[0]) payload.append('avatar', form.avatar.files[0]); const rows = [...form.querySelectorAll('.customer-product-row')]; const debtTypes = [...form.querySelectorAll('[name="debt_types[]"]:checked')].map(x => x.value); if (debtTypes.length) { debtTypes.forEach(type => payload.append('debt_types[]', type)); rows.forEach((row, index) => { payload.append(`products[${index}][product_name]`, row.children[0].value); payload.append(`products[${index}][quantity]`, row.children[1].value); payload.append(`products[${index}][amount]`, row.children[2].value); }); payload.append('money_amount', form.money_amount.value); payload.append('loaned_at', form.loaned_at.value); } if (id) payload.append('_method', 'PUT'); const url = id ? `/owner/customers/${id}` : '/owner/customers'; request(url, { method: 'POST', body: payload }).then(() => { close(addModal); form.reset(); form.customer_id.value = ''; form.querySelector('.customer-debt-types').hidden = false; addModal.querySelector('.modal-title').textContent = 'Add Customer'; addModal.querySelector('.modal-subtitle').textContent = 'Create a portal code and record the opening debt.'; productRows.innerHTML = ''; refresh(); }).catch(error => { const el = form.querySelector('[data-customer-error]'); el.textContent = error.message; el.hidden = false; }); });
+    document.addEventListener('click', e => { const edit = e.target.closest('[data-edit-customer]'), pay = e.target.closest('[data-pay-customer]'), del = e.target.closest('[data-delete-customer]'); if (edit) { form.reset(); form.querySelector('[name=customer_id]').value = edit.dataset.id; form.full_name.value = edit.dataset.name; form.querySelector(`[name=gender][value="${edit.dataset.gender}"]`).checked = true; const title = addModal.querySelector('.modal-title'), subtitle = addModal.querySelector('.modal-subtitle'); if (title) title.textContent = 'Edit Customer'; if (subtitle) subtitle.textContent = 'Update the name, profile, or add a new debt record.'; form.querySelector('.customer-debt-types').hidden = false; form.querySelector('[data-product-fields]').hidden = true; form.querySelector('[data-money-fields]').hidden = true; open(addModal); } if (pay) { paymentForm.customer_id.value = pay.dataset.id; paymentForm.dataset.remaining = pay.dataset.remaining || ''; const paymentName = paymentModal.querySelector('[data-payment-name]'); if (paymentName) paymentName.textContent = pay.dataset.name; open(paymentModal); } if (del && confirm(`Delete ${del.dataset.name}?`)) request(`/owner/customers/${del.dataset.id}`, { method: 'DELETE' }).then(() => refresh()).catch(error => alert(error.message)); });
+    paymentModal.querySelector('[data-pay-in-full]').addEventListener('click', () => { if (!window.confirm('Are you sure this customer paid in full? This will settle the entire remaining balance and record it in the payment history.')) return; request(`/owner/customers/${paymentForm.customer_id.value}/payments`, { method: 'POST', body: JSON.stringify({ amount: paymentForm.dataset.remaining, pay_in_full: true }) }).then(() => { close(paymentModal); paymentForm.reset(); refresh(); }).catch(error => { const el = paymentForm.querySelector('[data-payment-error]'); el.textContent = error.message; el.hidden = false; }); });
+    paymentForm.addEventListener('submit', e => { e.preventDefault(); request(`/owner/customers/${paymentForm.customer_id.value}/payments`, { method: 'POST', body: JSON.stringify({ amount: paymentForm.amount.value }) }).then(() => { close(paymentModal); paymentForm.reset(); refresh(); }).catch(error => { const el = paymentForm.querySelector('[data-payment-error]'); el.textContent = error.message; el.hidden = false; }); });
+    page.querySelector('[data-customer-search]').addEventListener('input', e => refresh(e.target.value));
+    document.addEventListener('click', e => { if (e.target.matches('[data-modal-close]')) close(e.target.closest('.modal')); });
+})();
+</script>
+@endpush

@@ -128,8 +128,15 @@
 .owner-customer-cell {
     display: flex;
     align-items: flex-start;
-    flex-direction: column;
-    gap: 3px;
+    gap: 10px;
+}
+
+.owner-ranking-avatar {
+    width: 36px;
+    height: 36px;
+    flex: 0 0 36px;
+    object-fit: cover;
+    border-radius: 50%;
 }
 
 .owner-customer-cell strong {

@@ -1,0 +1,53 @@
+.owner-customer-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
+.owner-customer-card { min-width: 0; padding: 1.1rem; background: var(--surface); border: 1px solid var(--border-soft); border-radius: 14px; box-shadow: var(--shadow-sm); cursor: pointer; transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease; }
+.owner-customer-card:hover, .owner-customer-card:focus-visible { border-color: var(--teal); box-shadow: var(--shadow-md); transform: translateY(-2px); outline: none; }
+.owner-customer-card__top { display: flex; align-items: center; justify-content: center; gap: 1rem; }
+.owner-customer-card__avatar { width: 72px; height: 72px; display: grid; place-items: center; object-fit: cover; border-radius: 50%; background: var(--accent-soft); color: var(--accent); font-size: 2rem; font-weight: 700; }
+.owner-customer-card__avatar--female { background: rgba(214, 69, 80, .14); color: var(--danger); }
+.owner-customer-card__avatar--male { background: rgba(17, 138, 178, .14); color: var(--teal); }
+.owner-customer-card__actions { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: .5rem; width: 100%; margin-top: .8rem; }
+.owner-customer-card__quick-action { width: 30px; height: 30px; display: grid; place-items: center; padding: 0; border: 1px solid var(--border-soft); border-radius: 7px; background: var(--surface-muted); color: var(--text-dark); cursor: pointer; font-size: .9rem; font-weight: 700; line-height: 1; }
+.owner-customer-card__quick-action:hover, .owner-customer-card__quick-action:focus-visible { border-color: var(--teal); color: var(--teal); outline: none; }
+.owner-customer-card__quick-action--danger { color: var(--danger); }
+.owner-customer-card__name { margin: 1rem 0 .2rem; color: var(--text-dark); font-size: 1.1rem; text-align: center; }
+.owner-customer-card__code { display: block; color: var(--teal); font-weight: 700; letter-spacing: .12em; text-align: center; }
+.owner-customer-card__balances { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; margin: 1rem 0 0; color: var(--text-muted); font-size: .75rem; text-align: center; text-transform: uppercase; }
+.owner-customer-card__balances strong { display: block; margin-top: .2rem; color: var(--text-dark); font-size: .95rem; }
+.owner-customer-modal .modal-dialog { max-width: 720px; }
+.owner-customer-modal__profile { display: flex; align-items: center; gap: 1rem; }
+.owner-customer-modal__profile code { color: var(--teal); font-weight: 700; letter-spacing: .12em; }
+.owner-customer-modal__balances { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.25rem 0; padding: 1rem; border: 1px solid var(--border-soft); border-radius: 10px; background: var(--surface-muted); color: var(--text-muted); }
+.owner-customer-modal__balances strong { display: block; margin-top: .25rem; color: var(--text-dark); font-size: 1.1rem; }
+.owner-customer-modal__actions { flex-wrap: wrap; }
+.owner-customer-modal__delete { color: var(--danger); }
+.owner-customer-group { margin-top: 2rem; }
+.owner-customer-group__heading { display: flex; align-items: end; justify-content: space-between; gap: 1rem; margin-bottom: .8rem; }
+.owner-customer-group__heading h2 { margin: 0; color: var(--text-dark); font-size: 1.1rem; }
+.owner-customer-group__heading p { margin: .25rem 0 0; color: var(--text-muted); font-size: .9rem; }
+.owner-customer-group__empty { padding: 1rem; border: 1px dashed var(--border-soft); border-radius: 10px; color: var(--text-muted); background: var(--surface-muted); }
+.owner-customers-table { width: 100%; border-collapse: collapse; min-width: 720px; }
+.owner-customers-table th, .owner-customers-table td { padding: 1rem 1.1rem; text-align: left; border-bottom: 1px solid var(--border); }
+.owner-customers-table th { color: var(--text-muted); font-size: .75rem; text-transform: uppercase; letter-spacing: .08em; }
+.owner-customers-table tbody tr:last-child td { border-bottom: 0; }
+.owner-customers-table code { color: var(--teal); font-weight: 700; letter-spacing: .12em; }
+.owner-customer-actions { display: flex; gap: .4rem; justify-content: flex-end; }
+.owner-customer-details-row td { padding-top: 0 !important; }
+.owner-customer-details { border-top: 1px solid var(--border-soft); color: var(--text-muted); }
+.owner-customer-details summary { padding: .65rem 1.1rem; cursor: pointer; color: var(--teal); font-weight: 700; }
+.owner-customer-details__content { display: grid; gap: .7rem; padding: 0 1.1rem 1rem; }
+.owner-debt-history { padding: .8rem; border: 1px solid var(--border-soft); border-radius: 8px; background: var(--surface-muted); }
+.owner-debt-history__header { display: flex; justify-content: space-between; gap: 1rem; color: var(--text-dark); }
+.owner-debt-history__columns { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.owner-debt-history h3 { margin: .7rem 0 .3rem; color: var(--text-dark); font-size: .8rem; text-transform: uppercase; }
+.owner-debt-history p { margin: .25rem 0; font-size: .85rem; }
+.customer-debt-types { display: flex; gap: 1rem; border: 0; padding: 0; margin: 0; }
+.customer-debt-types label { display: flex; gap: .4rem; align-items: center; }
+.customer-product-row { display: grid; grid-template-columns: 1.5fr .6fr 1fr auto; gap: .5rem; margin-top: .6rem; align-items: center; }
+.form-input { width: 100%; padding: .7rem .8rem; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text); }
+.field-label { display: grid; gap: .4rem; font-weight: 600; }
+.field-hint { color: var(--text-muted); font-size: .75rem; font-weight: 400; }
+.customer-gender { display: flex; gap: 1rem; border: 0; padding: 0; margin: 0; }
+.customer-gender label { display: flex; gap: .4rem; align-items: center; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+@media (max-width: 760px) { .owner-customers-table-wrap { background: transparent; border: 0; } .owner-customers-table { min-width: 0; display: block; } .owner-customers-table thead { display: none; } .owner-customers-table tbody, .owner-customers-table tr, .owner-customers-table td { display: block; } .owner-customers-table tr { margin-bottom: 1rem; padding: .8rem; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; } .owner-customers-table td { border: 0; padding: .35rem; } .owner-customers-table td::before { content: attr(data-label); display: block; color: var(--text-muted); font-size: .7rem; text-transform: uppercase; } .owner-customer-actions { justify-content: flex-start; margin-top: .5rem; } .customer-product-row { grid-template-columns: 1fr 1fr; } .customer-product-row input:first-child { grid-column: 1 / -1; } }
+@media (max-width: 760px) { .owner-debt-history__header, .owner-debt-history__columns { display: block; } .owner-debt-history__columns > div + div { margin-top: .8rem; } }

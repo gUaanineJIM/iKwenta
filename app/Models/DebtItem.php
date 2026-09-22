@@ -22,6 +22,7 @@ class DebtItem extends Model
         'debt_item_id',
         'debt_id',
         'product_id',
+        'product_name',
         'quantity',
         'unit_price',
         'subtotal',

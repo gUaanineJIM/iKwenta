@@ -16,19 +16,9 @@
                 </svg>
             ',
         ],
-        'products' => [
-            'label' => 'Products',
-            'href' => route('owner.products'),
-            'icon' => '
-                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M21 8L12 3L3 8V16L12 21L21 16V8Z" />
-                    <path d="M3 8L12 13L21 8" />
-                    <path d="M12 13V21" />
-                </svg>
-            ',
-        ],
         'customers' => [
             'label' => 'Customers',
+            'href' => route('owner.customers'),
             'icon' => '
                 <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <circle cx="9" cy="8" r="3.5" />
