@@ -33,7 +33,37 @@
                 <fieldset class="customer-gender"><legend>Gender</legend><label><input type="radio" name="gender" value="male" required> Male</label><label><input type="radio" name="gender" value="female"> Female</label></fieldset>
                 <label class="field-label">Profile picture <span class="field-hint">Optional</span><input class="form-input" name="avatar" type="file" accept="image/jpeg,image/png,image/webp"></label>
                 <label class="field-label">Loaned on (Philippine time)<input class="form-input" name="loaned_at" type="datetime-local" value="{{ now('Asia/Manila')->format('Y-m-d\\TH:i') }}" required></label>
-                <fieldset class="customer-debt-types"><legend>Debt owed</legend><label><input type="checkbox" name="debt_types[]" value="product" data-type-toggle="product"> Product</label><label><input type="checkbox" name="debt_types[]" value="money" data-type-toggle="money"> Money</label></fieldset>
+                <fieldset class="customer-debt-types">
+                    <legend class="customer-debt-types__legend">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M20.59 13.41L11 3.83A2 2 0 0 0 9.59 3.24H4a1 1 0 0 0-1 1v5.59a2 2 0 0 0 .59 1.41l9.58 9.58a2 2 0 0 0 2.83 0l4.59-4.59a2 2 0 0 0 0-2.82z"/>
+                            <circle cx="7.5" cy="7.5" r="1.5"/>
+                        </svg>
+                        <span>Type of debt</span>
+                    </legend>
+                    <label class="debt-type-card">
+                        <span class="debt-type-card__icon" aria-hidden="true">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 8L12 3L3 8V16L12 21L21 16V8Z"/>
+                                <path d="M3 8L12 13L21 8"/>
+                                <path d="M12 13V21"/>
+                            </svg>
+                        </span>
+                        <span class="debt-type-card__label">Product</span>
+                        <input type="checkbox" name="debt_types[]" value="product" data-type-toggle="product">
+                    </label>
+                    <label class="debt-type-card">
+                        <span class="debt-type-card__icon" aria-hidden="true">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="2" y="6" width="20" height="12" rx="2"/>
+                                <circle cx="12" cy="12" r="2.5"/>
+                                <path d="M6 12h.01M18 12h.01"/>
+                            </svg>
+                        </span>
+                        <span class="debt-type-card__label">Money</span>
+                        <input type="checkbox" name="debt_types[]" value="money" data-type-toggle="money">
+                    </label>
+                </fieldset>
                 <div data-product-fields hidden><div class="customer-product-rows" data-product-rows></div><button type="button" class="owner-modal__add-row" data-add-product>＋ Add product</button></div>
                 <label class="field-label" data-money-fields hidden>Money owed (₱)<input class="form-input" name="money_amount" type="number" min="0.01" step="0.01" placeholder="0.00"></label>
                 <p class="owner-modal__error" data-customer-error hidden></p>
@@ -142,6 +172,22 @@
     paymentForm.addEventListener('submit', e => { e.preventDefault(); request(`/owner/customers/${paymentForm.customer_id.value}/payments`, { method: 'POST', body: JSON.stringify({ amount: paymentForm.amount.value }) }).then(() => { close(paymentModal); showToast('Payment recorded.'); paymentForm.reset(); refresh(); }).catch(error => { const el = paymentForm.querySelector('[data-payment-error]'); el.textContent = error.message; el.hidden = false; showToast(error.message, 'danger'); }); });
     deleteConfirmBtn.addEventListener('click', () => { if (!pendingDeleteId) return; deleteConfirmBtn.disabled = true; request(`/owner/customers/${pendingDeleteId}`, { method: 'DELETE' }).then(() => { close(deleteModal); pendingDeleteId = null; deleteConfirmBtn.disabled = false; showToast('Customer deleted.'); refresh(); }).catch(error => { deleteConfirmBtn.disabled = false; deleteError.querySelector('span').textContent = error.message; deleteError.hidden = false; showToast(error.message, 'danger'); }); });
     page.querySelector('[data-customer-search]').addEventListener('input', e => refresh(e.target.value));
+    page.addEventListener('input', e => {
+        const search = e.target.closest('[data-section-search]');
+        if (!search) return;
+        const group = search.closest('[data-customer-group]');
+        const term = search.value.trim().toLowerCase();
+        let visible = 0;
+        group.querySelectorAll('[data-customer-row]').forEach(card => {
+            const name = card.querySelector('.owner-customer-card__name').textContent.toLowerCase();
+            const code = card.querySelector('.owner-customer-card__code').textContent.toLowerCase();
+            const match = !term || name.includes(term) || code.includes(term);
+            card.hidden = !match;
+            if (match) visible += 1;
+        });
+        const empty = group.querySelector('[data-section-empty]');
+        if (empty) empty.hidden = visible !== 0;
+    });
     document.addEventListener('click', e => { if (e.target.matches('[data-modal-close]')) close(e.target.closest('.modal')); });
 })();
 </script>
