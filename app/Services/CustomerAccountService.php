@@ -3,13 +3,12 @@
 namespace App\Services;
 
 use App\Enums\DebtStatus;
+use App\Models\ActivityLog;
 use App\Models\Customer;
 use App\Models\Debt;
 use App\Models\DebtItem;
 use App\Models\Payment;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use InvalidArgumentException;
 
 /**
@@ -150,6 +149,21 @@ class CustomerAccountService
 
         $this->refreshStatus($debt);
 
+        ActivityLog::create([
+            'user_id' => $receivedById,
+            'action' => 'payment.create',
+            'table_name' => 'payments',
+            'record_id' => $payment->payment_id,
+            'old_values' => null,
+            'new_values' => [
+                'customer_name' => $debt->customer?->full_name,
+                'debt_id' => $debt->debt_id,
+                'amount_paid' => $amount,
+                'payment_date' => $payment->payment_date?->toDateTimeString(),
+            ],
+            'created_at' => now(),
+        ]);
+
         return $payment;
     }
 
@@ -191,20 +205,19 @@ class CustomerAccountService
         $debt->paid_manually_at = now();
         $debt->save();
 
-        DB::table('activity_logs')->insert([
-            'log_id' => (string) Str::uuid(),
+        ActivityLog::create([
             'user_id' => $userId,
             'action' => 'debt.mark_paid',
             'table_name' => 'debts',
             'record_id' => $debt->debt_id,
-            'old_values' => json_encode(['status' => $before], JSON_THROW_ON_ERROR),
-            'new_values' => json_encode([
+            'old_values' => ['status' => $before],
+            'new_values' => [
                 'status' => DebtStatus::Paid->value,
                 'paid_manually' => true,
                 'paid_manually_by' => $userId,
                 'paid_manually_at' => $debt->paid_manually_at->toDateTimeString(),
                 'payment_id' => $paymentId,
-            ], JSON_THROW_ON_ERROR),
+            ],
             'created_at' => now(),
         ]);
 

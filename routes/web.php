@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CustomerAuthController;
 use App\Http\Controllers\CustomerDashboardController;
+use App\Http\Controllers\OwnerActivityLogController;
 use App\Http\Controllers\OwnerAuthController;
 use App\Http\Controllers\OwnerCustomerController;
 use App\Http\Controllers\OwnerDashboardController;
@@ -93,3 +94,6 @@ Route::post('/owner/customers', [OwnerCustomerController::class, 'store'])->name
 Route::put('/owner/customers/{customer}', [OwnerCustomerController::class, 'update'])->name('owner.customers.update')->middleware('throttle:20,1');
 Route::delete('/owner/customers/{customer}', [OwnerCustomerController::class, 'destroy'])->name('owner.customers.destroy')->middleware('throttle:20,1');
 Route::post('/owner/customers/{customer}/payments', [OwnerCustomerController::class, 'payment'])->name('owner.customers.payment')->middleware('throttle:20,1');
+
+Route::get('/owner/activity-logs', [OwnerActivityLogController::class, 'index'])->name('owner.activity-logs');
+Route::get('/owner/activity-logs/list', [OwnerActivityLogController::class, 'list'])->name('owner.activity-logs.list');
