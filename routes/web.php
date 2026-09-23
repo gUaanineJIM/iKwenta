@@ -3,6 +3,8 @@
 use App\Http\Controllers\CustomerAuthController;
 use App\Http\Controllers\CustomerDashboardController;
 use App\Http\Controllers\OwnerAuthController;
+use App\Http\Controllers\OwnerCustomerController;
+use App\Http\Controllers\OwnerDashboardController;
 use App\Http\Controllers\OwnerProductController;
 use Illuminate\Support\Facades\Route;
 
@@ -48,14 +50,7 @@ Route::post('/customer/logout', [
 ])->name('customer.logout');
 
 // Owner Dashboard
-
-Route::get('/owner/dashboard', function (\Illuminate\Http\Request $request) {
-    if (! $request->session()->has('owner_id')) {
-        return redirect()->route('landing', ['#login']);
-    }
-
-    return view('owner.dashboard');
-})->name('owner.dashboard');
+Route::get('/owner/dashboard', [OwnerDashboardController::class, 'index'])->name('owner.dashboard');
 
 Route::post('/owner/logout', [
     OwnerAuthController::class,
@@ -91,3 +86,10 @@ Route::delete('/owner/products/{product}', [
 ])
     ->name('owner.products.destroy')
     ->middleware('throttle:20,1');
+
+Route::get('/owner/customers', [OwnerCustomerController::class, 'index'])->name('owner.customers');
+Route::get('/owner/customers/list', [OwnerCustomerController::class, 'list'])->name('owner.customers.list');
+Route::post('/owner/customers', [OwnerCustomerController::class, 'store'])->name('owner.customers.store')->middleware('throttle:20,1');
+Route::put('/owner/customers/{customer}', [OwnerCustomerController::class, 'update'])->name('owner.customers.update')->middleware('throttle:20,1');
+Route::delete('/owner/customers/{customer}', [OwnerCustomerController::class, 'destroy'])->name('owner.customers.destroy')->middleware('throttle:20,1');
+Route::post('/owner/customers/{customer}/payments', [OwnerCustomerController::class, 'payment'])->name('owner.customers.payment')->middleware('throttle:20,1');

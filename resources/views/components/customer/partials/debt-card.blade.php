@@ -33,7 +33,7 @@
         <div class="debt-card__title">
             <span class="debt-card__label"> Debt Record </span>
 
-            <h3>{{ $debt->created_at?->format('M d, Y h:i A') }}</h3>
+            <h3>Loaned {{ $debt->loaned_at?->format('M d, Y h:i A') }}</h3>
 
             <span class="status-badge {{ $badgeClass }}">{{ $badgeLabel }}</span>
         </div>
@@ -104,12 +104,12 @@
                                     <td data-label="Product">
                                         <div class="product-cell">
                                             <span class="product-cell__icon" aria-hidden="true">
-                                                {{ strtoupper(substr($item->product->product_name ?? 'P', 0, 1)) }}
+                                                <span aria-hidden="true">₱</span>
                                             </span>
 
                                             <div>
                                                 <strong>
-                                                    {{ $item->product->product_name ?? 'Unknown Product' }}
+                                                    {{ $item->product_name ?? $item->product->product_name ?? 'Unknown Product' }}
                                                 </strong>
                                             </div>
                                         </div>
@@ -148,6 +148,16 @@
                     message="This debt has no recorded items."
                 />
 
+            @endif
+
+            @if ((float) ($debt->money_amount ?? 0) > 0)
+                <div class="detail-section__heading">
+                    <div>
+                        <h4>Money owed</h4>
+                        <span>Cash balance included in this debt record</span>
+                    </div>
+                    <strong>₱{{ number_format((float) $debt->money_amount, 2) }}</strong>
+                </div>
             @endif
         </div>
 

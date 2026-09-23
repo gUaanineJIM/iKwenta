@@ -36,6 +36,8 @@ class CustomerAccountService
             ->where('debts.customer_id', $customer->customer_id)
             ->sum('debt_items.subtotal');
 
+        $total += (float) $customer->debts()->sum('money_amount');
+
         return $this->normalize($total);
     }
 
@@ -71,7 +73,7 @@ class CustomerAccountService
      */
     public function transactionTotal(Debt $debt): string
     {
-        return $this->normalize($debt->items->sum('subtotal'));
+        return $this->normalize($debt->items->sum('subtotal') + (float) $debt->money_amount);
     }
 
     /**

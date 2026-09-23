@@ -7,27 +7,6 @@
 @endpush
 
 @section('content')
-    @php
-        // Frontend-only mock ranking: customers sorted by highest unpaid debt.
-        $rankingSeed = [
-            ['name' => 'Maria Santos', 'code' => 'C-1021', 'total' => 25400.00, 'paid' => 4000.00],
-            ['name' => 'Juan Dela Cruz', 'code' => 'C-1004', 'total' => 18750.00, 'paid' => 2500.00],
-            ['name' => 'Ana Reyes', 'code' => 'C-1033', 'total' => 12300.00, 'paid' => 1800.00],
-            ['name' => 'Carlos Mendoza', 'code' => 'C-1015', 'total' => 9850.00, 'paid' => 3200.00],
-            ['name' => 'Liza Fernandez', 'code' => 'C-1009', 'total' => 7400.00, 'paid' => 3900.00],
-            ['name' => 'Ramon Garcia', 'code' => 'C-1027', 'total' => 5600.00, 'paid' => 4100.00],
-        ];
-
-        $ranking = [];
-
-        foreach ($rankingSeed as $index => $row) {
-            $row['rank'] = $index + 1;
-            $row['unpaid'] = $row['total'] - $row['paid'];
-            $row['progress'] = $row['total'] > 0 ? round(($row['paid'] / $row['total']) * 100) : 0;
-            $ranking[] = $row;
-        }
-    @endphp
-
     <section class="owner-section" id="owner-section" data-owner-section aria-busy="false">
         {{-- =================== Top statistic cards =================== --}}
         <div class="owner-top-grid" aria-label="Owner overview">
@@ -70,9 +49,9 @@
                 <div class="owner-stat-card__meta">
                     <span class="owner-stat-card__label"> Customers in Debt </span>
 
-                    <strong class="owner-stat-card__value"> 28 </strong>
+                    <strong class="owner-stat-card__value"> {{ $customersInDebt }} </strong>
 
-                    <span class="owner-stat-card__hint"> out of 42 active customers </span>
+                    <span class="owner-stat-card__hint"> out of {{ $customerCount }} customers </span>
                 </div>
             </article>
 
@@ -97,16 +76,16 @@
             </article>
         </div>
 
-        {{-- =================== Debt ranking table =================== --}}
-        <section class="owner-ranking" aria-labelledby="owner-ranking-title">
+        {{-- =================== Total debt ranking =================== --}}
+        <section class="owner-ranking" aria-labelledby="owner-total-ranking-title">
             <div class="section-heading">
                 <div>
                     <span class="owner-eyebrow"> Customer Insights </span>
 
-                    <h2 id="owner-ranking-title" tabindex="-1">Debt Ranking</h2>
+                    <h2 id="owner-total-ranking-title" tabindex="-1">Total Debt Ranking</h2>
 
                     <p class="section-heading__description">
-                        Customers with the highest unpaid debt, top to bottom.
+                        Customers ranked by total debt recorded in the Customers tab.
                     </p>
                 </div>
             </div>
@@ -119,12 +98,12 @@
                             <th scope="col">Customer</th>
                             <th scope="col">Total Debt</th>
                             <th scope="col">Paid</th>
-                            <th scope="col">Unpaid</th>
+                            <th scope="col">Remaining</th>
                         </tr>
                     </thead>
 
                     <tbody>
-                        @foreach ($ranking as $entry)
+                        @forelse ($totalDebtRanking as $entry)
                             <tr>
                                 <td data-label="Rank">
                                     <span class="owner-rank-badge {{ $loop->iteration <= 3 ? 'owner-rank-badge--top' : '' }}">
@@ -134,18 +113,19 @@
 
                                 <td data-label="Customer">
                                     <div class="owner-customer-cell">
+                                        @if ($entry['avatar_path'])
+                                            <img class="owner-ranking-avatar" src="{{ asset('storage/'.$entry['avatar_path']) }}" alt="{{ $entry['name'] }}">
+                                        @else
+                                            <img class="owner-ranking-avatar" src="{{ asset($entry['gender'] === 'female' ? 'images/avatar-girl.svg' : 'images/avatar-boy.svg') }}" alt="{{ ucfirst($entry['gender']) }} avatar">
+                                        @endif
+                                        <div>
                                         <strong> {{ $entry['name'] }} </strong>
-
-                                        <small> {{ $entry['code'] }} </small>
-
-                                        <span class="owner-progress" aria-hidden="true">
-                                            <span class="owner-progress__bar" style="width: {{ $entry['progress'] }}%;"></span>
-                                        </span>
+                                        </div>
                                     </div>
                                 </td>
 
                                 <td data-label="Total Debt" class="owner-amount">
-                                    ₱{{ number_format($entry['total'], 2) }}
+                                    ₱{{ number_format($entry['total_debt'], 2) }}
                                 </td>
 
                                 <td data-label="Paid" class="owner-amount owner-amount--paid">
@@ -153,10 +133,47 @@
                                 </td>
 
                                 <td data-label="Unpaid" class="owner-amount owner-amount--unpaid">
-                                    ₱{{ number_format($entry['unpaid'], 2) }}
+                                    ₱{{ number_format($entry['remaining_balance'], 2) }}
                                 </td>
                             </tr>
-                        @endforeach
+                        @empty
+                            <tr><td colspan="5">No customer debt records yet.</td></tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="owner-ranking owner-ranking--longest" aria-labelledby="owner-longest-ranking-title">
+            <div class="section-heading">
+                <div>
+                    <span class="owner-eyebrow"> Aging Accounts </span>
+                    <h2 id="owner-longest-ranking-title">Longest Outstanding Debt</h2>
+                    <p class="section-heading__description">Customers with an unpaid balance for the longest number of days.</p>
+                </div>
+            </div>
+            <div class="owner-table-wrap">
+                <table class="owner-rank-table">
+                    <thead><tr><th>Rank</th><th>Customer</th><th>Oldest loaned</th><th>Days outstanding</th><th>Remaining</th></tr></thead>
+                    <tbody>
+                        @forelse ($longestOutstandingRanking as $entry)
+                            <tr>
+                                <td data-label="Rank"><span class="owner-rank-badge {{ $loop->iteration <= 3 ? 'owner-rank-badge--top' : '' }}">{{ $entry['rank'] }}</span></td>
+                                <td data-label="Customer"><div class="owner-customer-cell">
+                                    @if ($entry['avatar_path'])
+                                        <img class="owner-ranking-avatar" src="{{ asset('storage/'.$entry['avatar_path']) }}" alt="{{ $entry['name'] }}">
+                                    @else
+                                        <img class="owner-ranking-avatar" src="{{ asset($entry['gender'] === 'female' ? 'images/avatar-girl.svg' : 'images/avatar-boy.svg') }}" alt="{{ ucfirst($entry['gender']) }} avatar">
+                                    @endif
+                                    <strong>{{ $entry['name'] }}</strong>
+                                </div></td>
+                                    <td data-label="Oldest loaned">{{ \Illuminate\Support\Carbon::parse($entry['oldest_open_loan_at'])->format('M d, Y') }}</td>
+                                <td data-label="Days outstanding" class="owner-amount owner-amount--unpaid">{{ number_format((int) $entry['days_outstanding'], 0) }} days</td>
+                                <td data-label="Remaining" class="owner-amount">₱{{ number_format($entry['remaining_balance'], 2) }}</td>
+                            </tr>
+                        @empty
+                            <tr><td colspan="5">No outstanding customer debts.</td></tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>

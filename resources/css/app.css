@@ -39,6 +39,7 @@
 @import './pages/owner/stats.css';
 @import './pages/owner/ranking.css';
 @import './pages/owner/products.css';
+@import './pages/owner/customers.css';
 
 @theme {
     --font-sans:

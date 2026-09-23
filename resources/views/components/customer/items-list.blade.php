@@ -63,12 +63,12 @@
                             <td data-label="Product">
                                 <div class="product-cell">
                                     <span class="product-cell__icon" aria-hidden="true">
-                                        {{ strtoupper(substr($item->product->product_name ?? 'P', 0, 1)) }}
+                                        <span aria-hidden="true">₱</span>
                                     </span>
 
                                     <div>
                                         <strong>
-                                            {{ $item->product->product_name ?? 'Unknown Product' }}
+                                            {{ $item->product_name ?? $item->product->product_name ?? 'Unknown Product' }}
                                         </strong>
                                     </div>
                                 </div>
@@ -88,8 +88,8 @@
 
                             <td data-label="Date &amp; Time">
                                 <span class="cell-stack">
-                                    {{ $item->created_at?->format('M d, Y') }}
-                                    <small> {{ $item->created_at?->format('h:i A') }} </small>
+                                    {{ $item->debt?->loaned_at?->format('M d, Y') }}
+                                    <small> {{ $item->debt?->loaned_at?->format('h:i A') }} </small>
                                 </span>
                             </td>
 
