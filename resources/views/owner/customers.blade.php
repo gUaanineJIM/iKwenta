@@ -46,6 +46,37 @@
         <div class="modal-backdrop" data-modal-close></div><div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="payment-title"><button type="button" class="modal-close" data-modal-close aria-label="Close">×</button><span class="modal-badge">Payment</span><h2 class="modal-title" id="payment-title">Record payment</h2><p class="modal-subtitle" data-payment-name></p><form class="owner-modal__form" data-payment-form>@csrf<input type="hidden" name="customer_id"><label class="field-label">Amount paid (₱)<input class="form-input" name="amount" type="number" min="0.01" step="0.01" required placeholder="0.00"></label><p class="owner-modal__error" data-payment-error hidden></p><div class="modal-actions"><button type="button" class="btn btn-secondary" data-modal-close>Cancel</button><button type="button" class="btn btn-secondary" data-pay-in-full>Paid in Full</button><button type="submit" class="btn btn-primary">Apply payment</button></div></form></div>
     </div>
 
+    <div class="modal owner-modal" id="pay-in-full-modal" aria-hidden="true">
+        <div class="modal-backdrop" data-modal-close></div>
+        <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="pay-in-full-title">
+            <button type="button" class="modal-close" data-modal-close aria-label="Close">×</button>
+            <div class="owner-modal__head">
+                <span class="owner-modal__head-icon" aria-hidden="true">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                        <path d="M22 4L12 14.01l-3-3"/>
+                    </svg>
+                </span>
+                <div>
+                    <span class="modal-badge">Payment</span>
+                    <h2 class="modal-title" id="pay-in-full-title">Mark as paid in full?</h2>
+                    <p class="modal-subtitle" data-pay-in-full-name></p>
+                </div>
+            </div>
+            <p class="owner-modal__error" data-pay-in-full-error hidden>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="9"/>
+                    <path d="M12 8V12M12 16H12.01"/>
+                </svg>
+                <span></span>
+            </p>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" data-modal-close>Cancel</button>
+                <button type="button" class="btn btn-primary" id="pay-in-full-confirm">Yes, settle balance</button>
+            </div>
+        </div>
+    </div>
+
     <div class="modal owner-modal owner-modal--danger" id="delete-customer-modal" aria-hidden="true">
         <div class="modal-backdrop" data-modal-close></div>
         <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="delete-customer-title">
@@ -85,9 +116,10 @@
 (() => {
     const page = document.querySelector('[data-customers-page]'); if (!page) return;
     const region = document.querySelector('[data-customers-region]'), form = document.querySelector('[data-customer-form]'), paymentForm = document.querySelector('[data-payment-form]');
-    const token = form.querySelector('[name=_token]').value, addModal = document.getElementById('add-customer-modal'), paymentModal = document.getElementById('payment-modal'), deleteModal = document.getElementById('delete-customer-modal');
+    const token = form.querySelector('[name=_token]').value, addModal = document.getElementById('add-customer-modal'), paymentModal = document.getElementById('payment-modal'), payInFullModal = document.getElementById('pay-in-full-modal'), deleteModal = document.getElementById('delete-customer-modal');
     let pendingDeleteId = null;
     const deleteNameEl = deleteModal.querySelector('[data-delete-customer-name]'), deleteError = deleteModal.querySelector('[data-delete-error]'), deleteConfirmBtn = document.getElementById('delete-customer-confirm');
+    const payInFullNameEl = payInFullModal.querySelector('[data-pay-in-full-name]'), payInFullError = payInFullModal.querySelector('[data-pay-in-full-error]'), payInFullConfirmBtn = document.getElementById('pay-in-full-confirm');
     const open = (modal) => { modal.classList.add('is-open'); modal.setAttribute('aria-hidden', 'false'); document.body.style.overflow = 'hidden'; };
     const close = (modal) => { modal.classList.remove('is-open'); modal.setAttribute('aria-hidden', 'true'); document.body.style.overflow = ''; };
     document.addEventListener('click', e => { const closeDetails = e.target.closest('[data-close-details]'); if (closeDetails) close(closeDetails.closest('.modal')); const card = e.target.closest('[data-customer-details]'); const cardAction = e.target.closest('.owner-customer-card__actions'); if (card && !closeDetails && !cardAction) open(document.getElementById(card.dataset.customerDetails)); });
@@ -104,7 +136,9 @@
     form.addEventListener('click', e => { if (e.target.closest('[data-remove-product]')) e.target.closest('.customer-product-row').remove(); });
     form.addEventListener('submit', e => { e.preventDefault(); const id = form.customer_id.value; const payload = new FormData(); payload.append('full_name', form.full_name.value); if (form.gender.value) payload.append('gender', form.gender.value); if (form.avatar.files[0]) payload.append('avatar', form.avatar.files[0]); const rows = [...form.querySelectorAll('.customer-product-row')]; const debtTypes = [...form.querySelectorAll('[name="debt_types[]"]:checked')].map(x => x.value); if (debtTypes.length) { debtTypes.forEach(type => payload.append('debt_types[]', type)); rows.forEach((row, index) => { payload.append(`products[${index}][product_name]`, row.children[0].value); payload.append(`products[${index}][quantity]`, row.children[1].value); payload.append(`products[${index}][amount]`, row.children[2].value); }); payload.append('money_amount', form.money_amount.value); payload.append('loaned_at', form.loaned_at.value); } if (id) payload.append('_method', 'PUT'); const url = id ? `/owner/customers/${id}` : '/owner/customers'; request(url, { method: 'POST', body: payload }).then(() => { close(addModal); showToast(id ? 'Customer updated.' : 'Customer added.'); form.reset(); form.customer_id.value = ''; form.querySelector('.customer-debt-types').hidden = false; addModal.querySelector('.modal-title').textContent = 'Add Customer'; addModal.querySelector('.modal-subtitle').textContent = 'Create a portal code and record the opening debt.'; productRows.innerHTML = ''; refresh(); }).catch(error => { const el = form.querySelector('[data-customer-error]'); el.textContent = error.message; el.hidden = false; showToast(error.message, 'danger'); }); });
     document.addEventListener('click', e => { const edit = e.target.closest('[data-edit-customer]'), pay = e.target.closest('[data-pay-customer]'), del = e.target.closest('[data-delete-customer]'); if (edit) { form.reset(); form.querySelector('[name=customer_id]').value = edit.dataset.id; form.full_name.value = edit.dataset.name; form.querySelector(`[name=gender][value="${edit.dataset.gender}"]`).checked = true; const title = addModal.querySelector('.modal-title'), subtitle = addModal.querySelector('.modal-subtitle'); if (title) title.textContent = 'Edit Customer'; if (subtitle) subtitle.textContent = 'Update the name, profile, or add a new debt record.'; form.querySelector('.customer-debt-types').hidden = false; form.querySelector('[data-product-fields]').hidden = true; form.querySelector('[data-money-fields]').hidden = true; open(addModal); } if (pay) { paymentForm.customer_id.value = pay.dataset.id; paymentForm.dataset.remaining = pay.dataset.remaining || ''; const paymentName = paymentModal.querySelector('[data-payment-name]'); if (paymentName) paymentName.textContent = pay.dataset.name; open(paymentModal); } if (del) { deleteNameEl.textContent = del.dataset.name; deleteError.hidden = true; pendingDeleteId = del.dataset.id; open(deleteModal); } });
-    paymentModal.querySelector('[data-pay-in-full]').addEventListener('click', () => { if (!window.confirm('Are you sure this customer paid in full? This will settle the entire remaining balance and record it in the payment history.')) return; request(`/owner/customers/${paymentForm.customer_id.value}/payments`, { method: 'POST', body: JSON.stringify({ amount: paymentForm.dataset.remaining, pay_in_full: true }) }).then(() => { close(paymentModal); showToast('Payment recorded. Balance settled in full.'); paymentForm.reset(); refresh(); }).catch(error => { const el = paymentForm.querySelector('[data-payment-error]'); el.textContent = error.message; el.hidden = false; showToast(error.message, 'danger'); }); });
+    paymentModal.querySelector('[data-pay-in-full]').addEventListener('click', () => { payInFullNameEl.textContent = `${paymentModal.querySelector('[data-payment-name]').textContent} — the remaining balance of ₱${Number(paymentForm.dataset.remaining || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })} will be settled and recorded in the payment history.`; payInFullError.hidden = true; payInFullConfirmBtn.disabled = false; open(payInFullModal); });
+    payInFullConfirmBtn.addEventListener('click', () => { payInFullConfirmBtn.disabled = true; request(`/owner/customers/${paymentForm.customer_id.value}/payments`, { method: 'POST', body: JSON.stringify({ amount: paymentForm.dataset.remaining, pay_in_full: true }) }).then(() => { close(payInFullModal); close(paymentModal); showToast('Payment recorded. Balance settled in full.'); paymentForm.reset(); refresh(); }).catch(error => { payInFullConfirmBtn.disabled = false; payInFullError.querySelector('span').textContent = error.message; payInFullError.hidden = false; showToast(error.message, 'danger'); }); });
+    payInFullModal.addEventListener('click', e => { if (e.target.closest('[data-modal-close]')) setTimeout(() => { if (paymentModal.classList.contains('is-open')) document.body.style.overflow = 'hidden'; }, 0); });
     paymentForm.addEventListener('submit', e => { e.preventDefault(); request(`/owner/customers/${paymentForm.customer_id.value}/payments`, { method: 'POST', body: JSON.stringify({ amount: paymentForm.amount.value }) }).then(() => { close(paymentModal); showToast('Payment recorded.'); paymentForm.reset(); refresh(); }).catch(error => { const el = paymentForm.querySelector('[data-payment-error]'); el.textContent = error.message; el.hidden = false; showToast(error.message, 'danger'); }); });
     deleteConfirmBtn.addEventListener('click', () => { if (!pendingDeleteId) return; deleteConfirmBtn.disabled = true; request(`/owner/customers/${pendingDeleteId}`, { method: 'DELETE' }).then(() => { close(deleteModal); pendingDeleteId = null; deleteConfirmBtn.disabled = false; showToast('Customer deleted.'); refresh(); }).catch(error => { deleteConfirmBtn.disabled = false; deleteError.querySelector('span').textContent = error.message; deleteError.hidden = false; showToast(error.message, 'danger'); }); });
     page.querySelector('[data-customer-search]').addEventListener('input', e => refresh(e.target.value));
