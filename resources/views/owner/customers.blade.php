@@ -9,7 +9,12 @@
         </div>
 
         <div class="owner-products__toolbar">
-            <label class="owner-products__search"><span aria-hidden="true">⌕</span><input type="search" placeholder="Search customers" data-customer-search aria-label="Search customers"></label>
+            <label class="owner-products__search">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="11" cy="11" r="7"></circle>
+                    <path d="M21 21L16.5 16.5"></path>
+                </svg>
+                <input type="search" placeholder="Search customers" data-customer-search aria-label="Search customers"></label>
             <button type="button" class="owner-btn owner-btn--primary" data-open-modal="add-customer-modal"><span>＋</span><span>Add Customer</span></button>
         </div>
 
