@@ -80,6 +80,17 @@
     border-bottom: 0;
 }
 
+.owner-rank-row {
+    cursor: pointer;
+    transition: background 0.18s ease;
+}
+
+.owner-rank-row:hover,
+.owner-rank-row:focus-visible {
+    background: var(--accent-soft);
+    outline: none;
+}
+
 .owner-rank-table th:nth-child(n + 3),
 .owner-rank-table td:nth-child(n + 3) {
     white-space: nowrap;
