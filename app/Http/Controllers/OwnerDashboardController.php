@@ -61,6 +61,7 @@ class OwnerDashboardController extends Controller
         $paid = (float) $this->sumMoney($debts->map(fn (Debt $debt): string => $this->accounts->paymentsTotal($debt))->all());
 
         return [
+            'customer_id' => $customer->customer_id,
             'name' => $customer->full_name,
             'avatar_path' => $customer->avatar_path,
             'gender' => $customer->gender,

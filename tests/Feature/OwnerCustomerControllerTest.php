@@ -53,6 +53,7 @@ class OwnerCustomerControllerTest extends TestCase
                 'product_name' => 'Rice',
                 'quantity' => 2,
                 'amount' => '125.50',
+                'notes' => 'Handle with care',
             ]],
             'money_amount' => '300.25',
             'loaned_at' => '2026-09-20T14:30',
@@ -71,6 +72,7 @@ class OwnerCustomerControllerTest extends TestCase
             'product_name' => 'Rice',
             'quantity' => 2,
             'subtotal' => '251.00',
+            'notes' => 'Handle with care',
         ]);
     }
 
@@ -160,6 +162,8 @@ class OwnerCustomerControllerTest extends TestCase
             'amount' => '50.00',
         ])->assertOk();
 
+        $customer->debts()->first()->items()->first()->update(['notes' => 'Handle with care']);
+
         $this->get('/owner/customers')
             ->assertOk()
             ->assertSee('owner-customer-modal', false)
@@ -167,7 +171,9 @@ class OwnerCustomerControllerTest extends TestCase
             ->assertSee('Notebook')
             ->assertSee('Money owed: ₱100.00')
             ->assertSee('₱50.00')
-            ->assertSee('Sep 21, 2026 09:15 AM');
+            ->assertSee('Sep 21, 2026 09:15 AM')
+            ->assertSee('Loaned Sep 21, 2026 09:15 AM')
+            ->assertSee('Note: Handle with care');
     }
 
     public function test_edit_customer_can_append_a_new_product_and_money_debt(): void
