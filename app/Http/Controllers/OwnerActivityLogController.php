@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\ActivityLog;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
@@ -43,25 +41,13 @@ class OwnerActivityLogController extends Controller
         'settled_total' => 'Settled total',
     ];
 
-    public function index(Request $request): View|RedirectResponse
+    public function index(Request $request): View
     {
-        if (! $this->requiresOwner($request)) {
-            return redirect()->route('landing', ['#login']);
-        }
-
         return view('owner.activity-logs', $this->viewData($request));
     }
 
-    public function list(Request $request): View|JsonResponse|RedirectResponse
+    public function list(Request $request): View
     {
-        if (! $this->requiresOwner($request)) {
-            if ($request->ajax()) {
-                return response()->json(['message' => 'Unauthenticated.'], 401);
-            }
-
-            return redirect()->route('landing', ['#login']);
-        }
-
         return view('components.owner.activity-logs-list', $this->viewData($request));
     }
 
@@ -86,11 +72,6 @@ class OwnerActivityLogController extends Controller
             'q' => $request->string('q')->toString(),
             'filter' => $request->string('filter')->toString(),
         ];
-    }
-
-    private function requiresOwner(Request $request): bool
-    {
-        return $request->session()->has('owner_id');
     }
 
     private function activityLogs(Request $request)

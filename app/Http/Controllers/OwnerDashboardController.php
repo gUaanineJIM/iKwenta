@@ -5,8 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Customer;
 use App\Models\Debt;
 use App\Services\CustomerAccountService;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\View\View;
 
@@ -14,12 +12,8 @@ class OwnerDashboardController extends Controller
 {
     public function __construct(private CustomerAccountService $accounts) {}
 
-    public function index(Request $request): View|RedirectResponse
+    public function index(): View
     {
-        if (! $request->session()->has('owner_id')) {
-            return redirect()->route('landing', ['#login']);
-        }
-
         $customers = Customer::query()
             ->with(['debts.items', 'debts.payments'])
             ->get()

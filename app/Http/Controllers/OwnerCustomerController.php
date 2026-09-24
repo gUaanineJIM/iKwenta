@@ -314,17 +314,13 @@ class OwnerCustomerController extends Controller
         return number_format(array_sum(array_map('floatval', $amounts)), 2, '.', '');
     }
 
+    /**
+     * Resolve the acting owner. The owner route middleware has already
+     * verified the session belongs to an existing store owner account.
+     */
     private function requiredStoreOwner(): User
     {
-        $sessionUserId = session('owner_id');
-        if ($sessionUserId && ($user = User::find($sessionUserId))) {
-            return $user;
-        }
-        $roleId = DB::table('roles')->where('role_name', 'store_owner')->value('role_id');
-        if ($roleId && ($user = User::where('role_id', $roleId)->first())) {
-            return $user;
-        }
-        abort(503, 'No store owner account is configured.');
+        return User::findOrFail(session('owner_id'));
     }
 
     private function log(string $userId, string $action, string $recordId, ?array $oldValues, ?array $newValues): void

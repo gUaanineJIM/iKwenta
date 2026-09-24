@@ -42,6 +42,8 @@ class OwnerCustomerControllerTest extends TestCase
             'created_at' => now(),
             'updated_at' => now(),
         ]);
+
+        $this->withSession(['owner_id' => $this->userId]);
     }
 
     public function test_store_creates_customer_with_product_and_money_debt(): void

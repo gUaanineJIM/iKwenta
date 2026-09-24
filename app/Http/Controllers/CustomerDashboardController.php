@@ -8,7 +8,6 @@ use App\Models\DebtItem;
 use App\Models\Payment;
 use App\Services\CustomerAccountService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -41,14 +40,11 @@ class CustomerDashboardController extends Controller
 
     /**
      * Render the customer dashboard shell with the overview section active.
+     * The customer middleware guarantees an authenticated session.
      */
-    public function index(Request $request): View|RedirectResponse
+    public function index(Request $request): View
     {
         $customer = $this->authenticatedCustomer($request);
-
-        if ($customer === null) {
-            return $this->redirectToLogin();
-        }
 
         return view('customer.dashboard', [
             'customer' => $customer,
@@ -64,17 +60,9 @@ class CustomerDashboardController extends Controller
      * returned so the dashboard shell can swap content without a full reload.
      * A plain navigation returns the full shell with that section active.
      */
-    public function section(Request $request, string $section): View|JsonResponse|RedirectResponse
+    public function section(Request $request, string $section): View|JsonResponse
     {
         $customer = $this->authenticatedCustomer($request);
-
-        if ($customer === null) {
-            if ($request->ajax()) {
-                return response()->json(['message' => 'Unauthenticated.'], 401);
-            }
-
-            return $this->redirectToLogin();
-        }
 
         $data = $this->sectionData($customer, $section);
 
@@ -95,33 +83,12 @@ class CustomerDashboardController extends Controller
     /**
      * Resolve the logged-in customer from the session.
      *
-     * The customer id is never trusted from the URL or request body.
+     * The customer id is never trusted from the URL or request body, and the
+     * customer middleware has already confirmed the account exists.
      */
-    private function authenticatedCustomer(Request $request): ?Customer
+    private function authenticatedCustomer(Request $request): Customer
     {
-        $customerId = $request->session()->get('customer_id');
-
-        if (! $customerId) {
-            return null;
-        }
-
-        $customer = Customer::find($customerId);
-
-        if (! $customer) {
-            $request->session()->forget('customer_id');
-
-            return null;
-        }
-
-        return $customer;
-    }
-
-    private function redirectToLogin(): RedirectResponse
-    {
-        return redirect()->route('landing')
-            ->withErrors([
-                'code' => 'Please sign in first.',
-            ]);
+        return Customer::findOrFail($request->session()->get('customer_id'));
     }
 
     private function sectionData(Customer $customer, string $section): array

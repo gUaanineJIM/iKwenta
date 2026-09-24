@@ -6,7 +6,6 @@ use App\Models\ActivityLog;
 use App\Models\DebtItem;
 use App\Models\Product;
 use App\Models\ProductPriceHistory;
-use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -175,25 +174,14 @@ class OwnerProductController extends Controller
     }
 
     /**
-     * Resolve the acting owner. A session-pinned owner takes priority;
-     * otherwise fall back to the seeded store owner user. The id is never
-     * taken from the request body, so a caller cannot impersonate a user.
+     * Resolve the acting owner. The owner route middleware has already
+     * verified the session belongs to an existing store owner account, so
+     * the id is never taken from the request body and a caller cannot
+     * impersonate a user.
      */
     private function requiredStoreOwner(): User
     {
-        $sessionUserId = session('owner_id');
-
-        if ($sessionUserId && ($user = User::find($sessionUserId))) {
-            return $user;
-        }
-
-        $roleId = Role::where('role_name', 'store_owner')->value('role_id');
-
-        if ($roleId !== null && ($user = User::where('role_id', $roleId)->first())) {
-            return $user;
-        }
-
-        abort(503, 'No store owner account is configured.');
+        return User::findOrFail(session('owner_id'));
     }
 
     private function products(?string $query = null)

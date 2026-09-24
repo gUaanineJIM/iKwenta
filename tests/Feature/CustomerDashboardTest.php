@@ -118,6 +118,22 @@ class CustomerDashboardTest extends TestCase
             ->assertJson(['message' => 'Unauthenticated.']);
     }
 
+    public function test_stale_customer_session_is_rejected(): void
+    {
+        $this->withSession(['customer_id' => (string) Str::uuid()])
+            ->get('/customer/dashboard')
+            ->assertRedirect('/')
+            ->assertSessionHasErrors('code');
+    }
+
+    public function test_owner_session_cannot_open_customer_dashboard(): void
+    {
+        $this->withSession(['owner_id' => $this->userId])
+            ->get('/customer/dashboard')
+            ->assertRedirect('/')
+            ->assertSessionHasErrors('code');
+    }
+
     public function test_summary_totals_and_remaining_balance_are_correct(): void
     {
         $a = $this->customer('11111', 'Renesme Moral');
