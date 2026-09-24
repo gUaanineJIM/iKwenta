@@ -5,6 +5,7 @@ use App\Http\Controllers\CustomerDashboardController;
 use App\Http\Controllers\OwnerAuthController;
 use App\Http\Controllers\OwnerCustomerController;
 use App\Http\Controllers\OwnerDashboardController;
+use App\Http\Controllers\OwnerDebtController;
 use App\Http\Controllers\OwnerProductController;
 use Illuminate\Support\Facades\Route;
 
@@ -87,6 +88,7 @@ Route::delete('/owner/products/{product}', [
     ->name('owner.products.destroy')
     ->middleware('throttle:20,1');
 
+Route::get('/owner/debts', [OwnerDebtController::class, 'index'])->name('owner.debts');
 Route::get('/owner/customers', [OwnerCustomerController::class, 'index'])->name('owner.customers');
 Route::get('/owner/customers/list', [OwnerCustomerController::class, 'list'])->name('owner.customers.list');
 Route::post('/owner/customers', [OwnerCustomerController::class, 'store'])->name('owner.customers.store')->middleware('throttle:20,1');

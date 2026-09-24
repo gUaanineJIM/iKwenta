@@ -1,0 +1,361 @@
+/* =========================
+   OWNER DEBTS — ANALYTICS
+========================= */
+
+.owner-debts__heading {
+    margin-bottom: 24px;
+}
+
+/* =========================
+   Summary cards grid
+========================= */
+
+.owner-debt-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px;
+    margin-bottom: 34px;
+}
+
+.owner-debt-card {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 16px;
+    text-align: left;
+    background: var(--surface);
+}
+
+.owner-debt-card .owner-stat-card__value {
+    font-size: clamp(22px, 2.4vw, 28px);
+}
+
+.owner-debt-card .owner-stat-card__label {
+    font-weight: 600;
+}
+
+/* Accent per card */
+
+.owner-debt-card--outstanding {
+    background: linear-gradient(135deg, rgba(70, 75, 113, 0.20), var(--surface) 60%);
+    border-color: rgba(70, 75, 113, 0.38);
+}
+
+.owner-debt-card--outstanding .owner-stat-card__icon {
+    background: var(--indigo);
+    color: var(--ivory);
+}
+
+.owner-debt-card--outstanding .owner-stat-card__value {
+    color: var(--indigo);
+}
+
+.owner-debt-card--recorded {
+    background: linear-gradient(135deg, rgba(17, 138, 178, 0.10), var(--surface) 60%);
+    border-color: rgba(17, 138, 178, 0.30);
+}
+
+.owner-debt-card--recorded .owner-stat-card__icon {
+    background: var(--teal);
+    color: var(--ivory);
+}
+
+.owner-debt-card--recorded .owner-stat-card__value {
+    color: var(--teal);
+}
+
+.owner-debt-card--collected {
+    background: linear-gradient(135deg, rgba(124, 213, 199, 0.45), var(--surface) 66%);
+    border-color: rgba(124, 213, 199, 0.60);
+}
+
+.owner-debt-card--collected .owner-stat-card__icon {
+    background: var(--mint);
+    color: var(--on-mint);
+}
+
+.owner-debt-card--collected .owner-stat-card__value {
+    color: var(--indigo);
+}
+
+.owner-debt-card--open {
+    background: linear-gradient(135deg, rgba(214, 69, 80, 0.14), var(--surface) 62%);
+    border-color: rgba(214, 69, 80, 0.34);
+}
+
+.owner-debt-card--open .owner-stat-card__icon {
+    background: var(--danger);
+    color: var(--white);
+}
+
+.owner-debt-card--open .owner-stat-card__value {
+    color: var(--danger);
+}
+
+/* =========================
+   Charts row
+========================= */
+
+.owner-debt-analytics {
+    display: grid;
+    grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+    gap: 20px;
+    margin-bottom: 34px;
+}
+
+.owner-debt-panel {
+    padding: 24px;
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    min-width: 0;
+}
+
+.owner-debt-panel .section-heading {
+    margin-bottom: 16px;
+}
+
+.owner-debt-panel__chart {
+    position: relative;
+    width: 100%;
+    height: 300px;
+}
+
+/* =========================
+   Status breakdown
+========================= */
+
+.owner-debt-status {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.owner-debt-donut {
+    position: relative;
+    width: 100%;
+    height: 190px;
+}
+
+.owner-debt-legend {
+    list-style: none;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.owner-debt-legend__item {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas:
+        "dot label value"
+        "dot count count";
+    align-items: center;
+    column-gap: 10px;
+    row-gap: 2px;
+    padding: 9px 12px;
+    background: var(--surface-muted);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-sm);
+}
+
+.owner-debt-legend__dot {
+    grid-area: dot;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.owner-debt-legend__dot--unpaid {
+    background: var(--danger);
+}
+
+.owner-debt-legend__dot--partially_paid {
+    background: var(--teal);
+}
+
+.owner-debt-legend__dot--paid {
+    background: var(--mint-deep);
+}
+
+.owner-debt-legend__label {
+    grid-area: label;
+    color: var(--text-dark);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.owner-debt-legend__value {
+    grid-area: value;
+    color: var(--text-dark);
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+}
+
+.owner-debt-legend__count {
+    grid-area: count;
+    color: var(--text-muted);
+    font-size: 11px;
+}
+
+/* =========================
+   Aging buckets
+========================= */
+
+.owner-debt-aging {
+    margin-bottom: 34px;
+}
+
+.owner-debt-aging__grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.owner-debt-aging__card {
+    padding: 18px 20px;
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-left: 4px solid var(--teal);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.owner-debt-aging__card--overdue {
+    border-left-color: var(--danger);
+    background: linear-gradient(135deg, rgba(214, 69, 80, 0.10), var(--surface) 60%);
+}
+
+.owner-debt-aging__card--overdue .owner-debt-aging__value {
+    color: var(--danger);
+}
+
+.owner-debt-aging__label {
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.owner-debt-aging__value {
+    color: var(--text-dark);
+    font-size: clamp(18px, 2vw, 22px);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.3px;
+}
+
+.owner-debt-aging__count {
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+/* =========================
+   Status badges
+========================= */
+
+.owner-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 11px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.owner-status-badge::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.owner-status-badge--unpaid {
+    color: var(--danger);
+    background: var(--danger-soft);
+    border: 1px solid rgba(214, 69, 80, 0.35);
+}
+
+.owner-status-badge--partially_paid {
+    color: var(--teal);
+    background: rgba(17, 138, 178, 0.12);
+    border: 1px solid rgba(17, 138, 178, 0.35);
+}
+
+.owner-status-badge--paid {
+    color: var(--mint-deep);
+    background: rgba(124, 213, 199, 0.18);
+    border: 1px solid rgba(91, 175, 162, 0.45);
+}
+
+/* =========================
+   Bottom sections
+========================= */
+
+.owner-debt-section {
+    margin-bottom: 34px;
+}
+
+.owner-debt-section:last-child {
+    margin-bottom: 0;
+}
+
+/* =========================
+   Responsive
+========================= */
+
+@media (max-width: 1100px) {
+    .owner-debt-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .owner-debt-analytics {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .owner-debt-aging__grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 640px) {
+    .owner-debt-grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 14px;
+        margin-bottom: 28px;
+    }
+
+    .owner-debt-card .owner-stat-card__icon {
+        width: 54px;
+        height: 54px;
+        flex: 0 0 54px;
+        border-radius: 15px;
+    }
+
+    .owner-debt-panel {
+        padding: 18px;
+    }
+
+    .owner-debt-panel__chart {
+        height: 240px;
+    }
+
+    .owner-debt-aging__grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 12px;
+    }
+}
