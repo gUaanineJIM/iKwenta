@@ -3,7 +3,7 @@
 @section('title', 'Customers | iKwenta')
 
 @section('content')
-    <section class="owner-section owner-customers" data-customers-page>
+    <section class="owner-section owner-customers" data-customers-page data-customers-route="{{ route('owner.customers') }}">
         <div class="page-heading owner-products__heading">
             <div><span class="owner-eyebrow">Customer Accounts</span><h1>Customers</h1><p>Track what each customer owes and record payments in seconds.</p></div>
         </div>
@@ -19,6 +19,25 @@
         </div>
 
         <div id="customers-region" data-customers-region>@include('components.owner.customers-list', ['customerGroups' => $customerGroups, 'q' => $q])</div>
+    </section>
+
+    <section class="owner-section owner-detail-page" data-customer-detail-page hidden aria-label="Customer account details">
+        <nav class="owner-breadcrumbs" aria-label="Breadcrumb">
+            <a class="owner-breadcrumbs__link" href="{{ route('owner.dashboard') }}">Dashboard</a>
+            <span class="owner-breadcrumbs__sep" aria-hidden="true">/</span>
+            <a class="owner-breadcrumbs__link" href="{{ route('owner.customers') }}">Customers</a>
+            <span class="owner-breadcrumbs__sep" aria-hidden="true">/</span>
+            <span class="owner-breadcrumbs__current" data-detail-breadcrumb aria-current="page"></span>
+        </nav>
+
+        <div data-detail-slot></div>
+
+        <div class="owner-detail-page__notfound" data-detail-notfound hidden>
+            <span class="owner-detail-page__notfound-icon" aria-hidden="true">?</span>
+            <strong>Customer not found</strong>
+            <p>This customer may have been removed or is outside your current list.</p>
+            <a class="btn btn-primary" href="{{ route('owner.customers') }}">Back to Customers</a>
+        </div>
     </section>
 
     <div class="modal owner-modal" id="add-customer-modal" aria-hidden="true">
@@ -152,25 +171,41 @@
     const payInFullNameEl = payInFullModal.querySelector('[data-pay-in-full-name]'), payInFullError = payInFullModal.querySelector('[data-pay-in-full-error]'), payInFullConfirmBtn = document.getElementById('pay-in-full-confirm');
     const open = (modal) => { modal.classList.add('is-open'); modal.setAttribute('aria-hidden', 'false'); document.body.style.overflow = 'hidden'; };
     const close = (modal) => { modal.classList.remove('is-open'); modal.setAttribute('aria-hidden', 'true'); document.body.style.overflow = ''; };
-    document.addEventListener('click', e => { const closeDetails = e.target.closest('[data-close-details]'); if (closeDetails) close(closeDetails.closest('.modal')); const card = e.target.closest('[data-customer-details]'); const cardAction = e.target.closest('.owner-customer-card__actions'); if (card && !closeDetails && !cardAction) open(document.getElementById(card.dataset.customerDetails)); });
-    document.addEventListener('keydown', e => { const card = e.target.closest('[data-customer-details]'); if (card && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); open(document.getElementById(card.dataset.customerDetails)); } });
-    const refresh = (q = '') => fetch('/owner/customers/list?q=' + encodeURIComponent(q), { headers: { 'X-Requested-With': 'XMLHttpRequest' } }).then(r => r.text()).then(html => region.innerHTML = html);
+    const detailPage = document.querySelector('[data-customer-detail-page]');
+    const detailSlot = detailPage.querySelector('[data-detail-slot]'), detailBreadcrumb = detailPage.querySelector('[data-detail-breadcrumb]'), detailNotfound = detailPage.querySelector('[data-detail-notfound]');
+    const customersRoute = page.dataset.customersRoute;
+    let detailId = null;
+    const mountDetail = (id) => {
+        detailId = String(id);
+        const source = region.querySelector('template[data-customer-detail-id="' + detailId + '"]');
+        detailSlot.innerHTML = '';
+        detailNotfound.hidden = true;
+        detailPage.hidden = false;
+        page.hidden = true;
+        if (!source) { detailNotfound.hidden = false; return; }
+        const node = source.content.firstElementChild.cloneNode(true);
+        detailSlot.appendChild(node);
+        detailBreadcrumb.textContent = node.querySelector('.owner-customer-modal__profile h2').textContent.trim();
+    };
+    document.addEventListener('click', e => { const closeDetails = e.target.closest('[data-close-details]'); if (closeDetails) { const modal = closeDetails.closest('.modal'); if (modal) close(modal); } const card = e.target.closest('[data-customer-row]'); const cardAction = e.target.closest('.owner-customer-card__actions'); if (card && !closeDetails && !cardAction) window.location.href = customersRoute + '?id=' + card.dataset.customerId; });
+    document.addEventListener('keydown', e => { const card = e.target.closest('[data-customer-row]'); if (card && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); window.location.href = customersRoute + '?id=' + card.dataset.customerId; } });
+    const refresh = (q = '') => fetch('/owner/customers/list?q=' + encodeURIComponent(q), { headers: { 'X-Requested-With': 'XMLHttpRequest' } }).then(r => r.text()).then(html => { region.innerHTML = html; if (detailId) mountDetail(detailId); });
     const request = (url, options = {}) => { const isMultipart = options.body instanceof FormData; return fetch(url, { ...options, headers: { 'X-CSRF-TOKEN': token, ...(isMultipart ? {} : { 'Content-Type': 'application/json' }), Accept: 'application/json' } }).then(async r => { const data = await r.json(); if (!r.ok) throw new Error(data.message || Object.values(data.errors || {}).flat()[0] || 'Request failed.'); return data; }); };
     const showToast = (message, type = 'success') => { const stack = document.getElementById('toast-stack'); if (!stack || !message) return; const toast = document.createElement('div'); toast.className = 'toast toast--' + type; toast.setAttribute('role', 'status'); const icon = document.createElement('span'); icon.className = 'toast__icon'; icon.setAttribute('aria-hidden', 'true'); icon.textContent = type === 'success' ? '✓' : type === 'danger' ? '!' : 'i'; const text = document.createElement('span'); text.className = 'toast__message'; text.textContent = message; const closeBtn = document.createElement('button'); closeBtn.type = 'button'; closeBtn.className = 'toast__close'; closeBtn.setAttribute('aria-label', 'Dismiss notification'); closeBtn.textContent = '×'; closeBtn.addEventListener('click', dismiss); toast.append(icon, text, closeBtn); stack.appendChild(toast); let dismissed = false; let timer = null; function dismiss() { if (dismissed) return; dismissed = true; clearTimeout(timer); toast.classList.add('toast--leaving'); setTimeout(() => toast.remove(), 220); } timer = setTimeout(dismiss, 4200); };
     const productRows = form.querySelector('[data-product-rows]');
     document.querySelector('[data-open-modal="add-customer-modal"]').addEventListener('click', () => { form.reset(); form.customer_id.value = ''; form.querySelector('.customer-debt-types').hidden = false; addModal.querySelector('.modal-title').textContent = 'Add Customer'; addModal.querySelector('.modal-subtitle').textContent = 'Create a portal code and record the opening debt.'; productRows.innerHTML = ''; });
-    const addProduct = (row = {}) => { const item = document.createElement('div'); item.className = 'customer-product-row'; item.innerHTML = `<input class="form-input" name="products[][product_name]" placeholder="Product name" required value="${row.name || ''}"><input class="form-input" name="products[][quantity]" type="number" min="1" placeholder="Qty" required value="${row.quantity || 1}"><input class="form-input" name="products[][amount]" type="text" inputmode="decimal" autocomplete="off" pattern="[0-9]+([.][0-9]{1,2})?" placeholder="₱ 0.00" required value="${row.amount || ''}" data-product-amount><button type="button" class="owner-product-card__action owner-product-card__action--danger" data-remove-product aria-label="Remove product">×</button>`; productRows.append(item); };
+    const addProduct = (row = {}) => { const item = document.createElement('div'); item.className = 'customer-product-row'; item.innerHTML = `<div class="customer-product-row__fields"><input class="form-input" name="products[][product_name]" placeholder="Product name" required maxlength="150" value="${row.name || ''}" data-product-name><input class="form-input" name="products[][quantity]" type="number" min="1" placeholder="Qty" required value="${row.quantity || 1}" data-product-qty><input class="form-input" name="products[][amount]" type="text" inputmode="decimal" autocomplete="off" pattern="[0-9]+([.][0-9]{1,2})?" placeholder="₱ 0.00" required value="${row.amount || ''}" data-product-amount><button type="button" class="owner-product-card__action owner-product-card__action--danger" data-remove-product aria-label="Remove product">×</button></div><input class="form-input customer-product-row__notes" name="products[][notes]" type="text" placeholder="Notes (optional)" maxlength="500" value="${row.notes || ''}" data-product-notes>`; productRows.append(item); };
     form.addEventListener('input', e => { if (e.target.matches('[data-product-amount]')) { e.target.value = e.target.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\./g, '$1').replace(/^(\d+\.\d{0,2}).*$/, '$1'); } });
     form.querySelector('[data-add-product]').addEventListener('click', () => addProduct());
     form.querySelectorAll('[data-type-toggle]').forEach(toggle => toggle.addEventListener('change', () => { form.querySelector('[data-product-fields]').hidden = !form.querySelector('[value=product]').checked; form.querySelector('[data-money-fields]').hidden = !form.querySelector('[value=money]').checked; if (form.querySelector('[value=product]').checked && !productRows.children.length) addProduct(); }));
     form.addEventListener('click', e => { if (e.target.closest('[data-remove-product]')) e.target.closest('.customer-product-row').remove(); });
-    form.addEventListener('submit', e => { e.preventDefault(); const id = form.customer_id.value; const payload = new FormData(); payload.append('full_name', form.full_name.value); if (form.gender.value) payload.append('gender', form.gender.value); if (form.avatar.files[0]) payload.append('avatar', form.avatar.files[0]); const rows = [...form.querySelectorAll('.customer-product-row')]; const debtTypes = [...form.querySelectorAll('[name="debt_types[]"]:checked')].map(x => x.value); if (debtTypes.length) { debtTypes.forEach(type => payload.append('debt_types[]', type)); rows.forEach((row, index) => { payload.append(`products[${index}][product_name]`, row.children[0].value); payload.append(`products[${index}][quantity]`, row.children[1].value); payload.append(`products[${index}][amount]`, row.children[2].value); }); payload.append('money_amount', form.money_amount.value); payload.append('loaned_at', form.loaned_at.value); } if (id) payload.append('_method', 'PUT'); const url = id ? `/owner/customers/${id}` : '/owner/customers'; request(url, { method: 'POST', body: payload }).then(() => { close(addModal); showToast(id ? 'Customer updated.' : 'Customer added.'); form.reset(); form.customer_id.value = ''; form.querySelector('.customer-debt-types').hidden = false; addModal.querySelector('.modal-title').textContent = 'Add Customer'; addModal.querySelector('.modal-subtitle').textContent = 'Create a portal code and record the opening debt.'; productRows.innerHTML = ''; refresh(); }).catch(error => { const el = form.querySelector('[data-customer-error]'); el.textContent = error.message; el.hidden = false; showToast(error.message, 'danger'); }); });
+    form.addEventListener('submit', e => { e.preventDefault(); const id = form.customer_id.value; const payload = new FormData(); payload.append('full_name', form.full_name.value); if (form.gender.value) payload.append('gender', form.gender.value); if (form.avatar.files[0]) payload.append('avatar', form.avatar.files[0]); const rows = [...form.querySelectorAll('.customer-product-row')]; const debtTypes = [...form.querySelectorAll('[name="debt_types[]"]:checked')].map(x => x.value); if (debtTypes.length) { debtTypes.forEach(type => payload.append('debt_types[]', type)); rows.forEach((row, index) => { payload.append(`products[${index}][product_name]`, row.querySelector('[data-product-name]').value); payload.append(`products[${index}][quantity]`, row.querySelector('[data-product-qty]').value); payload.append(`products[${index}][amount]`, row.querySelector('[data-product-amount]').value); payload.append(`products[${index}][notes]`, row.querySelector('[data-product-notes]').value); }); payload.append('money_amount', form.money_amount.value); payload.append('loaned_at', form.loaned_at.value); } if (id) payload.append('_method', 'PUT'); const url = id ? `/owner/customers/${id}` : '/owner/customers'; request(url, { method: 'POST', body: payload }).then(() => { close(addModal); showToast(id ? 'Customer updated.' : 'Customer added.'); form.reset(); form.customer_id.value = ''; form.querySelector('.customer-debt-types').hidden = false; addModal.querySelector('.modal-title').textContent = 'Add Customer'; addModal.querySelector('.modal-subtitle').textContent = 'Create a portal code and record the opening debt.'; productRows.innerHTML = ''; refresh(); }).catch(error => { const el = form.querySelector('[data-customer-error]'); el.textContent = error.message; el.hidden = false; showToast(error.message, 'danger'); }); });
     document.addEventListener('click', e => { const edit = e.target.closest('[data-edit-customer]'), pay = e.target.closest('[data-pay-customer]'), del = e.target.closest('[data-delete-customer]'); if (edit) { form.reset(); form.querySelector('[name=customer_id]').value = edit.dataset.id; form.full_name.value = edit.dataset.name; form.querySelector(`[name=gender][value="${edit.dataset.gender}"]`).checked = true; const title = addModal.querySelector('.modal-title'), subtitle = addModal.querySelector('.modal-subtitle'); if (title) title.textContent = 'Edit Customer'; if (subtitle) subtitle.textContent = 'Update the name, profile, or add a new debt record.'; form.querySelector('.customer-debt-types').hidden = false; form.querySelector('[data-product-fields]').hidden = true; form.querySelector('[data-money-fields]').hidden = true; open(addModal); } if (pay) { paymentForm.customer_id.value = pay.dataset.id; paymentForm.dataset.remaining = pay.dataset.remaining || ''; const paymentName = paymentModal.querySelector('[data-payment-name]'); if (paymentName) paymentName.textContent = pay.dataset.name; open(paymentModal); } if (del) { deleteNameEl.textContent = del.dataset.name; deleteError.hidden = true; pendingDeleteId = del.dataset.id; open(deleteModal); } });
     paymentModal.querySelector('[data-pay-in-full]').addEventListener('click', () => { payInFullNameEl.textContent = `${paymentModal.querySelector('[data-payment-name]').textContent} — the remaining balance of ₱${Number(paymentForm.dataset.remaining || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })} will be settled and recorded in the payment history.`; payInFullError.hidden = true; payInFullConfirmBtn.disabled = false; open(payInFullModal); });
     payInFullConfirmBtn.addEventListener('click', () => { payInFullConfirmBtn.disabled = true; request(`/owner/customers/${paymentForm.customer_id.value}/payments`, { method: 'POST', body: JSON.stringify({ amount: paymentForm.dataset.remaining, pay_in_full: true }) }).then(() => { close(payInFullModal); close(paymentModal); showToast('Payment recorded. Balance settled in full.'); paymentForm.reset(); refresh(); }).catch(error => { payInFullConfirmBtn.disabled = false; payInFullError.querySelector('span').textContent = error.message; payInFullError.hidden = false; showToast(error.message, 'danger'); }); });
     payInFullModal.addEventListener('click', e => { if (e.target.closest('[data-modal-close]')) setTimeout(() => { if (paymentModal.classList.contains('is-open')) document.body.style.overflow = 'hidden'; }, 0); });
     paymentForm.addEventListener('submit', e => { e.preventDefault(); request(`/owner/customers/${paymentForm.customer_id.value}/payments`, { method: 'POST', body: JSON.stringify({ amount: paymentForm.amount.value }) }).then(() => { close(paymentModal); showToast('Payment recorded.'); paymentForm.reset(); refresh(); }).catch(error => { const el = paymentForm.querySelector('[data-payment-error]'); el.textContent = error.message; el.hidden = false; showToast(error.message, 'danger'); }); });
-    deleteConfirmBtn.addEventListener('click', () => { if (!pendingDeleteId) return; deleteConfirmBtn.disabled = true; request(`/owner/customers/${pendingDeleteId}`, { method: 'DELETE' }).then(() => { close(deleteModal); pendingDeleteId = null; deleteConfirmBtn.disabled = false; showToast('Customer deleted.'); refresh(); }).catch(error => { deleteConfirmBtn.disabled = false; deleteError.querySelector('span').textContent = error.message; deleteError.hidden = false; showToast(error.message, 'danger'); }); });
+    deleteConfirmBtn.addEventListener('click', () => { if (!pendingDeleteId) return; deleteConfirmBtn.disabled = true; request(`/owner/customers/${pendingDeleteId}`, { method: 'DELETE' }).then(() => { close(deleteModal); pendingDeleteId = null; deleteConfirmBtn.disabled = false; showToast('Customer deleted.'); if (detailId) { window.location.href = customersRoute; return; } refresh(); }).catch(error => { deleteConfirmBtn.disabled = false; deleteError.querySelector('span').textContent = error.message; deleteError.hidden = false; showToast(error.message, 'danger'); }); });
     page.querySelector('[data-customer-search]').addEventListener('input', e => refresh(e.target.value));
     page.addEventListener('input', e => {
         const search = e.target.closest('[data-section-search]');
@@ -189,6 +224,8 @@
         if (empty) empty.hidden = visible !== 0;
     });
     document.addEventListener('click', e => { if (e.target.matches('[data-modal-close]')) close(e.target.closest('.modal')); });
+    const detailParam = new URLSearchParams(window.location.search).get('id');
+    if (detailParam) mountDetail(detailParam);
 })();
 </script>
 @endpush

@@ -14,6 +14,28 @@
 .owner-customer-card__balances { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; margin: 1rem 0 0; color: var(--text-muted); font-size: .75rem; text-align: center; text-transform: uppercase; }
 .owner-customer-card__balances strong { display: block; margin-top: .2rem; color: var(--text-dark); font-size: .95rem; }
 .owner-customer-modal .modal-dialog { max-width: 720px; }
+.owner-modal .modal-dialog { --md-pad-x: 34px; padding-bottom: 0; scrollbar-width: none; -ms-overflow-style: none; }
+.owner-modal .modal-dialog::-webkit-scrollbar { display: none; }
+.owner-modal .modal-close { position: sticky; top: 14px; float: right; }
+.owner-modal .modal-actions { position: sticky; bottom: 0; z-index: 3; margin: 1.4rem calc(var(--md-pad-x) * -1) 0; padding: 14px var(--md-pad-x) 18px; background: var(--surface-elevated); border-top: 1px solid var(--border-soft); }
+@media (max-width: 480px) { .owner-modal .modal-dialog { --md-pad-x: 22px; } }
+.owner-detail-page[hidden] { display: none; }
+.owner-detail-page { width: 100%; }
+.owner-detail-card__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.owner-detail-card__head .modal-actions { margin-top: 0; }
+.owner-detail-card__head .modal-actions .btn { flex: 0 0 auto; }
+.owner-detail-card__head .owner-customer-modal__actions { justify-content: flex-end; }
+.owner-breadcrumbs { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .5rem; margin-bottom: 1.1rem; padding: .65rem 1rem; border: 1px solid var(--border-soft); border-radius: var(--radius-sm); background: var(--surface-elevated); box-shadow: var(--shadow-sm); font-size: .85rem; }
+.owner-breadcrumbs__link { color: var(--teal); font-weight: 700; text-decoration: none; }
+.owner-breadcrumbs__link:hover, .owner-breadcrumbs__link:focus-visible { text-decoration: underline; }
+.owner-breadcrumbs__sep { color: var(--text-muted); }
+.owner-breadcrumbs__current { min-width: 0; overflow: hidden; color: var(--text-dark); font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+.owner-detail-card { padding: 1.5rem; border: 1px solid var(--border-soft); border-radius: var(--radius-lg); background: var(--surface-elevated); box-shadow: var(--shadow-sm); }
+.owner-detail-card .owner-customer-details__content { padding: 0; margin-top: 1rem; }
+.owner-detail-page__notfound { display: grid; justify-items: center; gap: .5rem; padding: 3rem 1.5rem; border: 1px dashed var(--border-soft); border-radius: var(--radius-lg); background: var(--surface-muted); text-align: center; }
+.owner-detail-page__notfound-icon { width: 56px; height: 56px; display: grid; place-items: center; border-radius: 50%; background: var(--accent-soft); color: var(--accent); font-size: 1.5rem; font-weight: 800; }
+.owner-detail-page__notfound strong { color: var(--text-dark); font-size: 1.1rem; }
+.owner-detail-page__notfound p { margin: 0; color: var(--text-muted); }
 .owner-customer-modal__profile { display: flex; align-items: center; gap: 1rem; }
 .owner-customer-modal__profile code { color: var(--teal); font-weight: 700; letter-spacing: .12em; }
 .owner-customer-modal__balances { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.25rem 0; padding: 1rem; border: 1px solid var(--border-soft); border-radius: 10px; background: var(--surface-muted); color: var(--text-muted); }
@@ -41,6 +63,12 @@
 .owner-debt-history__columns { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 .owner-debt-history h3 { margin: .7rem 0 .3rem; color: var(--text-dark); font-size: .8rem; text-transform: uppercase; }
 .owner-debt-history p { margin: .25rem 0; font-size: .85rem; }
+.owner-debt-history__item { padding: .5rem 0; border-top: 1px solid var(--border-soft); }
+.owner-debt-history__item:first-of-type { border-top: 0; padding-top: 0; }
+.owner-debt-history__item-line { color: var(--text-dark); }
+.owner-debt-history__item-line strong { color: var(--teal); }
+.owner-debt-history__item-meta { color: var(--text-muted); font-size: .75rem; }
+.owner-debt-history__item-notes { margin: .35rem 0 0; padding: .4rem .55rem; border-left: 3px solid var(--accent); border-radius: 4px; background: var(--surface-elevated); color: var(--text-dark); font-size: .8rem; font-style: italic; }
 .customer-debt-types { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: .85rem; border: 0; padding: 0; margin: 0; }
 .customer-debt-types__legend { display: flex; align-items: center; gap: .5rem; grid-column: 1 / -1; width: 100%; padding: 0; margin-bottom: .1rem; color: var(--indigo); font-size: .8rem; font-weight: 800; text-transform: uppercase; letter-spacing: .07em; }
 .customer-debt-types__legend svg { color: var(--teal); flex: 0 0 auto; }
@@ -50,7 +78,8 @@
 .debt-type-card__icon { display: grid; place-items: center; width: 34px; height: 34px; flex: 0 0 auto; border: 1px solid var(--border-soft); border-radius: 9px; background: var(--surface-elevated); color: var(--teal); }
 .debt-type-card__label { font-size: .92rem; }
 .debt-type-card input { width: 18px; height: 18px; margin-left: auto; flex: 0 0 auto; accent-color: var(--teal); cursor: pointer; }
-.customer-product-row { display: grid; grid-template-columns: 1.5fr .6fr 1fr auto; gap: .7rem; margin-top: .7rem; align-items: center; }
+.customer-product-row { display: grid; gap: .6rem; margin-top: .7rem; }
+.customer-product-row__fields { display: grid; grid-template-columns: 1.5fr .6fr 1fr auto; gap: .6rem; align-items: center; }
 .form-input { width: 100%; padding: .8rem .9rem; border: 1.5px solid var(--border-soft); border-radius: var(--radius-sm); background: var(--surface-muted); color: var(--text-dark); font-size: .95rem; transition: border-color .2s ease, box-shadow .2s ease, background .2s ease; }
 .form-input::placeholder { color: var(--text-muted); opacity: .85; }
 .form-input:hover { border-color: rgba(17, 138, 178, .45); }
@@ -63,5 +92,7 @@
 .customer-gender { display: flex; gap: 1rem; border: 0; padding: 0; margin: 0; }
 .customer-gender label { display: flex; gap: .4rem; align-items: center; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
-@media (max-width: 760px) { .owner-customers-table-wrap { background: transparent; border: 0; } .owner-customers-table { min-width: 0; display: block; } .owner-customers-table thead { display: none; } .owner-customers-table tbody, .owner-customers-table tr, .owner-customers-table td { display: block; } .owner-customers-table tr { margin-bottom: 1rem; padding: .8rem; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; } .owner-customers-table td { border: 0; padding: .35rem; } .owner-customers-table td::before { content: attr(data-label); display: block; color: var(--text-muted); font-size: .7rem; text-transform: uppercase; } .owner-customer-actions { justify-content: flex-start; margin-top: .5rem; } .customer-product-row { grid-template-columns: 1fr 1fr; } .customer-product-row input:first-child { grid-column: 1 / -1; } }
+@media (max-width: 760px) { .owner-customers-table-wrap { background: transparent; border: 0; } .owner-customers-table { min-width: 0; display: block; } .owner-customers-table thead { display: none; } .owner-customers-table tbody, .owner-customers-table tr, .owner-customers-table td { display: block; } .owner-customers-table tr { margin-bottom: 1rem; padding: .8rem; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; } .owner-customers-table td { border: 0; padding: .35rem; } .owner-customers-table td::before { content: attr(data-label); display: block; color: var(--text-muted); font-size: .7rem; text-transform: uppercase; } .owner-customer-actions { justify-content: flex-start; margin-top: .5rem; } .customer-product-row__fields { grid-template-columns: 1fr 1fr; } .customer-product-row__fields input:first-child { grid-column: 1 / -1; } }
 @media (max-width: 760px) { .owner-debt-history__header, .owner-debt-history__columns { display: block; } .owner-debt-history__columns > div + div { margin-top: .8rem; } }
+@media (max-width: 560px) { .owner-detail-card { padding: 1.1rem; } .owner-customer-modal__balances { grid-template-columns: 1fr; gap: .6rem; text-align: center; } .owner-detail-page__notfound { padding: 2rem 1rem; } }
+@media (max-width: 640px) { .owner-detail-card__head { flex-direction: column; align-items: stretch; } .owner-detail-card__head .modal-actions .btn { flex: 1 1 100%; } }
