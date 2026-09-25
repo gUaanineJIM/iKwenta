@@ -171,6 +171,7 @@ class CustomerAccountServiceTest extends TestCase
         $this->assertSame(DebtStatus::Paid, $debt->status);
         $this->assertFalse($debt->paid_manually);
         $this->assertSame('0.00', $this->service->remainingBalance($debt));
+        $this->assertNotNull($debt->paid_at);
     }
 
     public function test_multiple_partial_payments_accumulate_until_paid(): void
@@ -190,6 +191,7 @@ class CustomerAccountServiceTest extends TestCase
         $this->assertSame(DebtStatus::Paid, $debt->status);
         $this->assertSame('0.00', $this->service->remainingBalance($debt));
         $this->assertSame('100.00', $this->service->paymentsTotal($debt));
+        $this->assertNotNull($debt->paid_at);
     }
 
     public function test_manually_marking_paid_records_exact_remaining_as_payment(): void
@@ -208,6 +210,7 @@ class CustomerAccountServiceTest extends TestCase
         $this->assertTrue($debt->paid_manually);
         $this->assertSame($this->userId, $debt->paid_manually_by);
         $this->assertNotNull($debt->paid_manually_at);
+        $this->assertNotNull($debt->paid_at);
 
         // The exact remaining balance (70.00) is recorded as a payment.
         $this->assertSame('100.00', $this->service->paymentsTotal($debt));
@@ -291,9 +294,27 @@ class CustomerAccountServiceTest extends TestCase
         $this->item($second, '50.00');
 
         $this->assertSame(DebtStatus::Paid, $first->refresh()->status);
+        $this->assertNotNull($first->paid_at);
         $this->assertSame(DebtStatus::Unpaid, $second->refresh()->status);
         $this->assertSame('50.00', $this->service->outstandingBalance($customer));
         $this->assertSame('100.00', $this->service->totalPaid($customer));
+    }
+
+    public function test_paid_at_is_preserved_when_the_paid_status_is_refreshed(): void
+    {
+        $customer = $this->customer();
+        $debt = $this->debt($customer);
+        $this->item($debt, '100.00');
+
+        $this->service->markAsPaid($debt, $this->userId);
+
+        $settledAt = $debt->refresh()->paid_at;
+        $this->assertNotNull($settledAt);
+
+        $this->service->refreshStatus($debt);
+
+        $this->assertSame(DebtStatus::Paid, $debt->refresh()->status);
+        $this->assertSame($settledAt->toDateTimeString(), $debt->paid_at->toDateTimeString());
     }
 
     public function test_zero_positive_amount_is_rejected(): void
