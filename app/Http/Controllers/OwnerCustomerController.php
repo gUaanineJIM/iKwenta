@@ -7,6 +7,7 @@ use App\Models\ActivityLog;
 use App\Models\Customer;
 use App\Models\Debt;
 use App\Models\DebtItem;
+use App\Models\Payment;
 use App\Models\User;
 use App\Services\CustomerAccountService;
 use Illuminate\Http\JsonResponse;
@@ -210,6 +211,23 @@ class OwnerCustomerController extends Controller
                 }
             }
 
+            ActivityLog::create([
+                'user_id' => $owner->user_id,
+                'action' => 'payment.pay_in_full',
+                'table_name' => 'payments',
+                'record_id' => $customer->customer_id,
+                'old_values' => null,
+                'new_values' => [
+                    'customer_name' => $customer->full_name,
+                    'payments' => count($payments),
+                    'settled_total' => $this->sumMoney(array_map(
+                        fn (Payment $payment): string => $payment->amount_paid,
+                        $payments
+                    )),
+                ],
+                'created_at' => now(),
+            ]);
+
             return response()->json([
                 'message' => 'Customer balance paid in full.',
                 'payments' => $payments,
@@ -300,17 +318,13 @@ class OwnerCustomerController extends Controller
         return number_format(array_sum(array_map('floatval', $amounts)), 2, '.', '');
     }
 
+    /**
+     * Resolve the acting owner. The owner route middleware has already
+     * verified the session belongs to an existing store owner account.
+     */
     private function requiredStoreOwner(): User
     {
-        $sessionUserId = session('owner_id');
-        if ($sessionUserId && ($user = User::find($sessionUserId))) {
-            return $user;
-        }
-        $roleId = DB::table('roles')->where('role_name', 'store_owner')->value('role_id');
-        if ($roleId && ($user = User::where('role_id', $roleId)->first())) {
-            return $user;
-        }
-        abort(503, 'No store owner account is configured.');
+        return User::findOrFail(session('owner_id'));
     }
 
     private function log(string $userId, string $action, string $recordId, ?array $oldValues, ?array $newValues): void

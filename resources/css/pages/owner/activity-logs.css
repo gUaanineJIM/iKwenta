@@ -1,0 +1,271 @@
+/* =========================
+   OWNER ACTIVITY LOGS
+========================= */
+
+.owner-activity__toolbar {
+    flex-wrap: wrap;
+}
+
+/* =========================
+   Record type filter
+========================= */
+
+.owner-activity__filter {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    flex: 0 0 auto;
+}
+
+.owner-activity__filter-label {
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.owner-activity__filter select {
+    min-height: 44px;
+    padding: 9px 36px 9px 14px;
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--text-dark);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23788199' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9L12 15L18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.owner-activity__filter select:focus {
+    outline: none;
+    border-color: var(--teal);
+    box-shadow: 0 0 0 4px var(--accent-soft);
+}
+
+/* =========================
+   Activity table
+========================= */
+
+.owner-activity-table {
+    min-width: 760px;
+}
+
+.owner-activity-table th:first-child,
+.owner-activity-table td:first-child {
+    width: 170px;
+}
+
+.owner-activity-time {
+    color: var(--text-muted);
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.owner-activity-actor {
+    font-size: 13px;
+}
+
+.owner-activity-action {
+    display: block;
+    margin-top: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+}
+
+.owner-activity-record {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 12px;
+    color: var(--text-dark);
+}
+
+/* =========================
+   Record type badges
+========================= */
+
+.activity-type {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.activity-type--customers {
+    background: var(--accent-soft);
+    color: var(--indigo);
+}
+
+.activity-type--products {
+    background: rgba(213, 137, 26, 0.14);
+    color: #B45309;
+}
+
+.activity-type--debts {
+    background: rgba(214, 69, 80, 0.12);
+    color: var(--danger);
+}
+
+.activity-type--payments {
+    background: rgba(17, 138, 178, 0.12);
+    color: var(--teal);
+}
+
+.activity-type--users {
+    background: var(--surface-muted);
+    color: var(--text-muted);
+}
+
+/* =========================
+   Expandable changes
+========================= */
+
+.owner-activity-changes-cell {
+    min-width: 160px;
+}
+
+.activity-changes-details {
+    position: relative;
+}
+
+.activity-changes-details summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+}
+
+.activity-changes-details summary::-webkit-details-marker {
+    display: none;
+}
+
+.activity-changes-details summary svg {
+    color: var(--text-muted);
+    transition: transform 0.2s ease;
+}
+
+.activity-changes-details[open] summary svg {
+    transform: rotate(180deg);
+}
+
+.activity-changes-summary {
+    color: var(--teal);
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.activity-changes-empty {
+    color: var(--text-muted);
+}
+
+.activity-changes-list {
+    position: absolute;
+    z-index: 5;
+    left: 0;
+    top: calc(100% + 8px);
+    width: max-content;
+    min-width: 320px;
+    max-width: 420px;
+    max-height: 300px;
+    margin: 0;
+    padding: 10px 14px;
+    overflow-y: auto;
+    background: var(--surface-elevated);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+}
+
+.activity-change {
+    display: grid;
+    grid-template-columns: 130px 1fr;
+    gap: 4px 14px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border-soft);
+}
+
+.activity-change:last-child {
+    border-bottom: 0;
+}
+
+.activity-change dt {
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.activity-change dd {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-size: 12px;
+}
+
+.activity-change__old {
+    color: var(--danger);
+    text-decoration: line-through;
+}
+
+.activity-change__arrow {
+    color: var(--text-muted);
+}
+
+.activity-change__new {
+    color: var(--teal);
+    font-weight: 700;
+}
+
+/* =========================
+   Responsive
+========================= */
+
+@media (max-width: 767px) {
+    .owner-activity__filter {
+        width: 100%;
+    }
+
+    .owner-activity__filter select {
+        flex: 1 1 auto;
+        width: 100%;
+    }
+
+    .owner-activity__filter-label {
+        flex: 0 0 auto;
+    }
+
+    .owner-activity-table th:first-child,
+    .owner-activity-table td:first-child {
+        width: auto;
+    }
+
+    .activity-changes-list {
+        position: static;
+        width: 100%;
+        max-width: none;
+        margin-top: 8px;
+    }
+}
+
+@media (max-width: 380px) {
+    .owner-activity__filter {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

@@ -50,6 +50,7 @@
         ],
         'activity' => [
             'label' => 'Activity Logs',
+            'href' => route('owner.activity-logs'),
             'icon' => '
                 <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M3 12L7 12L9 6L13 18L15 10L17 12L21 12" />

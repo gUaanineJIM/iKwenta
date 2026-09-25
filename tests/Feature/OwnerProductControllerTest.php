@@ -8,7 +8,6 @@ use App\Models\Debt;
 use App\Models\DebtItem;
 use App\Models\Product;
 use App\Models\ProductPriceHistory;
-use App\Models\User;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -49,6 +48,8 @@ class OwnerProductControllerTest extends TestCase
             'created_at' => now(),
             'updated_at' => now(),
         ]);
+
+        $this->withSession(['owner_id' => $this->userId]);
     }
 
     public function test_store_creates_multiple_products_and_price_history_in_one_request(): void
