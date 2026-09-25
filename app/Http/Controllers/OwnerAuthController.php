@@ -27,6 +27,7 @@ class OwnerAuthController extends Controller
         }
 
         $request->session()->regenerate();
+        $request->session()->forget('customer_id');
         $request->session()->put('owner_id', $owner->user_id);
 
         ActivityLog::create([

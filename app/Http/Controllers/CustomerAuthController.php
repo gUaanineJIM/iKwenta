@@ -31,6 +31,7 @@ class CustomerAuthController extends Controller
 
         // Store the customer's UUID in the session
         $request->session()->regenerate();
+        $request->session()->forget('owner_id');
 
         $request->session()->put(
             'customer_id',

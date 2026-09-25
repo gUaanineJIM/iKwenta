@@ -6,8 +6,6 @@ use App\Enums\DebtStatus;
 use App\Models\Debt;
 use App\Models\Payment;
 use App\Services\CustomerAccountService;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
@@ -21,12 +19,8 @@ class OwnerDebtController extends Controller
 
     public function __construct(private CustomerAccountService $accounts) {}
 
-    public function index(Request $request): View|RedirectResponse
+    public function index(): View
     {
-        if (! $request->session()->has('owner_id')) {
-            return redirect()->route('landing', ['#login']);
-        }
-
         $debts = Debt::query()
             ->with(['customer', 'items'])
             ->latest('loaned_at')
