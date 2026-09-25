@@ -30,6 +30,7 @@
         ],
         'debts' => [
             'label' => 'Debts',
+            'href' => route('owner.debts'),
             'icon' => '
                 <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M21 12H14L12 16L9 8L7 12H3" />

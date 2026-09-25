@@ -49,6 +49,7 @@ class OwnerCustomerController extends Controller
             'products.*.product_name' => ['required', 'string', 'max:150'],
             'products.*.quantity' => ['required', 'integer', 'min:1', 'max:1000000'],
             'products.*.amount' => ['required', 'numeric', 'gt:0', 'max:9999999999.99'],
+            'products.*.notes' => ['nullable', 'string', 'max:500'],
             'money_amount' => ['nullable', 'numeric', 'gt:0', 'max:9999999999.99'],
             'loaned_at' => ['nullable', 'date_format:Y-m-d\\TH:i'],
         ]);
@@ -83,6 +84,7 @@ class OwnerCustomerController extends Controller
                     'quantity' => $product['quantity'],
                     'unit_price' => $product['amount'],
                     'subtotal' => $product['quantity'] * $product['amount'],
+                    'notes' => ! empty($product['notes']) ? trim($product['notes']) : null,
                 ]);
             }
 
@@ -113,6 +115,7 @@ class OwnerCustomerController extends Controller
             'products.*.product_name' => ['required', 'string', 'max:150'],
             'products.*.quantity' => ['required', 'integer', 'min:1', 'max:1000000'],
             'products.*.amount' => ['required', 'numeric', 'gt:0', 'max:9999999999.99'],
+            'products.*.notes' => ['nullable', 'string', 'max:500'],
             'money_amount' => ['nullable', 'numeric', 'gt:0', 'max:9999999999.99'],
             'loaned_at' => ['nullable', 'date_format:Y-m-d\\TH:i'],
         ]);
@@ -164,6 +167,7 @@ class OwnerCustomerController extends Controller
                 'quantity' => $product['quantity'],
                 'unit_price' => $product['amount'],
                 'subtotal' => $product['quantity'] * $product['amount'],
+                'notes' => ! empty($product['notes']) ? trim($product['notes']) : null,
             ]);
         }
 

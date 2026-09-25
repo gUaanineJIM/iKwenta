@@ -102,9 +102,9 @@
                         </tr>
                     </thead>
 
-                    <tbody>
+                    <tbody data-total-debt-ranking>
                         @forelse ($totalDebtRanking as $entry)
-                            <tr>
+                            <tr class="owner-rank-row" data-customer-id="{{ $entry['customer_id'] }}" tabindex="0" role="button" aria-label="View {{ $entry['name'] }} details">
                                 <td data-label="Rank">
                                     <span class="owner-rank-badge {{ $loop->iteration <= 3 ? 'owner-rank-badge--top' : '' }}">
                                         {{ $entry['rank'] }}
@@ -182,6 +182,30 @@
 @endsection
 
 @push('scripts')
+    <script>
+        (function () {
+            const table = document.querySelector('[data-total-debt-ranking]');
+            if (!table) return;
+
+            const openCustomer = (id) => {
+                window.location.href = '{{ route('owner.customers') }}?id=' + encodeURIComponent(id);
+            };
+
+            table.addEventListener('click', (event) => {
+                const row = event.target.closest('[data-customer-id]');
+                if (row) openCustomer(row.dataset.customerId);
+            });
+
+            table.addEventListener('keydown', (event) => {
+                const row = event.target.closest('[data-customer-id]');
+                if (row && (event.key === 'Enter' || event.key === ' ')) {
+                    event.preventDefault();
+                    openCustomer(row.dataset.customerId);
+                }
+            });
+        })();
+    </script>
+
     <script>
         (function () {
             const canvas = document.getElementById('owner-weekly-debts-chart');

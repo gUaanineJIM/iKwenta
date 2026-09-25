@@ -41,6 +41,7 @@
 @import './pages/owner/products.css';
 @import './pages/owner/customers.css';
 @import './pages/owner/activity-logs.css';
+@import './pages/owner/debts.css';
 
 @theme {
     --font-sans:
