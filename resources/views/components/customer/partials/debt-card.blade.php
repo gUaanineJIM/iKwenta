@@ -36,6 +36,12 @@
             <h3>Loaned {{ $debt->loaned_at?->format('M d, Y h:i A') }}</h3>
 
             <span class="status-badge {{ $badgeClass }}">{{ $badgeLabel }}</span>
+
+            @if ($status->isFullyPaid())
+                <span class="debt-card__completed">
+                    Completed {{ $debt->paid_at?->format('M d, Y h:i A') ?? ($debt->paid_manually_at?->format('M d, Y h:i A') ?? '') }}
+                </span>
+            @endif
         </div>
 
         <div class="debt-card__summary">

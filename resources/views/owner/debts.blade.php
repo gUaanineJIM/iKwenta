@@ -258,7 +258,7 @@
 
                     <h2 id="recent-debts-title">Recent Debt Records</h2>
 
-                    <p class="section-heading__description">The latest credit records entered on the Customers tab.</p>
+                    <p class="section-heading__description">The latest open credit records entered on the Customers tab.</p>
                 </div>
             </div>
 
@@ -309,6 +309,86 @@
                         @endforelse
                     </tbody>
                 </table>
+            </div>
+        </section>
+
+        {{-- =================== Archived debts =================== --}}
+        <section class="owner-debt-section owner-debt-archive" aria-labelledby="archive-title">
+            <div class="section-heading">
+                <div>
+                    <span class="owner-eyebrow"> Archive </span>
+
+                    <h2 id="archive-title">Past Debts</h2>
+
+                    <p class="section-heading__description">
+                        Settled debts are kept for {{ \App\Models\Debt::ARCHIVE_RETENTION_DAYS }} days after full payment, then removed automatically.
+                    </p>
+                </div>
+            </div>
+
+            <button type="button" class="owner-collapse-toggle" data-collapse-toggle
+                aria-expanded="false" aria-controls="archive-panel">
+                <span>
+                    View {{ $archivedDebts->count() }} archived {{ $archivedDebts->count() === 1 ? 'record' : 'records' }}
+                </span>
+
+                <svg class="owner-collapse-toggle__chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M6 9l6 6 6-6" />
+                </svg>
+            </button>
+
+            <div id="archive-panel" class="owner-debt-archive__panel" hidden>
+                <div class="owner-table-wrap">
+                    <table class="owner-rank-table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Customer</th>
+                                <th scope="col">Loaned On</th>
+                                <th scope="col">Completed On</th>
+                                <th scope="col">Items</th>
+                                <th scope="col">Total</th>
+                                <th scope="col">Paid</th>
+                                <th scope="col">Status</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @forelse ($archivedDebts as $debt)
+                                <tr data-customer-id="{{ $debt->customer_id }}">
+                                    <td data-label="Customer">
+                                        <div class="owner-customer-cell">
+                                            @if ($debt->customer->avatar_path)
+                                                <img class="owner-ranking-avatar" src="{{ asset('storage/'.$debt->customer->avatar_path) }}" alt="{{ $debt->customer->full_name }}">
+                                            @else
+                                                <img class="owner-ranking-avatar" src="{{ asset($debt->customer->gender === 'female' ? 'images/avatar-girl.svg' : 'images/avatar-boy.svg') }}" alt="{{ ucfirst($debt->customer->gender) }} avatar">
+                                            @endif
+
+                                            <strong>{{ $debt->customer->full_name }}</strong>
+                                        </div>
+                                    </td>
+
+                                    <td data-label="Loaned On">{{ ($debt->loaned_at ?? $debt->created_at)->format('M d, Y') }}</td>
+
+                                    <td data-label="Completed On">{{ $debt->paid_at?->format('M d, Y h:i A') ?? '—' }}</td>
+
+                                    <td data-label="Items">{{ $debt->items->count() === 0 ? '—' : $debt->items->count() }} @if ($debt->items->count() <= 1) item @endif</td>
+
+                                    <td data-label="Total" class="owner-amount">₱{{ number_format($debt->items_total, 2) }}</td>
+
+                                    <td data-label="Paid" class="owner-amount owner-amount--paid">₱{{ number_format($debt->paid_total, 2) }}</td>
+
+                                    <td data-label="Status">
+                                        <span class="owner-status-badge owner-status-badge--{{ $debt->status?->value ?? 'unpaid' }}">
+                                            {{ $debt->status?->label() ?? 'Unpaid' }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr><td colspan="7">No archived debt records.</td></tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </section>
     </section>

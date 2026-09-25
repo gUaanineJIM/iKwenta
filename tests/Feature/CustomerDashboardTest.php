@@ -213,7 +213,7 @@ class CustomerDashboardTest extends TestCase
         $response->assertOk()
             ->assertSee('Active Credits')
             ->assertSee('Partially Paid')
-            ->assertSee('History')
+            ->assertSee('Past Debts — Archive')
             ->assertSee('status-badge--paid', false)
             ->assertSee('70.00');   // active record's remaining
     }
@@ -235,9 +235,29 @@ class CustomerDashboardTest extends TestCase
         $this->withSession(['customer_id' => $a->customer_id])
             ->get('/customer/dashboard/section/debts', ['X-Requested-With' => 'XMLHttpRequest'])
             ->assertOk()
-            ->assertSee('History')
+            ->assertSee('Past Debts — Archive')
             ->assertSee('status-badge--manual', false)
             ->assertSee('Paid — Manually Marked');
+    }
+
+    public function test_paid_debts_older_than_retention_are_hidden_from_the_debts_section(): void
+    {
+        $a = $this->customer('11127', 'Renesme Moral');
+
+        $paid = $this->debt($a);
+        $this->item($paid, $this->product('Soap'), 1, '50.00');
+        $this->payment($paid, '50.00');
+        $paid->status = DebtStatus::Paid;
+        $paid->paid_at = now()->subDays(Debt::ARCHIVE_RETENTION_DAYS + 1);
+        $paid->save();
+
+        $response = $this->withSession(['customer_id' => $a->customer_id])
+            ->get('/customer/dashboard/section/debts', ['X-Requested-With' => 'XMLHttpRequest']);
+
+        $response->assertOk()
+            ->assertSee('No debts found')
+            ->assertDontSee('Soap')
+            ->assertDontSee('Past Debts — Archive');
     }
 
     public function test_customer_only_sees_their_own_data(): void
@@ -325,6 +345,76 @@ class CustomerDashboardTest extends TestCase
             ->assertDontSee('Mine 01')
             ->assertDontSee('Mine 12')
             ->assertDontSee('Not Yours');
+    }
+
+    public function test_items_section_splits_active_and_archived_paid_items(): void
+    {
+        $a = $this->customer('11128', 'Renesme Moral');
+
+        $active = $this->debt($a);
+        $this->item($active, $this->product('Rice'), 1, '100.00');
+
+        $paid = $this->debt($a);
+        $this->item($paid, $this->product('Soap'), 1, '50.00');
+        $this->payment($paid, '50.00');
+        $paid->status = DebtStatus::Paid;
+        $paid->paid_at = now();
+        $paid->save();
+
+        $response = $this->withSession(['customer_id' => $a->customer_id])
+            ->get('/customer/dashboard/section/items', ['X-Requested-With' => 'XMLHttpRequest']);
+
+        $response->assertOk()
+            ->assertSee('Paid Items — Archive')
+            ->assertSee('Rice')
+            ->assertSee('Soap');
+    }
+
+    public function test_items_section_totals_exclude_archived_paid_items_and_show_their_own(): void
+    {
+        $a = $this->customer('11138', 'Renesme Moral');
+
+        $active = $this->debt($a);
+        $this->item($active, $this->product('Rice'), 2, '100.00');
+        $this->payment($active, '50.00');
+
+        $paid = $this->debt($a);
+        $this->item($paid, $this->product('Soap'), 1, '50.00');
+        $this->payment($paid, '50.00');
+        $paid->status = DebtStatus::Paid;
+        $paid->paid_at = now();
+        $paid->save();
+
+        $response = $this->withSession(['customer_id' => $a->customer_id])
+            ->get('/customer/dashboard/section/items', ['X-Requested-With' => 'XMLHttpRequest']);
+
+        $response->assertOk()
+            ->assertSee('Total of debt items')
+            ->assertSee('Total of paid items')
+            ->assertSee('Settled by payments')
+            ->assertSee('150.00')   // active amount payable: 200 − 50
+            ->assertSee('200.00')   // active total excludes the archived ₱50 item
+            ->assertDontSee('250.00');
+    }
+
+    public function test_items_from_paid_debts_beyond_retention_are_hidden(): void
+    {
+        $a = $this->customer('11129', 'Renesme Moral');
+
+        $paid = $this->debt($a);
+        $this->item($paid, $this->product('Old Soap'), 1, '50.00');
+        $this->payment($paid, '50.00');
+        $paid->status = DebtStatus::Paid;
+        $paid->paid_at = now()->subDays(Debt::ARCHIVE_RETENTION_DAYS + 1);
+        $paid->save();
+
+        $response = $this->withSession(['customer_id' => $a->customer_id])
+            ->get('/customer/dashboard/section/items', ['X-Requested-With' => 'XMLHttpRequest']);
+
+        $response->assertOk()
+            ->assertSee('No debt items')
+            ->assertDontSee('Old Soap')
+            ->assertDontSee('Paid Items — Archive');
     }
 
     public function test_payments_section_is_scoped_and_paginated(): void

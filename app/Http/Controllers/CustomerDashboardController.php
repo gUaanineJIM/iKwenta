@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\DebtStatus;
 use App\Models\Customer;
 use App\Models\Debt;
 use App\Models\DebtItem;
@@ -97,7 +98,16 @@ class CustomerDashboardController extends Controller
             'debts' => ['debts' => $this->debtsFor($customer)],
             'items' => [
                 'items' => $this->itemsFor($customer),
-                'summary' => $this->summaryFor($customer),
+                'archivedItems' => $this->archivedItemsFor($customer),
+                'summary' => [
+                    'totalDebt' => $this->accounts->activeTotalCredit($customer),
+                    'totalPaid' => $this->accounts->activeTotalPaid($customer),
+                    'remainingBalance' => $this->accounts->outstandingBalance($customer),
+                ],
+                'archiveSummary' => [
+                    'totalDebt' => $this->accounts->archivedTotalCredit($customer),
+                    'totalPaid' => $this->accounts->archivedTotalPaid($customer),
+                ],
             ],
             'payments' => ['payments' => $this->paymentsFor($customer)],
             default => $this->overviewData($customer),
@@ -159,7 +169,17 @@ class CustomerDashboardController extends Controller
             ->where('customer_id', $customer->customer_id)
             ->with(['items.product', 'payments'])
             ->latest()
-            ->get();
+            ->get()
+            ->filter(function (Debt $debt): bool {
+                if (! ($debt->status instanceof DebtStatus ? $debt->status->isFullyPaid() : false)) {
+                    return true;
+                }
+
+                // Paid debts are archived for 15 days after settlement; once
+                // past retention they should no longer be shown.
+                return $debt->paid_at === null
+                    || $debt->paid_at->gte(now()->subDays(Debt::ARCHIVE_RETENTION_DAYS));
+            });
 
         $debts->each(function (Debt $debt) {
             $debt->items_total = $this->accounts->transactionTotal($debt);
@@ -167,19 +187,33 @@ class CustomerDashboardController extends Controller
             $debt->remaining_total = $this->accounts->remainingBalance($debt);
         });
 
-        return $debts;
+        return $debts->values();
     }
 
     private function itemsFor(Customer $customer)
     {
         return DebtItem::query()
             ->whereHas('debt', function ($query) use ($customer) {
-                $query->where('customer_id', $customer->customer_id);
+                $query->where('customer_id', $customer->customer_id)
+                    ->where('status', '!=', DebtStatus::Paid->value);
             })
             ->with(['product', 'debt'])
             ->latest()
             ->paginate(self::ITEMS_PER_PAGE)
             ->withQueryString();
+    }
+
+    private function archivedItemsFor(Customer $customer)
+    {
+        return DebtItem::query()
+            ->whereHas('debt', function ($query) use ($customer) {
+                $query->where('customer_id', $customer->customer_id)
+                    ->where('status', DebtStatus::Paid->value)
+                    ->where(fn ($q) => $q->whereNull('paid_at')->orWhere('paid_at', '>=', now()->subDays(Debt::ARCHIVE_RETENTION_DAYS)));
+            })
+            ->with(['product', 'debt'])
+            ->latest()
+            ->get();
     }
 
     private function paymentsFor(Customer $customer)

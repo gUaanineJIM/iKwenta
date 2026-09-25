@@ -33,6 +33,8 @@ class OwnerDebtController extends Controller
         });
 
         $openDebts = $debts->filter(fn (Debt $debt): bool => ! $this->isPaid($debt));
+        $archived = $debts->filter(fn (Debt $debt): bool => $this->isPaid($debt))
+            ->filter(fn (Debt $debt): bool => $debt->paid_at === null || $debt->paid_at->gte(now()->subDays(Debt::ARCHIVE_RETENTION_DAYS)));
 
         return view('owner.debts', [
             'summary' => $this->summary($debts, $openDebts),
@@ -40,7 +42,8 @@ class OwnerDebtController extends Controller
             'aging' => $this->aging($openDebts),
             'monthlyTrend' => $this->monthlyTrend($debts),
             'topDebtors' => $this->topDebtors($openDebts),
-            'recentDebts' => $debts->take(self::RECENT_DEBTS_LIMIT),
+            'recentDebts' => $openDebts->take(self::RECENT_DEBTS_LIMIT),
+            'archivedDebts' => $archived,
         ]);
     }
 

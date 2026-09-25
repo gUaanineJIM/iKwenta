@@ -265,6 +265,15 @@ class OwnerCustomerController extends Controller
             ->limit(200)
             ->get()
             ->each(function (Customer $customer) {
+                // Archived debts older than the retention window are excluded:
+                // once the daily prune removes them, the displayed totals must
+                // not shift afterwards.
+                $customer->debts = $customer->debts
+                    ->filter(fn (Debt $debt): bool => ($debt->status ?? DebtStatus::Unpaid)->isFullyPaid()
+                        ? ($debt->paid_at === null || $debt->paid_at->gte(now()->subDays(Debt::ARCHIVE_RETENTION_DAYS)))
+                        : true)
+                    ->values();
+
                 $customer->debts->each(function (Debt $debt) {
                     $debt->items_total = $this->accounts->transactionTotal($debt);
                     $debt->paid_total = $this->accounts->paymentsTotal($debt);
