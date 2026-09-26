@@ -24,6 +24,7 @@ class Customer extends Model
         'full_name',
         'gender',
         'avatar_path',
+        'description',
     ];
 
     public function debts(): HasMany

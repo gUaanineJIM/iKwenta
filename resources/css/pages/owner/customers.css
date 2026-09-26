@@ -21,6 +21,8 @@
 @media (max-width: 480px) { .owner-modal .modal-dialog { --md-pad-x: 22px; } }
 .owner-detail-page[hidden] { display: none; }
 .owner-detail-page { width: 100%; }
+.owner-detail-page__back { margin-bottom: .5rem; margin-left: -14px; text-decoration: none; }
+.owner-detail-page__back:hover { text-decoration: none; }
 .owner-detail-card__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
 .owner-detail-card__head .modal-actions { margin-top: 0; }
 .owner-detail-card__head .modal-actions .btn { flex: 0 0 auto; }
@@ -42,6 +44,10 @@
 .owner-customer-modal__balances strong { display: block; margin-top: .25rem; color: var(--text-dark); font-size: 1.1rem; }
 .owner-customer-modal__actions { flex-wrap: wrap; }
 .owner-customer-modal__delete { color: var(--danger); }
+.owner-customer-detail__note { margin: 0 0 1.25rem; padding: .8rem .9rem; border-left: 3px solid var(--accent); border-radius: 6px; background: var(--surface-muted); }
+.owner-customer-detail__note-label { display: block; margin-bottom: .3rem; color: var(--text-muted); font-size: .7rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.owner-customer-detail__note p { margin: 0; color: var(--text-dark); font-size: .9rem; line-height: 1.6; white-space: pre-line; }
+.customer-description { min-height: 88px; resize: vertical; }
 .owner-customer-group { margin-top: 2rem; }
 .owner-customer-group__heading { display: flex; align-items: end; justify-content: space-between; gap: 1rem; margin-bottom: .8rem; }
 .owner-customer-group__heading h2 { margin: 0; color: var(--text-dark); font-size: 1.1rem; }

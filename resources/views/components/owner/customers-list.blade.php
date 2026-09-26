@@ -51,7 +51,7 @@
                                 @if ((float) $customer->remaining_balance > 0)
                                         <button class="owner-customer-card__quick-action" type="button" data-pay-customer data-id="{{ $customer->customer_id }}" data-name="{{ $customer->full_name }}" data-remaining="{{ $customer->remaining_balance }}" title="Add payment" aria-label="Add payment for {{ $customer->full_name }}"><span aria-hidden="true">₱</span></button>
                                 @endif
-                                <button class="owner-customer-card__quick-action" type="button" data-edit-customer data-id="{{ $customer->customer_id }}" data-name="{{ $customer->full_name }}" data-gender="{{ $customer->gender }}" title="Edit customer" aria-label="Edit {{ $customer->full_name }}"><span aria-hidden="true">✎</span></button>
+                                <button class="owner-customer-card__quick-action" type="button" data-edit-customer data-id="{{ $customer->customer_id }}" data-name="{{ $customer->full_name }}" data-gender="{{ $customer->gender }}" data-description="{{ $customer->description }}" title="Edit customer" aria-label="Edit {{ $customer->full_name }}"><span aria-hidden="true">✎</span></button>
                                 <button class="owner-customer-card__quick-action owner-customer-card__quick-action--danger" type="button" data-delete-customer data-id="{{ $customer->customer_id }}" data-name="{{ $customer->full_name }}" title="Delete customer" aria-label="Delete {{ $customer->full_name }}"><span aria-hidden="true">×</span></button>
                             </div>
                         </article>
@@ -71,11 +71,17 @@
                                         @if ((float) $customer->remaining_balance > 0)
                                             <button class="btn btn-primary" type="button" data-pay-customer data-id="{{ $customer->customer_id }}" data-name="{{ $customer->full_name }}" data-remaining="{{ $customer->remaining_balance }}">₱ Record Payment</button>
                                         @endif
-                                        <button class="btn btn-secondary" type="button" data-edit-customer data-id="{{ $customer->customer_id }}" data-name="{{ $customer->full_name }}" data-gender="{{ $customer->gender }}">Edit Customer</button>
+                                        <button class="btn btn-secondary" type="button" data-edit-customer data-id="{{ $customer->customer_id }}" data-name="{{ $customer->full_name }}" data-gender="{{ $customer->gender }}" data-description="{{ $customer->description }}">Edit Customer</button>
                                         <button class="btn btn-secondary owner-customer-modal__delete" type="button" data-delete-customer data-id="{{ $customer->customer_id }}" data-name="{{ $customer->full_name }}">Delete</button>
                                     </div>
                                 </div>
                                 <div class="owner-customer-modal__balances"><span>Total debt<strong>₱{{ number_format($customer->total_debt, 2) }}</strong></span><span>Remaining<strong>₱{{ number_format($customer->remaining_balance, 2) }}</strong></span></div>
+                                @if ($customer->description)
+                                    <div class="owner-customer-detail__note">
+                                        <span class="owner-customer-detail__note-label">Note</span>
+                                        <p>{{ $customer->description }}</p>
+                                    </div>
+                                @endif
                                 <div class="owner-customer-details__content">
                                     @forelse ($customer->debts as $debt)
                                         <article class="owner-debt-history">

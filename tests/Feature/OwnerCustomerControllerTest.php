@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\ActivityLog;
 use App\Models\Customer;
 use App\Models\Debt;
 use App\Models\Payment;
@@ -169,6 +170,7 @@ class OwnerCustomerControllerTest extends TestCase
         $this->get('/owner/customers')
             ->assertOk()
             ->assertSee('owner-customer-modal', false)
+            ->assertSee('owner-detail-page__back', false)
             ->assertSee('Record Payment')
             ->assertSee('Notebook')
             ->assertSee('Money owed: ₱100.00')
@@ -227,6 +229,59 @@ class OwnerCustomerControllerTest extends TestCase
         $customer = Customer::where('full_name', 'Profile Customer')->firstOrFail();
         $this->assertSame('female', $customer->gender);
         $this->assertNotNull($customer->avatar_path);
+    }
+
+    public function test_owner_can_save_and_update_a_customer_description(): void
+    {
+        $this->postJson('/owner/customers', [
+            'full_name' => 'Described Customer',
+            'description' => '  Prefers cash payments.  ',
+            'debt_types' => ['money'],
+            'money_amount' => '75.00',
+        ])->assertCreated();
+
+        $customer = Customer::where('full_name', 'Described Customer')->firstOrFail();
+        $this->assertSame('Prefers cash payments.', $customer->description);
+
+        $this->get('/owner/customers')
+            ->assertOk()
+            ->assertSee('owner-customer-detail__note', false)
+            ->assertSee('Prefers cash payments.');
+
+        $this->putJson('/owner/customers/'.$customer->customer_id, [
+            'full_name' => $customer->full_name,
+            'description' => 'Lives near the wet market.',
+            'debt_types' => ['money'],
+            'money_amount' => '75.00',
+        ])->assertOk();
+
+        $customer->refresh();
+        $this->assertSame('Lives near the wet market.', $customer->description);
+
+        $updateLog = ActivityLog::where('action', 'customer.update')
+            ->where('record_id', $customer->customer_id)
+            ->firstOrFail();
+        $this->assertSame('Prefers cash payments.', $updateLog->old_values['description']);
+        $this->assertSame('Lives near the wet market.', $updateLog->new_values['description']);
+
+        $this->putJson('/owner/customers/'.$customer->customer_id, [
+            'full_name' => $customer->full_name,
+            'description' => '   ',
+        ])->assertOk();
+
+        $this->assertNull($customer->fresh()->description);
+    }
+
+    public function test_customer_description_cannot_exceed_five_thousand_characters(): void
+    {
+        $this->postJson('/owner/customers', [
+            'full_name' => 'Too Wordy',
+            'description' => str_repeat('a', 5001),
+            'debt_types' => ['money'],
+            'money_amount' => '10.00',
+        ])->assertStatus(422)->assertJsonValidationErrors('description');
+
+        $this->assertSame(0, Customer::where('full_name', 'Too Wordy')->count());
     }
 
     public function test_paid_in_full_option_settles_all_open_debts(): void

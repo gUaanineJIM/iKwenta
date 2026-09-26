@@ -43,6 +43,7 @@ class OwnerCustomerController extends Controller
             'full_name' => ['required', 'string', 'max:150'],
             'gender' => ['nullable', 'in:male,female'],
             'avatar' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'description' => ['nullable', 'string', 'max:5000'],
             'debt_types' => ['required', 'array', 'min:1'],
             'debt_types.*' => ['in:product,money'],
             'products' => ['nullable', 'array', 'max:50'],
@@ -65,6 +66,7 @@ class OwnerCustomerController extends Controller
                 'avatar_path' => $request->hasFile('avatar')
                     ? $request->file('avatar')->store('customer-avatars', 'public')
                     : null,
+                'description' => $this->normalizeDescription($validated['description'] ?? null),
             ]);
 
             $debt = Debt::create([
@@ -91,6 +93,7 @@ class OwnerCustomerController extends Controller
             $this->log($owner->user_id, 'create', $customer->customer_id, null, [
                 'full_name' => $customer->full_name,
                 'customer_code' => $customer->customer_code,
+                'description' => $customer->description,
                 'debt_id' => $debt->debt_id,
             ]);
 
@@ -109,6 +112,7 @@ class OwnerCustomerController extends Controller
             'full_name' => ['required', 'string', 'max:150'],
             'gender' => ['nullable', 'in:male,female'],
             'avatar' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'description' => ['nullable', 'string', 'max:5000'],
             'debt_types' => ['nullable', 'array', 'min:1'],
             'debt_types.*' => ['in:product,money'],
             'products' => ['nullable', 'array', 'max:50'],
@@ -125,7 +129,7 @@ class OwnerCustomerController extends Controller
         }
 
         $owner = $this->requiredStoreOwner();
-        $oldValues = $customer->only(['full_name']);
+        $oldValues = $customer->only(['full_name', 'description']);
         DB::transaction(function () use ($customer, $validated, $owner, $oldValues, $request) {
             $customer->update([
                 'full_name' => trim($validated['full_name']),
@@ -133,9 +137,14 @@ class OwnerCustomerController extends Controller
                 'avatar_path' => $request->hasFile('avatar')
                     ? $request->file('avatar')->store('customer-avatars', 'public')
                     : $customer->avatar_path,
+                'description' => $this->normalizeDescription(
+                    array_key_exists('description', $validated)
+                        ? $validated['description']
+                        : $customer->description
+                ),
             ]);
 
-            $newValues = $customer->only(['full_name']);
+            $newValues = $customer->only(['full_name', 'description']);
 
             if (! empty($validated['debt_types'])) {
                 $debt = $this->createDebt($customer, $validated, $owner);
@@ -288,6 +297,7 @@ class OwnerCustomerController extends Controller
             'customer_id' => $customer->customer_id,
             'customer_code' => $customer->customer_code,
             'full_name' => $customer->full_name,
+            'description' => $customer->description,
             'total_debt' => $this->sumMoney($customer->debts->map(fn (Debt $debt) => $this->accounts->transactionTotal($debt))->all()),
             'remaining_balance' => $this->sumMoney($customer->debts->map(fn (Debt $debt) => $this->accounts->remainingBalance($debt))->all()),
         ];
@@ -311,6 +321,13 @@ class OwnerCustomerController extends Controller
         } while (Customer::where('customer_code', $code)->exists());
 
         return $code;
+    }
+
+    private function normalizeDescription(?string $value): ?string
+    {
+        $description = trim((string) $value);
+
+        return $description !== '' ? $description : null;
     }
 
     private function sumMoney(array $amounts): string
