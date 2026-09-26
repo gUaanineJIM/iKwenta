@@ -75,6 +75,28 @@
 .owner-debt-history__item-line strong { color: var(--teal); }
 .owner-debt-history__item-meta { color: var(--text-muted); font-size: .75rem; }
 .owner-debt-history__item-notes { margin: .35rem 0 0; padding: .4rem .55rem; border-left: 3px solid var(--accent); border-radius: 4px; background: var(--surface-elevated); color: var(--text-dark); font-size: .8rem; font-style: italic; }
+
+.owner-debt-history--archived { opacity: .92; }
+
+.owner-debt-archive { border: 1px solid var(--border-soft); border-radius: 8px; background: var(--surface); overflow: hidden; }
+
+.owner-debt-archive__toggle { width: 100%; display: flex; align-items: center; gap: .6rem; padding: .8rem 1rem; background: transparent; border: 0; color: var(--text-dark); cursor: pointer; font-size: .85rem; text-align: left; }
+
+.owner-debt-archive__toggle:hover { background: var(--accent-soft); }
+
+.owner-debt-archive__toggle strong { flex: 1; }
+
+.owner-debt-archive__count { display: inline-grid; place-items: center; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-size: 11px; font-weight: 700; }
+
+.owner-debt-archive__chevron { color: var(--text-muted); transition: transform .2s ease; }
+
+.owner-debt-archive__toggle.is-open .owner-debt-archive__chevron { transform: rotate(180deg); }
+
+.owner-debt-archive__panel { display: grid; gap: .7rem; padding: 0 1rem 1rem; }
+
+.owner-debt-archive__panel[hidden] { display: none; }
+
+.owner-debt-archive__note { margin: 0; color: var(--text-muted); font-size: .75rem; }
 .customer-debt-types { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: .85rem; border: 0; padding: 0; margin: 0; }
 .customer-debt-types__legend { display: flex; align-items: center; gap: .5rem; grid-column: 1 / -1; width: 100%; padding: 0; margin-bottom: .1rem; color: var(--indigo); font-size: .8rem; font-weight: 800; text-transform: uppercase; letter-spacing: .07em; }
 .customer-debt-types__legend svg { color: var(--teal); flex: 0 0 auto; }

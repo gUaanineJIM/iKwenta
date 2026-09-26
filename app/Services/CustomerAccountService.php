@@ -53,6 +53,79 @@ class CustomerAccountService
     }
 
     /**
+     * Total value of items across the customer's active (unpaid or partially
+     * paid) credit records only. Archived paid records are excluded.
+     */
+    public function activeTotalCredit(Customer $customer): string
+    {
+        $total = DebtItem::query()
+            ->join('debts', 'debts.debt_id', '=', 'debt_items.debt_id')
+            ->where('debts.customer_id', $customer->customer_id)
+            ->where(fn ($query) => $query->where('debts.status', '!=', DebtStatus::Paid->value)->orWhereNull('debts.status'))
+            ->sum('debt_items.subtotal');
+
+        $total += (float) $customer->debts()
+            ->where(fn ($query) => $query->where('status', '!=', DebtStatus::Paid->value)->orWhereNull('status'))
+            ->sum('money_amount');
+
+        return $this->normalize($total);
+    }
+
+    /**
+     * Total paid against the customer's active credit records only.
+     */
+    public function activeTotalPaid(Customer $customer): string
+    {
+        $total = Payment::query()
+            ->join('debts', 'debts.debt_id', '=', 'payments.debt_id')
+            ->where('payments.customer_id', $customer->customer_id)
+            ->where(fn ($query) => $query->where('debts.status', '!=', DebtStatus::Paid->value)->orWhereNull('debts.status'))
+            ->sum('payments.amount_paid');
+
+        return $this->normalize($total);
+    }
+
+    /**
+     * Total value of items in the customer's archived (fully paid) records
+     * that are still inside the retention window.
+     */
+    public function archivedTotalCredit(Customer $customer): string
+    {
+        $cutoff = now()->subDays(Debt::ARCHIVE_RETENTION_DAYS);
+
+        $total = DebtItem::query()
+            ->join('debts', 'debts.debt_id', '=', 'debt_items.debt_id')
+            ->where('debts.customer_id', $customer->customer_id)
+            ->where('debts.status', DebtStatus::Paid->value)
+            ->where(fn ($query) => $query->whereNull('debts.paid_at')->orWhere('debts.paid_at', '>=', $cutoff))
+            ->sum('debt_items.subtotal');
+
+        $total += (float) $customer->debts()
+            ->where('status', DebtStatus::Paid->value)
+            ->where(fn ($query) => $query->whereNull('paid_at')->orWhere('paid_at', '>=', $cutoff))
+            ->sum('money_amount');
+
+        return $this->normalize($total);
+    }
+
+    /**
+     * Total settled against the customer's archived (fully paid) records.
+     */
+    public function archivedTotalPaid(Customer $customer): string
+    {
+        $cutoff = now()->subDays(Debt::ARCHIVE_RETENTION_DAYS);
+
+        $total = Payment::query()
+            ->join('debts', 'debts.debt_id', '=', 'payments.debt_id')
+            ->where('payments.customer_id', $customer->customer_id)
+            ->where('debts.status', DebtStatus::Paid->value)
+            ->where(fn ($query) => $query->whereNull('debts.paid_at')->orWhere('debts.paid_at', '>=', $cutoff))
+            ->sum('payments.amount_paid');
+
+        return $this->normalize($total);
+    }
+
+    /**
      * Outstanding account balance: the sum of every credit record's remaining
      * balance (fully paid records contribute zero even when settled manually).
      */
@@ -203,6 +276,7 @@ class CustomerAccountService
         $debt->paid_manually = true;
         $debt->paid_manually_by = $userId;
         $debt->paid_manually_at = now();
+        $debt->paid_at ??= now();
         $debt->save();
 
         ActivityLog::create([
@@ -216,6 +290,7 @@ class CustomerAccountService
                 'paid_manually' => true,
                 'paid_manually_by' => $userId,
                 'paid_manually_at' => $debt->paid_manually_at->toDateTimeString(),
+                'paid_at' => $debt->paid_at->toDateTimeString(),
                 'payment_id' => $paymentId,
             ],
             'created_at' => now(),
@@ -242,6 +317,11 @@ class CustomerAccountService
 
         if ($this->statusOf($debt) !== $status) {
             $debt->status = $status;
+
+            if ($status->isFullyPaid() && ! $debt->paid_at) {
+                $debt->paid_at = now();
+            }
+
             $debt->save();
         }
 

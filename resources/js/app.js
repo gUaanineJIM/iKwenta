@@ -431,17 +431,6 @@
                 if (label) label.textContent = isOpen ? 'View Details' : 'Hide Details';
                 return;
             }
-
-            const collapseToggle = event.target.closest('[data-collapse-toggle]');
-            if (collapseToggle) {
-                const panelId = collapseToggle.getAttribute('aria-controls');
-                const panel = panelId ? document.getElementById(panelId) : null;
-                const isOpen = collapseToggle.getAttribute('aria-expanded') === 'true';
-
-                collapseToggle.setAttribute('aria-expanded', String(!isOpen));
-                collapseToggle.classList.toggle('is-open', !isOpen);
-                if (panel) panel.hidden = isOpen;
-            }
         });
 
         document.querySelectorAll('[data-sidebar-toggle]').forEach((btn) => {
@@ -576,4 +565,21 @@
             if (event.key === 'Escape') closeOwnerSidebar();
         });
     }
+
+    // =========================
+    // COLLAPSE TOGGLES (global)
+    // =========================
+
+    document.addEventListener('click', (event) => {
+        const collapseToggle = event.target.closest('[data-collapse-toggle]');
+        if (!collapseToggle) return;
+
+        const panelId = collapseToggle.getAttribute('aria-controls');
+        const panel = panelId ? document.getElementById(panelId) : null;
+        const isOpen = collapseToggle.getAttribute('aria-expanded') === 'true';
+
+        collapseToggle.setAttribute('aria-expanded', String(!isOpen));
+        collapseToggle.classList.toggle('is-open', !isOpen);
+        if (panel) panel.hidden = isOpen;
+    });
 })();

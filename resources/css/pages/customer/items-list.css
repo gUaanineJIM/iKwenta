@@ -57,6 +57,19 @@
     font-size: clamp(18px, 2.4vw, 22px);
 }
 
+.items-summary__row--settled .items-summary__amount {
+    color: var(--success, #15803d);
+}
+
+.items-summary--archive {
+    width: 100%;
+    margin: 16px 0 0;
+    padding: 14px 18px;
+    border-color: var(--border-soft);
+    border-radius: var(--radius-md);
+    box-shadow: none;
+}
+
 /* =========================
    Items table modifiers
 ========================= */
@@ -71,6 +84,21 @@
     display: flex;
     flex-direction: column;
     gap: 2px;
+}
+
+.cell-empty {
+    padding: 22px 16px;
+    color: var(--text-muted);
+    font-size: 13px;
+    text-align: center;
+}
+
+/* =========================
+   Archived items toggle
+========================= */
+
+.items-table + .debt-archive {
+    margin-top: 20px;
 }
 
 /* =========================

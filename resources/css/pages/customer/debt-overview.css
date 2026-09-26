@@ -178,6 +178,90 @@
 }
 
 /* =========================
+   Completed timestamp
+========================= */
+
+.debt-card__completed {
+    display: block;
+    margin-top: 8px;
+    color: var(--teal);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* =========================
+   Debt archive (Past Debts)
+========================= */
+
+.debt-archive {
+    margin-top: 26px;
+}
+
+.debt-archive__toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    background: var(--surface-elevated);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    text-align: left;
+}
+
+.debt-archive__toggle:hover {
+    border-color: var(--teal);
+    background: var(--accent-soft);
+}
+
+.debt-archive__toggle h3 {
+    margin: 0;
+    flex: 1;
+}
+
+.debt-archive__toggle .debt-group {
+    margin: 0;
+}
+
+.debt-group--archive .debt-group__count {
+    display: inline-grid;
+    place-items: center;
+    min-width: 22px;
+    height: 22px;
+    margin-left: 8px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: 11px;
+}
+
+.debt-archive__chevron {
+    flex-shrink: 0;
+    color: var(--text-muted);
+    transition: transform 0.2s ease;
+}
+
+.debt-archive__toggle.is-open .debt-archive__chevron {
+    transform: rotate(180deg);
+}
+
+.debt-archive__panel {
+    margin-top: 12px;
+}
+
+.debt-archive__panel[hidden] {
+    display: none;
+}
+
+.debt-archive__note {
+    margin: 14px 2px 4px;
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+/* =========================
    Detail sections
 ========================= */
 

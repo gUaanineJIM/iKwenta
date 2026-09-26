@@ -83,7 +83,13 @@
                                     </div>
                                 @endif
                                 <div class="owner-customer-details__content">
-                                    @forelse ($customer->debts as $debt)
+                                    @php
+                                        $detailActive = $customer->debts->filter(fn ($debt) => ! ($debt->status?->isFullyPaid() ?? false));
+                                        $detailArchived = $customer->debts->filter(fn ($debt) => $debt->status?->isFullyPaid() ?? false);
+                                    @endphp
+
+                                    {{-- Active credit records --}}
+                                    @forelse ($detailActive as $debt)
                                         <article class="owner-debt-history">
                                             <header class="owner-debt-history__header"><strong>Loaned {{ $debt->loaned_at?->format('M d, Y h:i A') }}</strong><span>Remaining: ₱{{ number_format((float) $debt->remaining_total, 2) }}</span></header>
                                             <div class="owner-debt-history__columns">
@@ -91,7 +97,7 @@
                                                     <h3>Owed</h3>
                                                     @foreach ($debt->items as $item)
                                                         <div class="owner-debt-history__item">
-                                                            <p class="owner-debt-history__item-line">{{ $item->product_name ?? $item->product?->product_name ?? 'Unknown Product' }} × {{ $item->quantity }}: <strong>₱{{ number_format((float) $item->subtotal, 2) }}</strong></p>
+                                                            <p class="owner-debt-history__item-line">{{ $item->product_name ?? $item->product?->product_name ?? 'Unknown Product' }} × {{ $item->quantity }} @ ₱{{ number_format((float) $item->unit_price, 2) }}: <strong>₱{{ number_format((float) $item->subtotal, 2) }}</strong></p>
                                                             <p class="owner-debt-history__item-meta">Loaned {{ $debt->loaned_at?->format('M d, Y h:i A') }}</p>
                                                             @if ($item->notes)
                                                                 <p class="owner-debt-history__item-notes">Note: {{ $item->notes }}</p>
@@ -113,8 +119,66 @@
                                             </div>
                                         </article>
                                     @empty
-                                        <p>No debt records for this customer.</p>
+                                        @if ($detailArchived->isEmpty())
+                                            <p>No debt records for this customer.</p>
+                                        @endif
                                     @endforelse
+
+                                    {{-- Archived (paid) credit records --}}
+                                    @if ($detailArchived->isNotEmpty())
+                                        <div class="owner-debt-archive">
+                                            <button type="button" class="owner-debt-archive__toggle" data-collapse-toggle
+                                                aria-expanded="false" aria-controls="owner-archive-{{ $customer->customer_id }}">
+                                                <strong> Past Debts — Archive </strong>
+
+                                                <span class="owner-debt-archive__count">{{ $detailArchived->count() }}</span>
+
+                                                <svg class="owner-debt-archive__chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                    <path d="M6 9l6 6 6-6" />
+                                                </svg>
+                                            </button>
+
+                                            <div id="owner-archive-{{ $customer->customer_id }}" class="owner-debt-archive__panel" hidden>
+                                                @foreach ($detailArchived as $debt)
+                                                    <article class="owner-debt-history owner-debt-history--archived">
+                                                        <header class="owner-debt-history__header">
+                                                            <strong>Loaned {{ $debt->loaned_at?->format('M d, Y h:i A') }}</strong>
+                                                            <span>Completed {{ $debt->paid_at?->format('M d, Y h:i A') ?? ($debt->paid_manually_at?->format('M d, Y h:i A') ?? '') }}</span>
+                                                        </header>
+                                                        <div class="owner-debt-history__columns">
+                                                            <div>
+                                                                <h3>Owed</h3>
+                                                                @foreach ($debt->items as $item)
+                                                                    <div class="owner-debt-history__item">
+                                                                        <p class="owner-debt-history__item-line">{{ $item->product_name ?? $item->product?->product_name ?? 'Unknown Product' }} × {{ $item->quantity }} @ ₱{{ number_format((float) $item->unit_price, 2) }}: <strong>₱{{ number_format((float) $item->subtotal, 2) }}</strong></p>
+                                                                        @if ($item->notes)
+                                                                            <p class="owner-debt-history__item-notes">Note: {{ $item->notes }}</p>
+                                                                        @endif
+                                                                    </div>
+                                                                @endforeach
+                                                                @if ((float) $debt->money_amount > 0)
+                                                                    <p>Money owed: ₱{{ number_format((float) $debt->money_amount, 2) }}</p>
+                                                                @endif
+                                                                <p>Total: <strong>₱{{ number_format((float) $debt->items_total, 2) }}</strong></p>
+                                                            </div>
+                                                            <div>
+                                                                <h3>Payment history</h3>
+                                                                @forelse ($debt->payments->sortByDesc('payment_date') as $payment)
+                                                                    <p>₱{{ number_format((float) $payment->amount_paid, 2) }} on {{ $payment->payment_date?->format('M d, Y h:i A') }}</p>
+                                                                @empty
+                                                                    <p>No payments recorded.</p>
+                                                                @endforelse
+                                                            </div>
+                                                        </div>
+                                                    </article>
+                                                @endforeach
+
+                                                <p class="owner-debt-archive__note">
+                                                    Archived for {{ \App\Models\Debt::ARCHIVE_RETENTION_DAYS }} days after full payment, then removed automatically.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                         </template>

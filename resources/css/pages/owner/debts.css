@@ -315,6 +315,44 @@
 }
 
 /* =========================
+   Archive section
+========================= */
+
+.owner-collapse-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    padding: 9px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-md);
+    color: var(--text-dark);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.owner-collapse-toggle:hover {
+    border-color: var(--teal);
+    background: var(--accent-soft);
+}
+
+.owner-collapse-toggle__chevron {
+    color: var(--text-muted);
+    transition: transform 0.2s ease;
+}
+
+.owner-collapse-toggle.is-open .owner-collapse-toggle__chevron {
+    transform: rotate(180deg);
+}
+
+.owner-debt-archive__panel[hidden] {
+    display: none;
+}
+
+/* =========================
    Responsive
 ========================= */
 
