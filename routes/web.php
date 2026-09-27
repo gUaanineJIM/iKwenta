@@ -7,6 +7,7 @@ use App\Http\Controllers\OwnerAuthController;
 use App\Http\Controllers\OwnerCustomerController;
 use App\Http\Controllers\OwnerDashboardController;
 use App\Http\Controllers\OwnerDebtController;
+use App\Http\Controllers\OwnerPaymentController;
 use App\Http\Controllers\OwnerProductController;
 use Illuminate\Support\Facades\Route;
 
@@ -109,4 +110,8 @@ Route::middleware('owner')->group(function () {
 
     Route::get('/owner/activity-logs', [OwnerActivityLogController::class, 'index'])->name('owner.activity-logs');
     Route::get('/owner/activity-logs/list', [OwnerActivityLogController::class, 'list'])->name('owner.activity-logs.list');
+
+    // Payments
+    Route::get('/owner/payments', [OwnerPaymentController::class, 'index'])->name('owner.payments');
+    Route::get('/owner/payments/list', [OwnerPaymentController::class, 'list'])->name('owner.payments.list');
 });
