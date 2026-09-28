@@ -17,7 +17,7 @@ Route::get('/', function () {
 
 Route::get('/customer/login', function () {
     return redirect()->route('landing', '#login');
-})->name('customer.login');
+})->name('customer.login.form');
 
 Route::get('/owner/login', function () {
     return redirect()->route('landing', '#login');
@@ -28,14 +28,18 @@ Route::get('/owner/login', function () {
 Route::post('/owner/login', [
     OwnerAuthController::class,
     'login',
-])->name('owner.login.submit');
+])
+    ->middleware('throttle:owner-login')
+    ->name('owner.login.submit');
 
 // Customer Authentication
 
 Route::post('/customer/login', [
     CustomerAuthController::class,
     'login',
-])->name('customer.login');
+])
+    ->middleware('throttle:customer-login')
+    ->name('customer.login');
 
 // Customer Dashboard
 

@@ -10,6 +10,7 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
@@ -229,6 +230,79 @@ class OwnerCustomerControllerTest extends TestCase
         $customer = Customer::where('full_name', 'Profile Customer')->firstOrFail();
         $this->assertSame('female', $customer->gender);
         $this->assertNotNull($customer->avatar_path);
+    }
+
+    public function test_replacing_an_avatar_deletes_the_previous_file(): void
+    {
+        Storage::fake('public');
+
+        $this->postJson('/owner/customers', [
+            'full_name' => 'Avatar Swap Customer',
+            'debt_types' => ['money'],
+            'money_amount' => '10.00',
+            'avatar' => UploadedFile::fake()->image('first.png'),
+        ])->assertCreated();
+
+        $customer = Customer::where('full_name', 'Avatar Swap Customer')->firstOrFail();
+        $firstAvatar = $customer->avatar_path;
+
+        Storage::disk('public')->assertExists($firstAvatar);
+
+        $this->putJson('/owner/customers/'.$customer->customer_id, [
+            'full_name' => $customer->full_name,
+            'avatar' => UploadedFile::fake()->image('second.png'),
+        ])->assertOk();
+
+        $secondAvatar = $customer->fresh()->avatar_path;
+
+        $this->assertNotSame($firstAvatar, $secondAvatar);
+        Storage::disk('public')->assertExists($secondAvatar);
+        Storage::disk('public')->assertMissing($firstAvatar);
+    }
+
+    public function test_updating_a_customer_without_a_new_avatar_keeps_the_existing_file(): void
+    {
+        Storage::fake('public');
+
+        $this->postJson('/owner/customers', [
+            'full_name' => 'Avatar Keeper Customer',
+            'debt_types' => ['money'],
+            'money_amount' => '10.00',
+            'avatar' => UploadedFile::fake()->image('kept.png'),
+        ])->assertCreated();
+
+        $customer = Customer::where('full_name', 'Avatar Keeper Customer')->firstOrFail();
+        $avatar = $customer->avatar_path;
+
+        $this->putJson('/owner/customers/'.$customer->customer_id, [
+            'full_name' => 'Renamed Keeper',
+        ])->assertOk();
+
+        $this->assertSame($avatar, $customer->fresh()->avatar_path);
+        Storage::disk('public')->assertExists($avatar);
+    }
+
+    public function test_deleting_a_customer_deletes_their_avatar(): void
+    {
+        Storage::fake('public');
+
+        // A portal-created customer always has at least one debt, and
+        // deletion refuses customers with debt history, so the branch is only
+        // reachable for a customer recorded without one.
+        $avatar = UploadedFile::fake()->image('doomed.png')->store('customer-avatars', 'public');
+
+        $customer = Customer::create([
+            'customer_code' => '31415',
+            'full_name' => 'Deleted Avatar Customer',
+            'gender' => 'female',
+            'avatar_path' => $avatar,
+        ]);
+
+        Storage::disk('public')->assertExists($avatar);
+
+        $this->deleteJson('/owner/customers/'.$customer->customer_id)->assertOk();
+
+        Storage::disk('public')->assertMissing($avatar);
     }
 
     public function test_owner_can_save_and_update_a_customer_description(): void

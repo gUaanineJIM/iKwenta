@@ -14,6 +14,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
@@ -130,7 +131,8 @@ class OwnerCustomerController extends Controller
 
         $owner = $this->requiredStoreOwner();
         $oldValues = $customer->only(['full_name', 'description']);
-        DB::transaction(function () use ($customer, $validated, $owner, $oldValues, $request) {
+        $previousAvatar = $customer->avatar_path;
+        DB::transaction(function () use ($customer, $validated, $owner, $oldValues, $previousAvatar, $request) {
             $customer->update([
                 'full_name' => trim($validated['full_name']),
                 'gender' => $validated['gender'] ?? $customer->gender,
@@ -143,6 +145,8 @@ class OwnerCustomerController extends Controller
                         : $customer->description
                 ),
             ]);
+
+            $this->discardReplacedAvatar($previousAvatar, $customer->avatar_path);
 
             $newValues = $customer->only(['full_name', 'description']);
 
@@ -191,7 +195,10 @@ class OwnerCustomerController extends Controller
 
         $owner = $this->requiredStoreOwner();
         $this->log($owner->user_id, 'delete', $customer->customer_id, $customer->only(['full_name', 'customer_code']), null);
+        $avatarPath = $customer->avatar_path;
         $customer->delete();
+
+        $this->discardReplacedAvatar($avatarPath, null);
 
         return response()->json(['message' => 'Customer deleted.']);
     }
@@ -337,6 +344,22 @@ class OwnerCustomerController extends Controller
         $description = trim((string) $value);
 
         return $description !== '' ? $description : null;
+    }
+
+    /**
+     * Delete a previously stored avatar once it is no longer referenced.
+     *
+     * Avatars are stored on the `public` disk (the default `FILESYSTEM_DISK`
+     * is `local`, so the disk is named explicitly). Passing a null `current`
+     * path removes the file outright, which is what customer deletion needs.
+     */
+    private function discardReplacedAvatar(?string $previousPath, ?string $currentPath): void
+    {
+        if ($previousPath === null || $previousPath === $currentPath) {
+            return;
+        }
+
+        Storage::disk('public')->delete($previousPath);
     }
 
     private function sumMoney(array $amounts): string

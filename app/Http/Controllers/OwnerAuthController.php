@@ -6,6 +6,7 @@ use App\Models\ActivityLog;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
 class OwnerAuthController extends Controller
 {
@@ -21,6 +22,15 @@ class OwnerAuthController extends Controller
             ->first();
 
         if (! $owner || ! Hash::check($credentials['password'], $owner->password)) {
+            // A failed attempt has no authenticated owner, and
+            // `activity_logs.user_id` is a non-nullable foreign key, so this
+            // goes to the application log rather than the owner-facing
+            // activity log.
+            Log::warning('owner.login.failed', [
+                'username' => $credentials['username'],
+                'ip' => $request->ip(),
+            ]);
+
             return back()
                 ->withErrors(['username' => 'Invalid owner username or password.'])
                 ->withInput($request->only('username'));
