@@ -53,8 +53,10 @@
    Activity table
 ========================= */
 
-.owner-activity-table {
-    min-width: 760px;
+@media (min-width: 768px) {
+    .owner-activity-table {
+        min-width: 760px;
+    }
 }
 
 .owner-activity-table th:first-child,

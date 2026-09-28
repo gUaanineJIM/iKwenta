@@ -244,23 +244,25 @@
    Payments table
  ========================= */
 
-.owner-payments-table {
-    min-width: 720px;
-}
+@media (min-width: 768px) {
+    .owner-payments-table {
+        min-width: 720px;
+    }
 
-.owner-payments-table th:nth-child(1),
-.owner-payments-table td:nth-child(1) {
-    width: 165px;
-}
+    .owner-payments-table th:nth-child(1),
+    .owner-payments-table td:nth-child(1) {
+        width: 165px;
+    }
 
-.owner-payments-table th:nth-child(3),
-.owner-payments-table td:nth-child(3) {
-    width: 130px;
-}
+    .owner-payments-table th:nth-child(3),
+    .owner-payments-table td:nth-child(3) {
+        width: 130px;
+    }
 
-.owner-payments-table th:nth-child(4),
-.owner-payments-table td:nth-child(4) {
-    width: 175px;
+    .owner-payments-table th:nth-child(4),
+    .owner-payments-table td:nth-child(4) {
+        width: 175px;
+    }
 }
 
 .owner-payments-time {
