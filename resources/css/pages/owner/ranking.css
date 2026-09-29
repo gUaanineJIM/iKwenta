@@ -164,6 +164,12 @@
    Paid progress bar
 ========================= */
 
+.owner-paid-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
 .owner-progress {
     width: 110px;
     height: 5px;
@@ -272,6 +278,10 @@
         align-items: flex-end;
         text-align: right;
         min-width: 0;
+    }
+
+    .owner-paid-cell {
+        align-items: flex-end;
     }
 
     .owner-progress {

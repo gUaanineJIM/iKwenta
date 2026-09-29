@@ -6,6 +6,14 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js" defer></script>
 @endpush
 
+@php
+    $weeklyPayload = [
+        'labels' => $weeklyTrend['labels'],
+        'added' => $weeklyTrend['added'],
+        'collected' => $weeklyTrend['collected'],
+    ];
+@endphp
+
 @section('content')
     <section class="owner-section" id="owner-section" data-owner-section aria-busy="false">
         {{-- =================== Top statistic cards =================== --}}
@@ -24,13 +32,13 @@
                     <div class="owner-stat-card__meta">
                         <span class="owner-stat-card__label"> Debts Added This Week </span>
 
-                        <strong class="owner-stat-card__value"> ₱53,590 </strong>
+                        <strong class="owner-stat-card__value"> ₱{{ number_format($weeklyTrend['total'], 2) }} </strong>
                     </div>
                 </div>
 
                 <div class="owner-chart">
                     <canvas id="owner-weekly-debts-chart" role="img"
-                        aria-label="Total debt added per day this week, bar chart"></canvas>
+                        aria-label="Debt added and collections received per day this week, grouped bar chart"></canvas>
                 </div>
             </article>
 
@@ -55,7 +63,33 @@
                 </div>
             </article>
 
-            {{-- Card 3: pending debt items --}}
+            {{-- Card 3: collected this month --}}
+            <article class="owner-stat-card owner-stat-card--collected">
+                <span class="owner-stat-card__icon" aria-hidden="true">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="6" width="20" height="12" rx="2" />
+                        <circle cx="12" cy="12" r="2.5" />
+                        <path d="M6 12h.01M18 12h.01" />
+                    </svg>
+                </span>
+
+                <div class="owner-stat-card__meta">
+                    <span class="owner-stat-card__label"> Collected This Month </span>
+
+                    <strong class="owner-stat-card__value"> ₱{{ number_format($collectedThisMonth['total'], 2) }} </strong>
+
+                    <span class="owner-stat-card__hint"> from {{ $collectedThisMonth['count'] }} payment{{ $collectedThisMonth['count'] === 1 ? '' : 's' }} received </span>
+                </div>
+            </article>
+
+            {{--
+                Pending Debt Items — parked until the intended metric is settled.
+                Two readings fit the label: open debt records, or the sum of line
+                items across those records. The card used to show a hard-coded "46",
+                which was removed rather than replaced with a guess.
+            --}}
+            {{--
             <article class="owner-stat-card owner-stat-card--debts">
                 <span class="owner-stat-card__icon" aria-hidden="true">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -69,11 +103,10 @@
                 <div class="owner-stat-card__meta">
                     <span class="owner-stat-card__label"> Pending Debt Items </span>
 
-                    <strong class="owner-stat-card__value"> 46 </strong>
-
                     <span class="owner-stat-card__hint"> open debt transactions </span>
                 </div>
             </article>
+            --}}
         </div>
 
         {{-- =================== Total debt ranking =================== --}}
@@ -129,7 +162,14 @@
                                 </td>
 
                                 <td data-label="Paid" class="owner-amount owner-amount--paid">
-                                    ₱{{ number_format($entry['paid'], 2) }}
+                                    <span class="owner-paid-cell">
+                                        <span>₱{{ number_format($entry['paid'], 2) }}</span>
+                                        <span class="owner-progress" role="img"
+                                            aria-label="{{ (int) $entry['paid_progress'] }} percent of recorded debt repaid">
+                                            <span class="owner-progress__bar"
+                                                style="width: {{ max(0, min(100, (int) $entry['paid_progress'])) }}%"></span>
+                                        </span>
+                                    </span>
                                 </td>
 
                                 <td data-label="Unpaid" class="owner-amount owner-amount--unpaid">
@@ -216,19 +256,29 @@
             const formatPeso = (value) =>
                 '₱' + Number(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
+            const weeklyData = @json($weeklyPayload);
+
             const buildChart = () => {
                 const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
 
                 return new Chart(canvas, {
                     type: 'bar',
                     data: {
-                        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                        labels: weeklyData.labels,
                         datasets: [
                             {
                                 label: 'Debt added',
-                                data: [4250, 6870, 5400, 8120, 9350, 12900, 6100],
+                                data: weeklyData.added,
                                 backgroundColor: cssVar('--teal'),
                                 hoverBackgroundColor: cssVar('--indigo'),
+                                borderRadius: 6,
+                                maxBarThickness: 28,
+                            },
+                            {
+                                label: 'Collections',
+                                data: weeklyData.collected,
+                                backgroundColor: cssVar('--indigo'),
+                                hoverBackgroundColor: cssVar('--teal'),
                                 borderRadius: 6,
                                 maxBarThickness: 28,
                             },
@@ -239,10 +289,10 @@
                         maintainAspectRatio: false,
                         interaction: { mode: 'index', intersect: false },
                         plugins: {
-                            legend: { display: false },
+                            legend: { position: 'bottom', labels: { color: cssVar('--text-muted'), boxHeight: 3, boxWidth: 18, font: { size: 12 } } },
                             tooltip: {
                                 callbacks: {
-                                    label: (item) => 'Debt: ' + formatPeso(item.parsed.y),
+                                    label: (item) => item.dataset.label + ': ' + formatPeso(item.parsed.y),
                                 },
                             },
                         },

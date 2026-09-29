@@ -97,7 +97,7 @@
 .owner-chart {
     position: relative;
     width: 100%;
-    height: 230px;
+    height: 260px;
 }
 
 /* =========================
@@ -116,7 +116,7 @@
 }
 
 .owner-stat-card--customers .owner-stat-card__icon,
-.owner-stat-card--debts .owner-stat-card__icon {
+.owner-stat-card--collected .owner-stat-card__icon {
     width: 68px;
     height: 68px;
     flex: 0 0 68px;
@@ -124,24 +124,24 @@
 }
 
 .owner-stat-card--customers .owner-stat-card__icon svg,
-.owner-stat-card--debts .owner-stat-card__icon svg {
+.owner-stat-card--collected .owner-stat-card__icon svg {
     width: 28px;
     height: 28px;
 }
 
 .owner-stat-card--customers .owner-stat-card__label,
-.owner-stat-card--debts .owner-stat-card__label {
+.owner-stat-card--collected .owner-stat-card__label {
     font-size: 14px;
 }
 
 .owner-stat-card--customers .owner-stat-card__value,
-.owner-stat-card--debts .owner-stat-card__value {
+.owner-stat-card--collected .owner-stat-card__value {
     font-size: clamp(42px, 4.6vw, 56px);
     line-height: 1.02;
 }
 
 .owner-stat-card--customers .owner-stat-card__hint,
-.owner-stat-card--debts .owner-stat-card__hint {
+.owner-stat-card--collected .owner-stat-card__hint {
     font-size: 13px;
 }
 
@@ -155,10 +155,10 @@
 }
 
 /* =========================
-   Card 3 — pending items
+   Card 3 — collected this month
 ========================= */
 
-.owner-stat-card--debts {
+.owner-stat-card--collected {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -169,12 +169,12 @@
     border-color: rgba(124, 213, 199, 0.60);
 }
 
-.owner-stat-card--debts .owner-stat-card__icon {
+.owner-stat-card--collected .owner-stat-card__icon {
     background: var(--mint);
     color: var(--on-mint);
 }
 
-.owner-stat-card--debts .owner-stat-card__value {
+.owner-stat-card--collected .owner-stat-card__value {
     color: var(--indigo);
 }
 
@@ -220,7 +220,7 @@
     }
 
     .owner-stat-card--customers .owner-stat-card__icon,
-    .owner-stat-card--debts .owner-stat-card__icon {
+    .owner-stat-card--collected .owner-stat-card__icon {
         width: 60px;
         height: 60px;
         flex: 0 0 60px;
@@ -228,13 +228,13 @@
     }
 
     .owner-stat-card--customers .owner-stat-card__icon svg,
-    .owner-stat-card--debts .owner-stat-card__icon svg {
+    .owner-stat-card--collected .owner-stat-card__icon svg {
         width: 26px;
         height: 26px;
     }
 
     .owner-stat-card--customers .owner-stat-card__value,
-    .owner-stat-card--debts .owner-stat-card__value {
+    .owner-stat-card--collected .owner-stat-card__value {
         font-size: clamp(38px, 12vw, 50px);
     }
 }
