@@ -133,7 +133,9 @@ class CustomerAccountService
     {
         $total = 0.0;
 
-        foreach ($customer->debts()->get() as $debt) {
+        $debts = $customer->relationLoaded('debts') ? $customer->debts : $customer->debts()->get();
+
+        foreach ($debts as $debt) {
             $total += (float) $this->remainingBalance($debt);
         }
 
@@ -150,9 +152,17 @@ class CustomerAccountService
 
     /**
      * Total amount of payments attributed to a single credit record.
+     *
+     * Reads the already eager-loaded relation when the caller has loaded it,
+     * so the dashboards that fetch `debts.payments` up front do not fall back
+     * to one query per record.
      */
     public function paymentsTotal(Debt $debt): string
     {
+        if ($debt->relationLoaded('payments')) {
+            return $this->normalize($debt->payments->sum('amount_paid'));
+        }
+
         return $this->normalize($debt->payments()->sum('amount_paid'));
     }
 

@@ -14,8 +14,14 @@ class Debt extends Model
     use HasUuids;
 
     /**
-     * Archived (paid) debts stay visible for this many days after the exact
-     * date/time they were fully paid, then they are pruned automatically.
+     * Settled (paid) debts stay visible for this many days after the exact
+     * date/time they were fully paid.
+     *
+     * Retention is a display rule only. Settled records are never deleted:
+     * `totalCredit()` and `totalPaid()` are lifetime figures derived from the
+     * rows that still exist, so purging them would silently rewrite a
+     * customer's financial history. Anything older than this window stays in
+     * the database and simply drops out of the active lists.
      */
     public const ARCHIVE_RETENTION_DAYS = 15;
 

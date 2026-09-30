@@ -347,4 +347,116 @@ class CustomerAccountServiceTest extends TestCase
         $this->assertSame('0.00', $this->service->totalPaid($customer));
         $this->assertSame('0.00', $this->service->outstandingBalance($customer));
     }
+
+    public function test_settled_history_survives_past_the_archive_retention_window(): void
+    {
+        $customer = $this->customer();
+        $debt = $this->debt($customer);
+        $this->item($debt, '100.00');
+        $this->service->recordPayment($debt, '100.00', $this->userId);
+
+        $this->assertSame('paid', $debt->refresh()->status->value);
+
+        // Long past the retention window. Retention is a display rule only:
+        // settled records must remain in the database and must keep counting
+        // toward the customer's lifetime totals.
+        $this->travelTo(now()->addDays((Debt::ARCHIVE_RETENTION_DAYS * 10) + 1));
+
+        $this->assertDatabaseHas('debts', ['debt_id' => $debt->debt_id]);
+        $this->assertDatabaseHas('payments', ['debt_id' => $debt->debt_id]);
+        $this->assertDatabaseHas('debt_items', ['debt_id' => $debt->debt_id]);
+
+        $this->assertSame('100.00', $this->service->totalCredit($customer));
+        $this->assertSame('100.00', $this->service->totalPaid($customer));
+        $this->assertSame('0.00', $this->service->outstandingBalance($customer));
+    }
+
+    public function test_settled_history_is_retained_alongside_later_open_records(): void
+    {
+        $customer = $this->customer();
+
+        $settled = $this->debt($customer);
+        $this->item($settled, '100.00');
+        $this->service->recordPayment($settled, '100.00', $this->userId);
+
+        $this->travelTo(now()->addDays((Debt::ARCHIVE_RETENTION_DAYS * 10) + 1));
+
+        $open = $this->debt($customer);
+        $this->item($open, '50.00');
+
+        // The aged-out settlement must still be part of the lifetime picture,
+        // and must not be mistaken for an outstanding balance.
+        $this->assertSame('150.00', $this->service->totalCredit($customer));
+        $this->assertSame('100.00', $this->service->totalPaid($customer));
+        $this->assertSame('50.00', $this->service->outstandingBalance($customer));
+    }
+
+    public function test_payments_total_reuses_an_eager_loaded_relation(): void
+    {
+        $customer = $this->customer();
+
+        $first = $this->debt($customer);
+        $this->item($first, '100.00');
+        $this->service->recordPayment($first, '30.00', $this->userId);
+
+        $second = $this->debt($customer);
+        $this->item($second, '80.00');
+        $this->service->recordPayment($second, '80.00', $this->userId);
+
+        $loaded = Customer::with(['debts.payments'])->findOrFail($customer->customer_id);
+
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+
+        $totals = $loaded->debts
+            ->map(fn (Debt $debt): string => $this->service->paymentsTotal($debt))
+            ->all();
+
+        $queryCount = count(DB::getQueryLog());
+        DB::disableQueryLog();
+
+        $this->assertSame(['30.00', '80.00'], $totals);
+
+        // The whole point of eager loading: totals for every record of a
+        // customer must come from the loaded relation, not one query each.
+        $this->assertSame(0, $queryCount, 'paymentsTotal() re-queried an already eager-loaded relation.');
+    }
+
+    public function test_outstanding_balance_reuses_an_eager_loaded_relation(): void
+    {
+        $customer = $this->customer();
+
+        $first = $this->debt($customer);
+        $this->item($first, '100.00');
+        $this->service->recordPayment($first, '40.00', $this->userId);
+
+        $second = $this->debt($customer);
+        $this->item($second, '50.00');
+
+        $loaded = Customer::with(['debts.items', 'debts.payments'])->findOrFail($customer->customer_id);
+
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+
+        $balance = $this->service->outstandingBalance($loaded);
+
+        $queryCount = count(DB::getQueryLog());
+        DB::disableQueryLog();
+
+        $this->assertSame('110.00', $balance);
+        $this->assertSame(0, $queryCount, 'outstandingBalance() re-queried an already eager-loaded relation.');
+    }
+
+    public function test_payments_total_is_correct_when_the_relation_is_not_loaded(): void
+    {
+        $customer = $this->customer();
+        $debt = $this->debt($customer);
+        $this->item($debt, '100.00');
+        $this->service->recordPayment($debt, '30.00', $this->userId);
+
+        $fresh = Debt::findOrFail($debt->debt_id);
+
+        $this->assertFalse($fresh->relationLoaded('payments'));
+        $this->assertSame('30.00', $this->service->paymentsTotal($fresh));
+    }
 }

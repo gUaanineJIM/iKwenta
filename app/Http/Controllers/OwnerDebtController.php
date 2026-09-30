@@ -22,7 +22,7 @@ class OwnerDebtController extends Controller
     public function index(): View
     {
         $debts = Debt::query()
-            ->with(['customer', 'items'])
+            ->with(['customer', 'items', 'payments'])
             ->latest('loaned_at')
             ->get();
 
