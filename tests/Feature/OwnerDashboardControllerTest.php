@@ -104,7 +104,7 @@ class OwnerDashboardControllerTest extends TestCase
             ->get('/owner/dashboard')
             ->assertOk()
             ->assertSee('No recent payoffs yet')
-            ->assertSee('No customers have paid off their full balance in the last 15 days.');
+            ->assertSee('No customers have paid off their full balance in the last 30 days.');
     }
 
     public function test_dashboard_lists_recent_debt_free_customers_in_settlement_order(): void
@@ -114,14 +114,14 @@ class OwnerDashboardControllerTest extends TestCase
         $this->paidDebt($latest, '100.00', now()->subDay());
 
         $atRetentionBoundary = $this->customer('Boundary Customer', '30006');
-        $this->paidDebt($atRetentionBoundary, '200.00', now()->subDays(15));
+        $this->paidDebt($atRetentionBoundary, '200.00', now()->subDays(30));
 
         $stillOwes = $this->customer('Still Owes', '30007');
         $this->paidDebt($stillOwes, '100.00', now()->subDays(2));
         $this->debt($stillOwes, '50.00', now()->subDays(3));
 
         $tooOld = $this->customer('Old Settlement', '30008');
-        $this->paidDebt($tooOld, '300.00', now()->subDays(16));
+        $this->paidDebt($tooOld, '300.00', now()->subDays(31));
 
         $response = $this->withSession(['owner_id' => $this->userId])
             ->get('/owner/dashboard');

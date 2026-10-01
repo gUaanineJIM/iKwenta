@@ -14,16 +14,16 @@ class Debt extends Model
     use HasUuids;
 
     /**
-     * Settled (paid) debts stay visible for this many days after the exact
-     * date/time they were fully paid.
+     * Settled (paid) debts stay visible in recent lists for this many days
+     * after the exact date/time they were fully paid.
      *
      * Retention is a display rule only. Settled records are never deleted:
      * `totalCredit()` and `totalPaid()` are lifetime figures derived from the
      * rows that still exist, so purging them would silently rewrite a
-     * customer's financial history. Anything older than this window stays in
-     * the database and simply drops out of the active lists.
+     * customer's financial history. Older records stay in the database and
+     * remain available in the owner's Paid History view.
      */
-    public const ARCHIVE_RETENTION_DAYS = 15;
+    public const ARCHIVE_RETENTION_DAYS = 30;
 
     protected $table = 'debts';
 
@@ -56,7 +56,7 @@ class Debt extends Model
     ];
 
     /**
-     * Limit to paid debts that are still inside the archive retention window.
+     * Limit to paid debts that are still inside the recent archive window.
      *
      * Debts settled manually without a timestamp keep a null `paid_at`; they
      * were settled before tracking existed and should remain viewable.

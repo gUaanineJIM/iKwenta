@@ -1,7 +1,9 @@
 @php
     $owingCustomers = $customerGroups['owing'] ?? collect();
     $paidCustomers = $customerGroups['paid'] ?? collect();
-    $hasCustomers = $owingCustomers->isNotEmpty() || $paidCustomers->isNotEmpty();
+    $archivedCustomers = $customerGroups['archived'] ?? collect();
+    $activeCustomerCount = $owingCustomers->count() + $paidCustomers->count();
+    $hasCustomers = $activeCustomerCount > 0 || $archivedCustomers->isNotEmpty();
 @endphp
 
 @if (! $hasCustomers)
@@ -11,8 +13,21 @@
         <p>{{ $q ? 'Try another name.' : 'Add a customer to start tracking their balance.' }}</p>
     </div>
 @else
-    @foreach ([['key' => 'owing', 'title' => 'Debt Remaining', 'description' => 'Customers who still have an unpaid balance.', 'customers' => $owingCustomers], ['key' => 'paid', 'title' => 'Paid Customers', 'description' => 'Customers with no remaining balance.', 'customers' => $paidCustomers]] as $group)
-        <section class="owner-customer-group" data-customer-group="{{ $group['key'] }}" aria-labelledby="{{ $group['key'] }}-customers-title">
+    <div class="owner-customer-views" role="group" aria-label="Customer account views">
+        <button type="button" class="owner-customer-views__button is-active" data-customer-view-toggle="active" aria-pressed="true">
+            Active <span>{{ $activeCustomerCount }}</span>
+        </button>
+        <button type="button" class="owner-customer-views__button" data-customer-view-toggle="history" aria-pressed="false">
+            Paid History <span>{{ $archivedCustomers->count() }}</span>
+        </button>
+    </div>
+
+    @foreach ([
+        ['key' => 'owing', 'view' => 'active', 'title' => 'Debt Remaining', 'description' => 'Customers who still have an unpaid balance.', 'customers' => $owingCustomers],
+        ['key' => 'paid', 'view' => 'active', 'title' => 'Paid Customers', 'description' => 'Customers who cleared their balance in the last '.\App\Models\Debt::ARCHIVE_RETENTION_DAYS.' days.', 'customers' => $paidCustomers],
+        ['key' => 'archived', 'view' => 'history', 'title' => 'Paid History', 'description' => 'Debt-free customer accounts settled more than '.\App\Models\Debt::ARCHIVE_RETENTION_DAYS.' days ago.', 'customers' => $archivedCustomers],
+    ] as $group)
+        <section class="owner-customer-group" data-customer-group="{{ $group['key'] }}" data-customer-account-view="{{ $group['view'] }}" aria-labelledby="{{ $group['key'] }}-customers-title" @if ($group['view'] === 'history') hidden @endif>
             <div class="owner-customer-group__heading">
                 <div>
                     <h2 id="{{ $group['key'] }}-customers-title">{{ $group['title'] }}</h2>
@@ -21,13 +36,13 @@
                 <span class="count-badge">{{ $group['customers']->count() }}</span>
             </div>
 
-            @if ($group['key'] === 'paid' && $group['customers']->isNotEmpty())
+            @if (in_array($group['key'], ['paid', 'archived'], true) && $group['customers']->isNotEmpty())
                 <label class="owner-customer-group__search owner-products__search">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <circle cx="11" cy="11" r="7"></circle>
                         <path d="M21 21L16.5 16.5"></path>
                     </svg>
-                    <input type="search" data-section-search placeholder="Search paid customers…" aria-label="Search paid customers" autocomplete="off">
+                    <input type="search" data-section-search placeholder="Search {{ $group['key'] === 'archived' ? 'paid history' : 'paid customers' }}…" aria-label="Search {{ $group['key'] === 'archived' ? 'paid history' : 'paid customers' }}" autocomplete="off">
                 </label>
             @endif
 
@@ -47,6 +62,9 @@
                             <h3 class="owner-customer-card__name">{{ $customer->full_name }}</h3>
                             <code class="owner-customer-card__code">{{ $customer->customer_code }}</code>
                             <div class="owner-customer-card__balances"><span>Total debt <strong>₱{{ number_format($customer->total_debt, 2) }}</strong></span><span>Remaining <strong>₱{{ number_format($customer->remaining_balance, 2) }}</strong></span></div>
+                            @if ($group['key'] === 'archived' && $customer->latest_paid_at)
+                                <p class="owner-customer-card__settled">Paid off {{ $customer->latest_paid_at->format('M d, Y h:i A') }}</p>
+                            @endif
                             <div class="owner-customer-card__actions" aria-label="Customer actions">
                                 @if ((float) $customer->remaining_balance > 0)
                                         <button class="owner-customer-card__quick-action" type="button" data-pay-customer data-id="{{ $customer->customer_id }}" data-name="{{ $customer->full_name }}" data-remaining="{{ $customer->remaining_balance }}" title="Add payment" aria-label="Add payment for {{ $customer->full_name }}"><span aria-hidden="true">₱</span></button>
@@ -174,7 +192,7 @@
                                                 @endforeach
 
                                                 <p class="owner-debt-archive__note">
-                                                    Archived for {{ \App\Models\Debt::ARCHIVE_RETENTION_DAYS }} days after full payment, then removed automatically.
+                                                    Fully paid debt records are retained. Debt-free customers move to Paid History after {{ \App\Models\Debt::ARCHIVE_RETENTION_DAYS }} days.
                                                 </p>
                                             </div>
                                         </div>
@@ -184,7 +202,7 @@
                         </template>
                     @endforeach
                 </div>
-                <div class="owner-customer-group__empty" data-section-empty hidden>No {{ $group['key'] === 'paid' ? 'paid' : '' }} customers match your search.</div>
+                <div class="owner-customer-group__empty" data-section-empty hidden>No {{ in_array($group['key'], ['paid', 'archived'], true) ? 'paid ' : '' }}customers match your search.</div>
             @endif
         </section>
     @endforeach

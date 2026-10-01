@@ -1,4 +1,10 @@
 .owner-customer-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
+.owner-customer-views { display: flex; gap: 4px; width: max-content; max-width: 100%; margin: 1.5rem 0 1rem; padding: 4px; border: 1px solid var(--border-soft); border-radius: 11px; background: var(--surface-muted); }
+.owner-customer-views__button { display: inline-flex; align-items: center; justify-content: center; gap: .55rem; min-height: 40px; padding: .5rem .85rem; border: 0; border-radius: 8px; background: transparent; color: var(--text-muted); cursor: pointer; font-size: .85rem; font-weight: 700; transition: background .18s ease, color .18s ease, box-shadow .18s ease; }
+.owner-customer-views__button:hover { color: var(--text-dark); }
+.owner-customer-views__button:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+.owner-customer-views__button.is-active { background: var(--surface); color: var(--teal); box-shadow: var(--shadow-sm); }
+.owner-customer-views__button span { display: inline-grid; min-width: 22px; height: 22px; place-items: center; padding: 0 .35rem; border-radius: 999px; background: var(--surface-muted); color: var(--text-muted); font-size: .72rem; }
 .owner-customer-card { min-width: 0; padding: 1.1rem; background: var(--surface); border: 1px solid var(--border-soft); border-radius: 14px; box-shadow: var(--shadow-sm); cursor: pointer; transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease; }
 .owner-customer-card:hover, .owner-customer-card:focus-visible { border-color: var(--teal); box-shadow: var(--shadow-md); transform: translateY(-2px); outline: none; }
 .owner-customer-card__top { display: flex; align-items: center; justify-content: center; gap: 1rem; }
@@ -13,6 +19,7 @@
 .owner-customer-card__code { display: block; color: var(--teal); font-weight: 700; letter-spacing: .12em; text-align: center; }
 .owner-customer-card__balances { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; margin: 1rem 0 0; color: var(--text-muted); font-size: .75rem; text-align: center; text-transform: uppercase; }
 .owner-customer-card__balances strong { display: block; margin-top: .2rem; color: var(--text-dark); font-size: .95rem; }
+.owner-customer-card__settled { margin: .65rem 0 0; color: var(--teal); font-size: .78rem; font-weight: 700; text-align: center; }
 .owner-customer-modal .modal-dialog { max-width: 720px; }
 .owner-modal .modal-dialog { --md-pad-x: 34px; padding-bottom: 0; scrollbar-width: none; -ms-overflow-style: none; }
 .owner-modal .modal-dialog::-webkit-scrollbar { display: none; }
@@ -123,4 +130,5 @@
 @media (max-width: 760px) { .owner-customers-table-wrap { background: transparent; border: 0; } .owner-customers-table { min-width: 0; display: block; } .owner-customers-table thead { display: none; } .owner-customers-table tbody, .owner-customers-table tr, .owner-customers-table td { display: block; } .owner-customers-table tr { margin-bottom: 1rem; padding: .8rem; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; } .owner-customers-table td { border: 0; padding: .35rem; } .owner-customers-table td::before { content: attr(data-label); display: block; color: var(--text-muted); font-size: .7rem; text-transform: uppercase; } .owner-customer-actions { justify-content: flex-start; margin-top: .5rem; } .customer-product-row__fields { grid-template-columns: 1fr 1fr; } .customer-product-row__fields input:first-child { grid-column: 1 / -1; } }
 @media (max-width: 760px) { .owner-debt-history__header, .owner-debt-history__columns { display: block; } .owner-debt-history__columns > div + div { margin-top: .8rem; } }
 @media (max-width: 560px) { .owner-detail-card { padding: 1.1rem; } .owner-customer-modal__balances { grid-template-columns: 1fr; gap: .6rem; text-align: center; } .owner-detail-page__notfound { padding: 2rem 1rem; } }
+@media (max-width: 560px) { .owner-customer-views { width: 100%; } .owner-customer-views__button { flex: 1 1 0; padding-inline: .5rem; } }
 @media (max-width: 640px) { .owner-detail-card__head { flex-direction: column; align-items: stretch; } .owner-detail-card__head .modal-actions .btn { flex: 1 1 100%; } }

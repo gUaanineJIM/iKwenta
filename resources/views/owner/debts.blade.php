@@ -321,7 +321,7 @@
                     <h2 id="archive-title">Past Debts</h2>
 
                     <p class="section-heading__description">
-                        Settled debts are kept for {{ \App\Models\Debt::ARCHIVE_RETENTION_DAYS }} days after full payment, then removed automatically.
+                        This recent list shows settled debts from the last {{ \App\Models\Debt::ARCHIVE_RETENTION_DAYS }} days. Older records remain in Paid History.
                     </p>
                 </div>
             </div>

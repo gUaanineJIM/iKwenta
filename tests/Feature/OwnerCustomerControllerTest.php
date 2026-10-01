@@ -9,6 +9,7 @@ use App\Models\Payment;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -145,6 +146,115 @@ class OwnerCustomerControllerTest extends TestCase
             ->assertSee('Still Owes')
             ->assertSee('Paid Customers')
             ->assertSee('Paid In Full');
+    }
+
+    public function test_fully_paid_customers_move_to_history_after_thirty_days_without_deleting_records(): void
+    {
+        $this->travelTo(Carbon::parse('2026-10-02 12:00:00'));
+
+        $recentCustomer = Customer::create([
+            'customer_id' => (string) Str::uuid(),
+            'customer_code' => '40001',
+            'full_name' => 'Recently Paid',
+            'gender' => 'male',
+        ]);
+        $recentPaidAt = now()->subDays(30);
+        $recentDebt = Debt::create([
+            'debt_id' => (string) Str::uuid(),
+            'customer_id' => $recentCustomer->customer_id,
+            'created_by' => $this->userId,
+            'status' => 'paid',
+            'money_amount' => '100.00',
+            'loaned_at' => now()->subDays(40),
+            'paid_at' => $recentPaidAt,
+        ]);
+        Payment::create([
+            'payment_id' => (string) Str::uuid(),
+            'customer_id' => $recentCustomer->customer_id,
+            'debt_id' => $recentDebt->debt_id,
+            'amount_paid' => '100.00',
+            'payment_date' => $recentPaidAt,
+            'received_by' => $this->userId,
+        ]);
+
+        $archivedCustomer = Customer::create([
+            'customer_id' => (string) Str::uuid(),
+            'customer_code' => '40002',
+            'full_name' => 'Archived Customer',
+            'gender' => 'female',
+        ]);
+        $archivedPaidAt = now()->subDays(31);
+        $archivedDebt = Debt::create([
+            'debt_id' => (string) Str::uuid(),
+            'customer_id' => $archivedCustomer->customer_id,
+            'created_by' => $this->userId,
+            'status' => 'paid',
+            'money_amount' => '200.00',
+            'loaned_at' => now()->subDays(40),
+            'paid_at' => $archivedPaidAt,
+        ]);
+        Payment::create([
+            'payment_id' => (string) Str::uuid(),
+            'customer_id' => $archivedCustomer->customer_id,
+            'debt_id' => $archivedDebt->debt_id,
+            'amount_paid' => '200.00',
+            'payment_date' => $archivedPaidAt,
+            'received_by' => $this->userId,
+        ]);
+
+        $stillOwes = Customer::create([
+            'customer_id' => (string) Str::uuid(),
+            'customer_code' => '40003',
+            'full_name' => 'Still Owes',
+            'gender' => 'male',
+        ]);
+        $oldPaidDebt = Debt::create([
+            'debt_id' => (string) Str::uuid(),
+            'customer_id' => $stillOwes->customer_id,
+            'created_by' => $this->userId,
+            'status' => 'paid',
+            'money_amount' => '50.00',
+            'loaned_at' => now()->subDays(40),
+            'paid_at' => $archivedPaidAt,
+        ]);
+        Payment::create([
+            'payment_id' => (string) Str::uuid(),
+            'customer_id' => $stillOwes->customer_id,
+            'debt_id' => $oldPaidDebt->debt_id,
+            'amount_paid' => '50.00',
+            'payment_date' => $archivedPaidAt,
+            'received_by' => $this->userId,
+        ]);
+        $openDebt = Debt::create([
+            'debt_id' => (string) Str::uuid(),
+            'customer_id' => $stillOwes->customer_id,
+            'created_by' => $this->userId,
+            'status' => 'unpaid',
+            'money_amount' => '25.00',
+            'loaned_at' => now()->subDay(),
+        ]);
+
+        $response = $this->get('/owner/customers');
+        $customerGroups = $response->viewData('customerGroups');
+
+        $response->assertOk();
+        $response->assertSee('Active')
+            ->assertSee('Paid History')
+            ->assertSee('Paid off Sep 01, 2026 12:00 PM')
+            ->assertSee('data-customer-view-toggle="history"', false);
+        $this->assertSame(['Recently Paid'], $customerGroups['paid']->pluck('full_name')->all());
+        $this->assertSame(['Archived Customer'], $customerGroups['archived']->pluck('full_name')->all());
+        $this->assertSame(['Still Owes'], $customerGroups['owing']->pluck('full_name')->all());
+        $this->assertSame('75.00', $customerGroups['owing']->first()->total_debt);
+        $this->assertSame('25.00', $customerGroups['owing']->first()->remaining_balance);
+        $this->assertDatabaseHas('debts', ['debt_id' => $archivedDebt->debt_id]);
+        $this->assertDatabaseHas('debts', ['debt_id' => $openDebt->debt_id]);
+        $this->assertSame(1, Payment::where('debt_id', $archivedDebt->debt_id)->count());
+
+        $this->get('/owner/customers/list?q=Archived')
+            ->assertOk()
+            ->assertSee('Archived Customer')
+            ->assertDontSee('Recently Paid');
     }
 
     public function test_owner_can_view_customer_debt_items_and_payment_history(): void

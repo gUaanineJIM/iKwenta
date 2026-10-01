@@ -175,8 +175,7 @@ class CustomerDashboardController extends Controller
                     return true;
                 }
 
-                // Paid debts are archived for 15 days after settlement; once
-                // past retention they should no longer be shown.
+                // Keep recent paid debts in the customer portal for the shared retention window.
                 return $debt->paid_at === null
                     || $debt->paid_at->gte(now()->subDays(Debt::ARCHIVE_RETENTION_DAYS));
             });

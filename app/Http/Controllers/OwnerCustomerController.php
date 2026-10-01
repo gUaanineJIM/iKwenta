@@ -274,6 +274,7 @@ class OwnerCustomerController extends Controller
 
     private function customerGroups(string $query = ''): array
     {
+        $archiveCutoff = now()->subDays(Debt::ARCHIVE_RETENTION_DAYS);
         $customers = Customer::query()
             ->when(trim($query) !== '', fn ($builder) => $builder->where('full_name', 'like', '%'.addcslashes(trim($query), '%_').'%'))
             ->with(['debts.items.product', 'debts.payments'])
@@ -281,27 +282,25 @@ class OwnerCustomerController extends Controller
             ->limit(200)
             ->get()
             ->each(function (Customer $customer) {
-                // Archived debts older than the retention window are excluded:
-                // once the daily prune removes them, the displayed totals must
-                // not shift afterwards.
-                $customer->debts = $customer->debts
-                    ->filter(fn (Debt $debt): bool => ($debt->status ?? DebtStatus::Unpaid)->isFullyPaid()
-                        ? ($debt->paid_at === null || $debt->paid_at->gte(now()->subDays(Debt::ARCHIVE_RETENTION_DAYS)))
-                        : true)
-                    ->values();
-
                 $customer->debts->each(function (Debt $debt) {
                     $debt->items_total = $this->accounts->transactionTotal($debt);
                     $debt->paid_total = $this->accounts->paymentsTotal($debt);
                     $debt->remaining_total = $this->accounts->remainingBalance($debt);
                 });
-                $customer->total_debt = $this->sumMoney($customer->debts->map(fn (Debt $debt) => $this->accounts->transactionTotal($debt))->all());
-                $customer->remaining_balance = $this->sumMoney($customer->debts->map(fn (Debt $debt) => $this->accounts->remainingBalance($debt))->all());
+                $customer->latest_paid_at = $customer->debts
+                    ->filter(fn (Debt $debt): bool => ($debt->status ?? DebtStatus::Unpaid)->isFullyPaid() && $debt->paid_at !== null)
+                    ->max('paid_at');
+                $customer->total_debt = $this->sumMoney($customer->debts->map(fn (Debt $debt): string => $this->accounts->transactionTotal($debt))->all());
+                $customer->remaining_balance = $this->sumMoney($customer->debts->map(fn (Debt $debt): string => $this->accounts->remainingBalance($debt))->all());
             });
 
         return [
             'owing' => $customers->filter(fn (Customer $customer): bool => (float) $customer->remaining_balance > 0)->values(),
-            'paid' => $customers->filter(fn (Customer $customer): bool => (float) $customer->remaining_balance <= 0)->values(),
+            'paid' => $customers->filter(fn (Customer $customer): bool => (float) $customer->remaining_balance <= 0
+                && ($customer->latest_paid_at === null || $customer->latest_paid_at->gte($archiveCutoff)))->values(),
+            'archived' => $customers->filter(fn (Customer $customer): bool => (float) $customer->remaining_balance <= 0
+                && $customer->latest_paid_at !== null
+                && $customer->latest_paid_at->lt($archiveCutoff))->values(),
         ];
     }
 

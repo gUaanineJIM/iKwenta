@@ -34,7 +34,7 @@
         @endforeach
     @endif
 
-    {{-- Past Debts / Archive (paid credit records kept for 15 days) --}}
+    {{-- Past Debts / Archive (paid credit records kept within the retention window) --}}
     @if ($archivedCredits->isNotEmpty())
         <div class="debt-archive">
             <button type="button" class="debt-archive__toggle" data-collapse-toggle
@@ -52,7 +52,7 @@
 
             <div id="customer-debt-archive" class="debt-archive__panel" data-debt-archive hidden>
                 <p class="debt-archive__note">
-                    Settled debts are archived here for {{ Debt::ARCHIVE_RETENTION_DAYS }} days after full payment.
+                    Settled debts are shown here for {{ Debt::ARCHIVE_RETENTION_DAYS }} days. Older records are retained in the store's Paid History.
                 </p>
 
                 @foreach ($archivedCredits as $debt)

@@ -184,6 +184,24 @@
     const detailSlot = detailPage.querySelector('[data-detail-slot]'), detailBreadcrumb = detailPage.querySelector('[data-detail-breadcrumb]'), detailNotfound = detailPage.querySelector('[data-detail-notfound]');
     const customersRoute = page.dataset.customersRoute;
     let detailId = null;
+    let customerView = 'active';
+    const applyCustomerView = () => {
+        region.querySelectorAll('[data-customer-view-toggle]').forEach(button => {
+            const selected = button.dataset.customerViewToggle === customerView;
+            button.classList.toggle('is-active', selected);
+            button.setAttribute('aria-pressed', String(selected));
+        });
+        region.querySelectorAll('[data-customer-account-view]').forEach(group => {
+            group.hidden = group.dataset.customerAccountView !== customerView;
+        });
+    };
+    region.addEventListener('click', e => {
+        const toggle = e.target.closest('[data-customer-view-toggle]');
+        if (!toggle) return;
+        customerView = toggle.dataset.customerViewToggle;
+        applyCustomerView();
+    });
+    applyCustomerView();
     const mountDetail = (id) => {
         detailId = String(id);
         const source = region.querySelector('template[data-customer-detail-id="' + detailId + '"]');
@@ -198,7 +216,7 @@
     };
     document.addEventListener('click', e => { const closeDetails = e.target.closest('[data-close-details]'); if (closeDetails) { const modal = closeDetails.closest('.modal'); if (modal) close(modal); } const card = e.target.closest('[data-customer-row]'); const cardAction = e.target.closest('.owner-customer-card__actions'); if (card && !closeDetails && !cardAction) window.location.href = customersRoute + '?id=' + card.dataset.customerId; });
     document.addEventListener('keydown', e => { const card = e.target.closest('[data-customer-row]'); if (card && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); window.location.href = customersRoute + '?id=' + card.dataset.customerId; } });
-    const refresh = (q = '') => fetch('/owner/customers/list?q=' + encodeURIComponent(q), { headers: { 'X-Requested-With': 'XMLHttpRequest' } }).then(r => r.text()).then(html => { region.innerHTML = html; if (detailId) mountDetail(detailId); });
+    const refresh = (q = '') => fetch('/owner/customers/list?q=' + encodeURIComponent(q), { headers: { 'X-Requested-With': 'XMLHttpRequest' } }).then(r => r.text()).then(html => { region.innerHTML = html; applyCustomerView(); if (detailId) mountDetail(detailId); });
     const request = (url, options = {}) => { const isMultipart = options.body instanceof FormData; return fetch(url, { ...options, headers: { 'X-CSRF-TOKEN': token, ...(isMultipart ? {} : { 'Content-Type': 'application/json' }), Accept: 'application/json' } }).then(async r => { const data = await r.json(); if (!r.ok) throw new Error(data.message || Object.values(data.errors || {}).flat()[0] || 'Request failed.'); return data; }); };
     const showToast = (message, type = 'success') => { const stack = document.getElementById('toast-stack'); if (!stack || !message) return; const toast = document.createElement('div'); toast.className = 'toast toast--' + type; toast.setAttribute('role', 'status'); const icon = document.createElement('span'); icon.className = 'toast__icon'; icon.setAttribute('aria-hidden', 'true'); icon.textContent = type === 'success' ? '✓' : type === 'danger' ? '!' : 'i'; const text = document.createElement('span'); text.className = 'toast__message'; text.textContent = message; const closeBtn = document.createElement('button'); closeBtn.type = 'button'; closeBtn.className = 'toast__close'; closeBtn.setAttribute('aria-label', 'Dismiss notification'); closeBtn.textContent = '×'; closeBtn.addEventListener('click', dismiss); toast.append(icon, text, closeBtn); stack.appendChild(toast); let dismissed = false; let timer = null; function dismiss() { if (dismissed) return; dismissed = true; clearTimeout(timer); toast.classList.add('toast--leaving'); setTimeout(() => toast.remove(), 220); } timer = setTimeout(dismiss, 4200); };
     const productRows = form.querySelector('[data-product-rows]');

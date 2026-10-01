@@ -238,7 +238,7 @@
             <button type="button" class="modal-close" data-modal-close aria-label="Close">×</button>
             <span class="modal-badge">Debt-free customers</span>
             <h2 class="modal-title" id="paid-off-customers-title">Recent payoffs</h2>
-            <p class="modal-subtitle">Customers who cleared their full balance in the last 15 days.</p>
+            <p class="modal-subtitle">Customers who cleared their full balance in the last {{ \App\Models\Debt::ARCHIVE_RETENTION_DAYS }} days.</p>
 
             <ul class="owner-paid-off-list">
                 @forelse ($recentPaidOffCustomers as $customer)
@@ -256,7 +256,7 @@
                         </div>
                     </li>
                 @empty
-                    <li class="owner-paid-off-list__empty">No customers have paid off their full balance in the last 15 days.</li>
+                    <li class="owner-paid-off-list__empty">No customers have paid off their full balance in the last {{ \App\Models\Debt::ARCHIVE_RETENTION_DAYS }} days.</li>
                 @endforelse
             </ul>
         </div>
