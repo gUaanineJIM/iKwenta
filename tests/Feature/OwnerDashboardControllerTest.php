@@ -62,7 +62,7 @@ class OwnerDashboardControllerTest extends TestCase
             ->assertSee('days');
     }
 
-    public function test_dashboard_weekly_chart_and_stat_cards_render_live_data(): void
+    public function test_dashboard_renders_live_weekly_chart_and_overview_cards(): void
     {
         $customer = $this->customer('Weekly Customer', '30003');
 
@@ -82,9 +82,7 @@ class OwnerDashboardControllerTest extends TestCase
             // The full total in the ranking table still includes the 4000 debt,
             // proving it exists and was excluded from the week, not lost.
             ->assertSee('5,750.00')
-            // Collected this month reflects the seeded payment.
             ->assertSee('200.00')
-            ->assertSee('from 1 payment received')
             // The serialised payload drives both Chart.js datasets.
             ->assertSee('"added":[0,0,1750,0,0,0,0]', false)
             ->assertSee('"collected":[', false)
@@ -96,7 +94,7 @@ class OwnerDashboardControllerTest extends TestCase
             ->assertSee('width: 3%');
     }
 
-    public function test_dashboard_reports_zero_when_no_payments_were_received_this_month(): void
+    public function test_dashboard_shows_payoff_empty_state_when_no_recent_customer_is_fully_paid(): void
     {
         $customer = $this->customer('No Payments', '30004');
         $debt = $this->debt($customer, '300.00', now()->subDays(3));
@@ -105,7 +103,48 @@ class OwnerDashboardControllerTest extends TestCase
         $this->withSession(['owner_id' => $this->userId])
             ->get('/owner/dashboard')
             ->assertOk()
-            ->assertSee('from 0 payments received');
+            ->assertSee('No recent payoffs yet')
+            ->assertSee('No customers have paid off their full balance in the last 15 days.');
+    }
+
+    public function test_dashboard_lists_recent_debt_free_customers_in_settlement_order(): void
+    {
+        $this->travelTo(Carbon::parse('2026-10-01 12:00:00'));
+        $latest = $this->customer('Latest Paid Customer', '30005');
+        $this->paidDebt($latest, '100.00', now()->subDay());
+
+        $atRetentionBoundary = $this->customer('Boundary Customer', '30006');
+        $this->paidDebt($atRetentionBoundary, '200.00', now()->subDays(15));
+
+        $stillOwes = $this->customer('Still Owes', '30007');
+        $this->paidDebt($stillOwes, '100.00', now()->subDays(2));
+        $this->debt($stillOwes, '50.00', now()->subDays(3));
+
+        $tooOld = $this->customer('Old Settlement', '30008');
+        $this->paidDebt($tooOld, '300.00', now()->subDays(16));
+
+        $response = $this->withSession(['owner_id' => $this->userId])
+            ->get('/owner/dashboard');
+
+        $response->assertOk()
+            ->assertSee('Recent payoffs')
+            ->assertSee('Latest Paid Customer')
+            ->assertSee('Sep 30, 2026')
+            ->assertSee('12:00 PM');
+        $recentPaidOffCustomers = $response->viewData('recentPaidOffCustomers');
+
+        $this->assertSame(
+            ['Latest Paid Customer', 'Boundary Customer'],
+            $recentPaidOffCustomers->pluck('name')->all(),
+        );
+        $this->assertSame(
+            $latest->customer_id,
+            $response->viewData('latestPaidOffCustomer')['customer_id'],
+        );
+        $this->assertSame(
+            '2026-09-30 12:00:00',
+            $recentPaidOffCustomers->first()['latest_paid_at']->format('Y-m-d H:i:s'),
+        );
     }
 
     private function customer(string $name, string $code): Customer
@@ -128,6 +167,17 @@ class OwnerDashboardControllerTest extends TestCase
             'money_amount' => $amount,
             'loaned_at' => $loanedAt,
         ]);
+    }
+
+    private function paidDebt(Customer $customer, string $amount, \DateTimeInterface $paidAt): Debt
+    {
+        $debt = $this->debt($customer, $amount, $paidAt);
+        $debt->update([
+            'status' => 'paid',
+            'paid_at' => $paidAt,
+        ]);
+
+        return $debt;
     }
 
     private function payment(Debt $debt, string $amount, \DateTimeInterface $paidAt): Payment

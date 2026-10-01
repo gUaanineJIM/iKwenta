@@ -42,7 +42,39 @@
                 </div>
             </article>
 
-            {{-- Card 2: customers in debt --}}
+            {{-- Card 2: recent debt payoff celebration --}}
+            <button type="button" class="owner-stat-card owner-stat-card--paid-off"
+                data-open-modal="paid-off-customers-modal" aria-haspopup="dialog"
+                aria-controls="paid-off-customers-modal">
+                @if ($latestPaidOffCustomer)
+                    @if ($latestPaidOffCustomer['avatar_path'])
+                        <img class="owner-stat-card__profile" src="{{ asset('storage/'.$latestPaidOffCustomer['avatar_path']) }}" alt="">
+                    @else
+                        <img class="owner-stat-card__profile" src="{{ asset($latestPaidOffCustomer['gender'] === 'female' ? 'images/avatar-girl.svg' : 'images/avatar-boy.svg') }}" alt="">
+                    @endif
+
+                    <div class="owner-stat-card__meta">
+                        <span class="owner-stat-card__label">Wow!</span>
+                        <strong class="owner-stat-card__value">{{ $latestPaidOffCustomer['name'] }}</strong>
+                        <span class="owner-stat-card__hint">paid their debt off!</span>
+                    </div>
+                @else
+                <span class="owner-stat-card__icon" aria-hidden="true">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 6L9 17l-5-5" />
+                    </svg>
+                </span>
+
+                <div class="owner-stat-card__meta">
+                    <span class="owner-stat-card__label">A debt-free moment</span>
+                    <strong class="owner-stat-card__value">No recent payoffs yet</strong>
+                    <span class="owner-stat-card__hint">Check back after a customer settles</span>
+                </div>
+                @endif
+            </button>
+
+            {{-- Card 3: customers in debt --}}
             <article class="owner-stat-card owner-stat-card--customers">
                 <span class="owner-stat-card__icon" aria-hidden="true">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -60,26 +92,6 @@
                     <strong class="owner-stat-card__value"> {{ $customersInDebt }} </strong>
 
                     <span class="owner-stat-card__hint"> out of {{ $customerCount }} customers </span>
-                </div>
-            </article>
-
-            {{-- Card 3: collected this month --}}
-            <article class="owner-stat-card owner-stat-card--collected">
-                <span class="owner-stat-card__icon" aria-hidden="true">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="2" y="6" width="20" height="12" rx="2" />
-                        <circle cx="12" cy="12" r="2.5" />
-                        <path d="M6 12h.01M18 12h.01" />
-                    </svg>
-                </span>
-
-                <div class="owner-stat-card__meta">
-                    <span class="owner-stat-card__label"> Collected This Month </span>
-
-                    <strong class="owner-stat-card__value"> ₱{{ number_format($collectedThisMonth['total'], 2) }} </strong>
-
-                    <span class="owner-stat-card__hint"> from {{ $collectedThisMonth['count'] }} payment{{ $collectedThisMonth['count'] === 1 ? '' : 's' }} received </span>
                 </div>
             </article>
 
@@ -219,6 +231,36 @@
             </div>
         </section>
     </section>
+
+    <div class="modal owner-paid-off-modal" id="paid-off-customers-modal" aria-hidden="true">
+        <div class="modal-backdrop" data-modal-close></div>
+        <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="paid-off-customers-title">
+            <button type="button" class="modal-close" data-modal-close aria-label="Close">×</button>
+            <span class="modal-badge">Debt-free customers</span>
+            <h2 class="modal-title" id="paid-off-customers-title">Recent payoffs</h2>
+            <p class="modal-subtitle">Customers who cleared their full balance in the last 15 days.</p>
+
+            <ul class="owner-paid-off-list">
+                @forelse ($recentPaidOffCustomers as $customer)
+                    <li class="owner-paid-off-list__item">
+                        @if ($customer['avatar_path'])
+                            <img class="owner-paid-off-list__avatar" src="{{ asset('storage/'.$customer['avatar_path']) }}" alt="">
+                        @else
+                            <img class="owner-paid-off-list__avatar" src="{{ asset($customer['gender'] === 'female' ? 'images/avatar-girl.svg' : 'images/avatar-boy.svg') }}" alt="">
+                        @endif
+                        <div class="owner-paid-off-list__details">
+                            <strong>{{ $customer['name'] }}</strong>
+                            <time datetime="{{ $customer['latest_paid_at']->toIso8601String() }}">
+                                {{ $customer['latest_paid_at']->timezone(config('app.timezone'))->format('M d, Y \a\t g:i A') }}
+                            </time>
+                        </div>
+                    </li>
+                @empty
+                    <li class="owner-paid-off-list__empty">No customers have paid off their full balance in the last 15 days.</li>
+                @endforelse
+            </ul>
+        </div>
+    </div>
 @endsection
 
 @push('scripts')

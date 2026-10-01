@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\DebtStatus;
 use App\Models\Customer;
 use App\Models\Debt;
 use App\Services\CustomerAccountService;
@@ -21,6 +22,17 @@ class OwnerDashboardController extends Controller
 
         $customers = $customerModels
             ->map(fn (Customer $customer): array => $this->customerRankingData($customer));
+
+        $recentPaidOffCustomers = $customers
+            ->filter(function (array $customer): bool {
+                $settledAt = $customer['latest_paid_at'];
+
+                return (float) $customer['remaining_balance'] <= 0
+                    && $settledAt instanceof Carbon
+                    && $settledAt->gte(now()->subDays(Debt::ARCHIVE_RETENTION_DAYS));
+            })
+            ->sortByDesc('latest_paid_at')
+            ->values();
 
         $totalDebtRanking = $customers
             ->sortByDesc('total_debt')
@@ -49,8 +61,9 @@ class OwnerDashboardController extends Controller
             'longestOutstandingRanking' => $longestOutstandingRanking,
             'customersInDebt' => $customers->filter(fn (array $customer): bool => (float) $customer['remaining_balance'] > 0)->count(),
             'customerCount' => $customers->count(),
+            'recentPaidOffCustomers' => $recentPaidOffCustomers,
+            'latestPaidOffCustomer' => $recentPaidOffCustomers->first(),
             'weeklyTrend' => $this->weeklyTrend($debts),
-            'collectedThisMonth' => $this->collectedThisMonth($debts),
         ]);
     }
 
@@ -104,38 +117,13 @@ class OwnerDashboardController extends Controller
         ];
     }
 
-    /**
-     * Payments received since the first of the current month.
-     *
-     * @return array{total: string, count: int}
-     */
-    private function collectedThisMonth(Collection $debts): array
-    {
-        $monthStart = now()->startOfMonth();
-        $total = 0.0;
-        $count = 0;
-
-        foreach ($debts as $debt) {
-            foreach ($debt->payments as $payment) {
-                if ($payment->payment_date->lt($monthStart)) {
-                    continue;
-                }
-
-                $total += (float) $payment->amount_paid;
-                $count++;
-            }
-        }
-
-        return [
-            'total' => $this->money($total),
-            'count' => $count,
-        ];
-    }
-
     private function customerRankingData(Customer $customer): array
     {
         $debts = $customer->debts;
         $openDebts = $debts->filter(fn (Debt $debt): bool => (float) $this->accounts->remainingBalance($debt) > 0);
+        $latestPaidAt = $debts
+            ->filter(fn (Debt $debt): bool => $debt->status === DebtStatus::Paid && $debt->paid_at !== null)
+            ->max('paid_at');
         $totalDebt = (float) $this->sumMoney($debts->map(fn (Debt $debt): string => $this->accounts->transactionTotal($debt))->all());
         $paid = (float) $this->sumMoney($debts->map(fn (Debt $debt): string => $this->accounts->paymentsTotal($debt))->all());
 
@@ -144,6 +132,7 @@ class OwnerDashboardController extends Controller
             'name' => $customer->full_name,
             'avatar_path' => $customer->avatar_path,
             'gender' => $customer->gender,
+            'latest_paid_at' => $latestPaidAt,
             'total_debt' => $totalDebt,
             'paid' => $paid,
             'remaining_balance' => (float) $this->sumMoney($openDebts->map(fn (Debt $debt): string => $this->accounts->remainingBalance($debt))->all()),
