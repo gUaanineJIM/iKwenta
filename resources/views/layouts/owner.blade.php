@@ -25,6 +25,11 @@
 </head>
 
 <body class="owner-page">
+    @php
+        $ownerName = \App\Models\User::query()
+            ->find(session('owner_id'))?->full_name ?? 'Store Owner';
+    @endphp
+
     {{-- ========================= Shell ========================== --}}
     <div class="owner-shell" data-owner-shell>
         {{-- Sidebar --}}
@@ -52,7 +57,7 @@
                         <div class="owner-welcome">
                             <span class="owner-welcome__label"> Owner Portal </span>
 
-                            <strong> Store Owner </strong>
+                            <strong>{{ $ownerName }}</strong>
                         </div>
 
                         <button type="button" class="theme-toggle" data-theme-toggle aria-label="Toggle dark mode">

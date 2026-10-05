@@ -28,6 +28,52 @@
     font: inherit;
 }
 
+.owner-quick-actions {
+    margin-bottom: 28px;
+}
+
+.owner-quick-actions__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-top: 14px;
+}
+
+.owner-action-card {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-height: 92px;
+    padding: 18px 18px 16px;
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-md);
+    background: rgba(255, 255, 255, 0.25);
+    color: var(--text-dark);
+    text-decoration: none;
+    transition:
+        transform 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.owner-action-card:hover,
+.owner-action-card:focus-visible {
+    transform: translateY(-1px);
+    border-color: var(--teal);
+    box-shadow: 0 12px 28px rgba(59, 130, 246, 0.08);
+}
+
+.owner-action-card__label {
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.owner-action-card__description {
+    color: var(--text-muted);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
 /* =========================
    Header
 ========================= */

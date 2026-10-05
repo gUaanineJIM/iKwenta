@@ -107,6 +107,18 @@ class OwnerDashboardControllerTest extends TestCase
             ->assertSee('No customers have paid off their full balance in the last 30 days.');
     }
 
+    public function test_dashboard_renders_quick_actions_for_common_owner_tasks(): void
+    {
+        $this->withSession(['owner_id' => $this->userId])
+            ->get('/owner/dashboard')
+            ->assertOk()
+            ->assertSee('Quick actions')
+            ->assertSee('Add customer')
+            ->assertSee('View customers')
+            ->assertSee('View payments')
+            ->assertSee('View activity logs');
+    }
+
     public function test_dashboard_lists_recent_debt_free_customers_in_settlement_order(): void
     {
         $this->travelTo(Carbon::parse('2026-10-01 12:00:00'));

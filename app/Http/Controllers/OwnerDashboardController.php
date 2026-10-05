@@ -17,7 +17,7 @@ class OwnerDashboardController extends Controller
     public function index(): View
     {
         $customerModels = Customer::query()
-            ->with(['debts.items', 'debts.payments'])
+            ->with(['debts' => fn ($query) => $query->with(['items', 'payments'])])
             ->get();
 
         $customers = $customerModels

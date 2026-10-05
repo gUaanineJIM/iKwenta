@@ -12,10 +12,51 @@
         'added' => $weeklyTrend['added'],
         'collected' => $weeklyTrend['collected'],
     ];
+
+    $quickActions = [
+        [
+            'label' => 'Add customer',
+            'href' => route('owner.customers'),
+            'description' => 'Create a new customer account',
+        ],
+        [
+            'label' => 'View customers',
+            'href' => route('owner.customers'),
+            'description' => 'Review customer balances and activity',
+        ],
+        [
+            'label' => 'View payments',
+            'href' => route('owner.payments'),
+            'description' => 'Track recent collections and checks',
+        ],
+        [
+            'label' => 'View activity logs',
+            'href' => route('owner.activity-logs'),
+            'description' => 'Inspect account changes and audit trail',
+        ],
+    ];
 @endphp
 
 @section('content')
     <section class="owner-section" id="owner-section" data-owner-section aria-busy="false">
+        <div class="owner-quick-actions" aria-label="Owner quick actions">
+            <div class="section-heading">
+                <div>
+                    <span class="owner-eyebrow">Operations</span>
+                    <h2>Quick actions</h2>
+                </div>
+            </div>
+
+            <div class="owner-quick-actions__grid">
+                @foreach ($quickActions as $action)
+                    <a href="{{ $action['href'] }}" class="owner-action-card">
+                        <span class="owner-action-card__label">{{ $action['label'] }}</span>
+                        <span class="owner-action-card__description">{{ $action['description'] }}</span>
+                    </a>
+                @endforeach
+            </div>
+        </div>
+
         {{-- =================== Top statistic cards =================== --}}
         <div class="owner-top-grid" aria-label="Owner overview">
             {{-- Card 1: weekly debts chart --}}
