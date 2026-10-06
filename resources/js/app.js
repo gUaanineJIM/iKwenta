@@ -374,25 +374,28 @@
         };
 
         const applyCollapsed = (value) => {
-            collapsed = value;
+            collapsed = !!value;
 
-            if (shell) shell.classList.toggle('collapsed', value);
+            if (shell) shell.classList.toggle('collapsed', collapsed);
 
             try {
-                localStorage.setItem('ikwenta-sidebar-collapsed', value ? '1' : '0');
+                localStorage.setItem('ikwenta-sidebar-collapsed', collapsed ? '1' : '0');
             } catch {}
 
-            setToggleAria(!value);
+            setToggleAria(!collapsed);
+        };
+
+        const restoreCollapsedState = () => {
+            const saved = getSavedCollapsed();
+            const nextValue = saved !== null ? saved === '1' : isTabletViewport();
+            applyCollapsed(nextValue);
         };
 
         if (document.querySelector('[data-sidebar-toggle]')) {
-            const saved = getSavedCollapsed();
-
-            // No saved preference: expanded on desktop, auto-reduced (icon-only)
-            // on tablet while keeping navigation accessible.
-            collapsed = saved !== null ? saved === '1' : isTabletViewport();
-            applyCollapsed(collapsed);
+            restoreCollapsedState();
         }
+
+        window.addEventListener('pageshow', restoreCollapsedState);
 
         // Handle everything with event delegation so it still works after
         // sections are swapped in via fetch.
@@ -521,23 +524,28 @@
         };
 
         const applyOwnerCollapsed = (value) => {
-            ownerCollapsed = value;
+            ownerCollapsed = !!value;
 
-            ownerShell.classList.toggle('collapsed', value);
+            ownerShell.classList.toggle('collapsed', ownerCollapsed);
 
             try {
-                localStorage.setItem('ikwenta-owner-sidebar-collapsed', value ? '1' : '0');
+                localStorage.setItem('ikwenta-owner-sidebar-collapsed', ownerCollapsed ? '1' : '0');
             } catch {}
 
-            setOwnerToggleAria(!value);
+            setOwnerToggleAria(!ownerCollapsed);
+        };
+
+        const restoreOwnerCollapsedState = () => {
+            const saved = getSavedOwnerCollapsed();
+            const nextValue = saved !== null ? saved === '1' : isOwnerTabletViewport();
+            applyOwnerCollapsed(nextValue);
         };
 
         if (document.querySelector('[data-owner-sidebar-toggle]')) {
-            const saved = getSavedOwnerCollapsed();
-
-            ownerCollapsed = saved !== null ? saved === '1' : isOwnerTabletViewport();
-            applyOwnerCollapsed(ownerCollapsed);
+            restoreOwnerCollapsedState();
         }
+
+        window.addEventListener('pageshow', restoreOwnerCollapsedState);
 
         document.querySelectorAll('[data-owner-sidebar-toggle]').forEach((btn) => {
             btn.addEventListener('click', () => {

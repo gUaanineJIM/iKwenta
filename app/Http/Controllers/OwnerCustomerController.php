@@ -43,7 +43,6 @@ class OwnerCustomerController extends Controller
         $validated = $request->validate([
             'full_name' => ['required', 'string', 'max:150'],
             'gender' => ['nullable', 'in:male,female'],
-            'avatar' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'description' => ['nullable', 'string', 'max:5000'],
             'debt_types' => ['required', 'array', 'min:1'],
             'debt_types.*' => ['in:product,money'],
@@ -59,16 +58,16 @@ class OwnerCustomerController extends Controller
         $this->validateDebtParts($request, $validated);
         $owner = $this->requiredStoreOwner();
 
-        $customer = DB::transaction(function () use ($validated, $owner, $request) {
+        $customer = DB::transaction(function () use ($validated, $owner) {
             $customer = Customer::create([
                 'customer_code' => $this->uniqueCustomerCode(),
                 'full_name' => trim($validated['full_name']),
                 'gender' => $validated['gender'] ?? 'male',
-                'avatar_path' => $request->hasFile('avatar')
-                    ? $request->file('avatar')->store('customer-avatars', 'public')
-                    : null,
+                'avatar_path' => null,
                 'description' => $this->normalizeDescription($validated['description'] ?? null),
             ]);
+            $customer->forceFill(['avatar_path' => $this->ensureCustomerAvatar($customer)]);
+            $customer->save();
 
             $debt = Debt::create([
                 'customer_id' => $customer->customer_id,
@@ -112,7 +111,6 @@ class OwnerCustomerController extends Controller
         $validated = $request->validate([
             'full_name' => ['required', 'string', 'max:150'],
             'gender' => ['nullable', 'in:male,female'],
-            'avatar' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'description' => ['nullable', 'string', 'max:5000'],
             'debt_types' => ['nullable', 'array', 'min:1'],
             'debt_types.*' => ['in:product,money'],
@@ -132,13 +130,11 @@ class OwnerCustomerController extends Controller
         $owner = $this->requiredStoreOwner();
         $oldValues = $customer->only(['full_name', 'description']);
         $previousAvatar = $customer->avatar_path;
-        DB::transaction(function () use ($customer, $validated, $owner, $oldValues, $previousAvatar, $request) {
+        DB::transaction(function () use ($customer, $validated, $owner, $oldValues, $previousAvatar) {
             $customer->update([
                 'full_name' => trim($validated['full_name']),
                 'gender' => $validated['gender'] ?? $customer->gender,
-                'avatar_path' => $request->hasFile('avatar')
-                    ? $request->file('avatar')->store('customer-avatars', 'public')
-                    : $customer->avatar_path,
+                'avatar_path' => $customer->avatar_path ?: $this->ensureCustomerAvatar($customer),
                 'description' => $this->normalizeDescription(
                     array_key_exists('description', $validated)
                         ? $validated['description']
@@ -336,6 +332,55 @@ class OwnerCustomerController extends Controller
         } while (Customer::where('customer_code', $code)->exists());
 
         return $code;
+    }
+
+    private function ensureCustomerAvatar(Customer $customer): string
+    {
+        if (! empty($customer->avatar_path)) {
+            return $customer->avatar_path;
+        }
+
+        $path = 'customer-identicons/'.$customer->customer_code.'.svg';
+        Storage::disk('public')->put($path, $this->identiconSvg($customer->customer_code));
+        $customer->avatar_path = $path;
+
+        return $path;
+    }
+
+    private function identiconSvg(string $seed): string
+    {
+        $hash = md5($seed);
+        $background = '#'.substr($hash, 0, 6);
+        $primary = '#'.substr($hash, 6, 6);
+        $accent = '#'.substr($hash, 12, 6);
+        $cells = [];
+
+        for ($row = 0; $row < 5; $row++) {
+            for ($col = 0; $col < 5; $col++) {
+                $mirror = 4 - $col;
+                $cellValue = (int) hexdec($hash[($row * 5 + $col) % 32]) % 2;
+                if ($cellValue === 0) {
+                    continue;
+                }
+
+                $x = 18 + ($col * 14);
+                $y = 18 + ($row * 14);
+                $cells[] = '<rect x="'.$x.'" y="'.$y.'" width="10" height="10" rx="2" fill="'.$primary.'" />';
+                if ($mirror !== $col) {
+                    $mirroredX = 18 + ($mirror * 14);
+                    $cells[] = '<rect x="'.$mirroredX.'" y="'.$y.'" width="10" height="10" rx="2" fill="'.$primary.'" />';
+                }
+            }
+        }
+
+        $cells[] = '<circle cx="50" cy="50" r="10" fill="'.$accent.'" opacity="0.7" />';
+
+        return sprintf(
+            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="Customer avatar"><rect width="100" height="100" fill="%s"/><circle cx="50" cy="50" r="31" fill="%s" opacity="0.18"/><g>%s</g></svg>',
+            $background,
+            $accent,
+            implode('', $cells)
+        );
     }
 
     private function normalizeDescription(?string $value): ?string
